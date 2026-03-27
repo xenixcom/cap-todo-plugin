@@ -1,6 +1,6 @@
 # TodoPlugin Skeleton
 
-這個 repo 是 `TodoPlugin` 的開發骨架，目標是先把單一契約、單一正式測試標準、單一正式測試入口固定下來，再往下實作最小範例與實際平台功能。現在 repo 已經包含官方 Capacitor plugin 結構、三平台實作骨架與 `demo` 展示 app，且 `demo` 三平台已手動驗證可正確運作。
+這個 repo 是 `TodoPlugin` 的開發骨架，目標是先把單一契約、單一正式測試標準、單一正式測試入口固定下來，再往下實作最小範例與實際平台功能。現在 repo 已經包含官方 Capacitor plugin 結構、三平台實作骨架與 `demo` 展示 app，且 `demo` 三平台已手動驗證可正確運作。這一輪已先把正式暫定 `definitions.ts`、`tests/contract` 測試設計稿、`PLUGIN_GUIDELINES` 與 `test-plugin.sh` 主線收斂完成。
 
 ## 核心原則
 
@@ -71,7 +71,7 @@ tests/
 
 ## 下一步
 
-- 討論並定案正式 `src/definitions.ts`。
-- 定義唯一正式測試單元與驗收協議。
-- 讓 `tests/contract` 從 placeholder 轉成可執行 contract tests。
-- 再把 `scripts/test-plugin.sh` 與正式 contract tests 接成閉環。
+- 微調並確認正式 `src/definitions.ts`。
+- 讓 `tests/contract` 從測試設計稿轉成可執行 contract tests。
+- 把 `scripts/test-plugin.sh` 與正式 contract tests 接成閉環。
+- 再讓 AI 依 contract 與測試持續實作、除錯、迭代。

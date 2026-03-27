@@ -1,4 +1,4 @@
-# Capacitor Plugin 開發與測試指導原則（V1.0）
+# Capacitor Plugin 開發與測試指導原則（V1.1）
 
 ## 1. 核心理念
 
@@ -18,7 +18,7 @@
 - 方法命名清楚，語意明確。
 - 行為可預期，狀態必須可追蹤。
 - 所有非同步操作統一使用 `Promise` / `async`。
-- `Options` 應有明確預設值，並透過 `resolveOptions()` 或等價機制產出最終設定。
+- `Options` 應有明確預設值，並透過 `getOptions() / setOptions() / resetOptions()` 維持一致行為。
 - 提供重置或恢復預設值的方法。
 - 異常統一 `throw` / `reject`，App 層只依賴錯誤碼，不依賴訊息字串。
 
@@ -34,14 +34,72 @@ export type PluginErrorCode =
   | 'OPERATION_FAILED';
 ```
 
-## 4. 跨平台一致性
+## 4. `definitions.ts` 設計準則
+
+- `definitions.ts` 是正式 contract，不是暫時型別集合。
+- App 層、測試單元、平台實作都必須以同一份 `definitions.ts` 為準。
+- `definitions.ts` 應優先展示可跨平台對齊的正式協議，而不是某個平台的原生細節。
+- 設計時應保持小而硬，只保留對外真正需要依賴的欄位與方法。
+- 型別名稱、方法名稱、事件名稱、錯誤碼名稱都應穩定且清楚，不應頻繁漂移。
+- `definitions.ts` 應使用註解詳細說明方法用途、參數、回傳值、狀態轉移、錯誤行為與事件觸發時機。
+- `definitions.ts` 的註解應以協作對齊為目的，不只是型別提示。
+- 若某方法有特殊前提、限制、平台映射規則或失敗條件，應直接寫在註解中，不應只留在聊天室或零散文件裡。
+
+`definitions.ts` 至少應明確定義：
+
+- `Options`
+- `Status`
+- `Methods`
+- `Permissions`
+- `Events`
+- `Error` contract
+
+### 4.1 Options 原則
+
+- `Options` 只應包含會影響 plugin 正式行為的設定，不應混入業務資料模型。
+- `getOptions()` 回傳目前生效值。
+- `setOptions()` 必須是局部更新；未提供欄位保留原值。
+- `resetOptions()` 只重置 options，不改變正式 status。
+- `Options` 應有明確預設值。
+
+### 4.2 Status 原則
+
+- `Status` 只表達正式運作狀態，不混入錯誤狀態。
+- 錯誤應走正式錯誤契約，不應把 `error` 混入 status。
+- 狀態集合應保持最小且可測。
+- 狀態轉移規則必須能明確描述並可被 contract test 驗證。
+- `getStatus()` 應回傳物件型別而非裸字串，保留未來擴充欄位空間。
+
+### 4.3 Permissions 原則
+
+- App 層只應看到已收斂後的正式權限狀態。
+- 平台內部更細的原生權限狀態必須先映射後再對外回傳。
+- 不應把平台私有權限語意直接暴露給 App 層。
+- `checkPermissions()` 與 `requestPermissions()` 的行為邊界必須清楚分離。
+
+### 4.4 Events 原則
+
+- Event 是正式 contract 的一部分，不是 demo 附屬功能。
+- Event 名稱應穩定、語意單一。
+- 只有正式狀態或正式資料變化時才應觸發 event。
+- Event payload 應使用物件型別，保留未來擴充空間。
+- 若目前正式協議只承認單一 event，例如 `statusChange`，文件應明確寫出，不留曖昧空間。
+
+### 4.5 Error 原則
+
+- 所有對外 `throw / reject` 都必須統一成正式錯誤格式。
+- App 層只依賴錯誤碼，不依賴訊息字串。
+- 平台不支援、權限拒絕、狀態不合法、參數錯誤等情況都必須明確對應正式錯誤碼。
+- 不得使用靜默失敗、模糊 `false`、空值等方式取代正式錯誤契約。
+
+## 5. 跨平台一致性
 
 - 對 App 層來說，plugin 永遠只有一個唯一入口。
 - 對 plugin 內部來說，可以有多平台實作，但不得有多套對外標準。
 - 不同平台的執行差異由同一個 `shell script` 入口統一調度，但不得形成不同 contract。
 - 不支援功能不得沉默失敗，必須明確回傳標準錯誤。
 
-## 5. 測試原則
+## 6. 測試原則
 
 - 專案只承認一套共用 contract test 作為正式驗收標準。
 - `Web`、`iOS`、`Android` 都必須透過同一個 shell script 入口執行，並驗證同一套 contract cases。
@@ -53,10 +111,33 @@ export type PluginErrorCode =
 - `Options`
 - `Lifecycle`
 - `Status`
+- `Permissions`
 - `ErrorHandling`
 - `EdgeCases`
 
-## 6. 推薦目錄結構
+說明：
+
+- 若正式目錄仍維持五個 spec 檔，`Permissions` 可併入 `error-handling.spec.ts` 與 `edge-cases.spec.ts`。
+- 若未來權限流程擴大，再獨立拆出 `permissions.spec.ts`。
+
+### 6.1 測試單元設計準則
+
+- 測試單元應以 `definitions.ts` 為唯一正式來源，不應以單一平台實作細節為準。
+- 每個測試單元都應對應正式 contract 中的可觀測行為、狀態、事件、權限或錯誤。
+- 測試單元應優先描述「驗收條件」與「預期結果」，而不是先綁定某個平台內部做法。
+- 每個正式測試區塊都應同時考慮正常流程、錯誤流程與邊界情境。
+- 若某條正式規則尚未 runnable，也應先以測試設計稿固定案例方向，不可只留口頭共識。
+
+### 6.2 測試單元內容原則
+
+- `Options` 類測試應驗證預設值、局部更新、重置與是否影響 status。
+- `Lifecycle` 類測試應驗證狀態轉移是否符合 contract。
+- `Status` 類測試應驗證狀態快照與 event payload 是否一致。
+- `Permissions` 類測試應驗證狀態映射、請求行為與拒絕情境。
+- `ErrorHandling` 類測試應驗證正式錯誤格式與錯誤碼一致性。
+- `EdgeCases` 類測試應驗證重複操作、非法輸入、靜默失敗等異常邊界。
+
+## 7. 推薦目錄結構
 
 ```text
 src/
@@ -81,16 +162,20 @@ scripts/
 - `tests/contract/`：唯一正式測試規格來源。
 - `scripts/test-plugin.sh`：唯一正式測試工具入口，負責依平台調度同一套 contract test。
 
-## 7. Runner 原則
+## 8. Runner 原則
 
 - `shell script` 是唯一測試工具入口，但不是測試標準本身。
+- 正式測試標準是 `definitions.ts` 與 `tests/contract`，不是特定測試框架名稱。
 - `shell script` 負責環境檢查、編譯、部署、執行、收集 log、彙整失敗。
+- `shell script` 可以調度不同平台的驗證流程，但不得讓 `Web / iOS / Android` 各自演變成不同正式標準。
+- `shell script` 不應把 Jest、Vitest 或任何單一測試框架寫成正式 contract test 標準本身。
 - Pass / fail 以 command exit status 為主，log 關鍵字解析只作輔助摘要。
 - 各平台不得各自定義正式測試入口或正式驗收標準。
 
-## 8. 維護與擴展
+## 9. 維護與擴展
 
-- 新功能必須同步更新下列項目：
+- 新功能或新能力應先更新 `definitions.ts` 與正式 contract tests，再進入平台實作。
+- 新功能最少必須同步更新以下項目：
 - `definitions.ts`
 - contract tests
 - `web` 實作
@@ -99,7 +184,7 @@ scripts/
 - CI/CD 應統一呼叫 `scripts/test-plugin.sh` 執行正式 contract test。
 - 平台私有測試可保留，但不得成為唯一驗收依據。
 
-## 9. 核心結論
+## 10. 核心結論
 
 1. App 層呼叫方式不變，跨平台行為一致。
 2. 測試 fail 時，優先修正對應平台 plugin class。

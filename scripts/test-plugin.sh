@@ -22,6 +22,10 @@ set -u
 #   --no-close-device    若本次測試由腳本自行開啟裝置，測完後也不要關閉
 #   --logs=<filename>    將完整 log 同步輸出到檔案
 #   --report             生成簡易 fail report
+# 
+# 說明:
+#   這支腳本負責調度平台環境與正式 contract tests，
+#   但不綁定特定 JS 測試框架作為正式標準。
 # =========================================
 
 PLATFORM="all"
@@ -36,7 +40,7 @@ FAILURES=0
 # 內部設定區
 # -----------------------
 WEB_BUILD_CMD="npm run build"
-WEB_TEST_CMD="npx jest --verbose"
+CONTRACT_TEST_CMD="${CONTRACT_TEST_CMD:-npm test}"
 
 IOS_SCHEME="${IOS_SCHEME:-XenixCapTodoPlugin}"
 IOS_DERIVED_DATA="${IOS_DERIVED_DATA:-./ios/build}"
@@ -227,8 +231,8 @@ run_web_tests() {
   log "編譯 Web Plugin..."
   run_and_capture "Web" "$WEB_BUILD_CMD" || return 1
 
-  log "執行 Web contract test..."
-  run_and_capture "Web" "$WEB_TEST_CMD"
+  log "執行正式 contract test..."
+  run_and_capture "Web" "$CONTRACT_TEST_CMD"
 }
 
 run_ios_tests() {
@@ -248,7 +252,7 @@ run_ios_tests() {
     return 1
   fi
 
-  log "執行 iOS contract test..."
+  log "執行 iOS 平台驗證流程..."
   run_and_capture "iOS" "xcodebuild test -scheme \"$IOS_SCHEME\" -destination 'id=$IOS_ACTIVE_DEVICE' -derivedDataPath \"$IOS_DERIVED_DATA\""
   local status=$?
   cleanup_ios_device
@@ -283,7 +287,7 @@ run_android_tests() {
     log "找不到 APK，略過安裝步驟: $ANDROID_APP_APK"
   fi
 
-  log "執行 Android contract test..."
+  log "執行 Android 平台驗證流程..."
   run_and_capture "Android" "$ANDROID_GRADLE_CMD connectedAndroidTest"
   local status=$?
   cleanup_android_device

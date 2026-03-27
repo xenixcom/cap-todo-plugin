@@ -41,7 +41,9 @@
 - 正式測試入口只應有一個
 - `web / iOS / Android` 的差異只能存在於內部實作
 - `demo` 是展示與驗證環境，不是正式 contract test
-- `src/definitions.ts` 目前只是搬來的參考稿，還不是正式定案
+- `src/definitions.ts` 已整理成正式暫定 contract 草案
+- `tests/contract` 已整理成正式測試設計稿與情境矩陣
+- `scripts/test-plugin.sh` 已整理成框架中立的唯一正式測試入口
 - 目前命名層已整理並通過 demo 三平台手動驗證
 
 ## 4. 目前目錄狀態
@@ -70,7 +72,7 @@ tests/
 
 補充：
 
-- 舊 `.git` 已移除，這裡目前不是 git repo
+- 舊 `.git` 已移除，repo 已重新初始化並建立新歷史
 - 本機建置殘留與 IDE 檔案已清除
 - `package-lock.json` 與 `demo/package-lock.json` 目前保留
 - `Package.resolved` 目前保留
@@ -93,9 +95,10 @@ tests/
 ### 6.1 `src/definitions.ts`
 
 - 已存在
-- 內容是從舊 repo 搬來的概念型定義
-- 可作為討論參考
-- 不應被視為正式 contract 定案
+- 已整理成正式暫定 contract 草案
+- 已明確定義 `Status`、`Options`、`Permissions`、`Error`、`Events`
+- 已補上詳細註解，說明用法、狀態轉移、錯誤行為與事件觸發時機
+- 目前可作為後續 contract tests 與平台實作的共同語意來源
 
 ### 6.2 `demo`
 
@@ -106,16 +109,17 @@ tests/
 
 ### 6.3 `tests/contract`
 
-- 目前仍是 placeholder
-- 分類方向已先固定
-- 尚未接上正式 `definitions.ts`
-- 尚未接上真實 runner
+- 已整理成正式測試設計稿
+- 目前以 `test.todo(...)` 形式固定驗收內容與案例方向
+- 已和正式 `definitions.ts` 對齊
+- 已補上情境矩陣，但尚未完全接成可執行 runner
 
 ### 6.4 `scripts/test-plugin.sh`
 
-- 目前仍是測試入口骨架
+- 已整理成唯一正式測試工具入口
 - 已有單一入口、平台選擇、裝置參數、log、report 等流程骨架
-- 尚未與真實正式 contract tests 完成閉環驗證
+- 已改成不綁定 Jest / Vitest 的框架中立語意
+- 目前仍待與可執行 contract tests 完成閉環驗證
 
 ## 7. 目前已確認的事
 
@@ -127,19 +131,18 @@ tests/
 
 ## 8. 目前還沒定案的事
 
-- 正式 `definitions.ts` 長什麼樣
-- 正式錯誤碼契約
-- 正式狀態模型
-- 正式 listener / event 協議
-- 正式 contract tests 如何從 placeholder 轉成可執行案例
-- `demo` 與正式 contract test 的責任分界要如何文字化
+- 正式 `definitions.ts` 是否還需再微調欄位與註解
+- 正式 contract tests 如何從設計稿轉成可執行案例
+- `scripts/test-plugin.sh` 如何與 runnable contract tests 閉環
+- `demo` 與正式 contract test 的責任分界是否還需補充文件
+- 平台實作何時開始跟進正式 contract
 
 ## 9. 下一步建議順序
 
 1. 先把骨架清乾淨，移除過時或模板殘留
-2. 討論正式 `definitions.ts`
-3. 定義唯一正式測試單元
-4. 補充行為說明文件
+2. 微調並確認正式 `definitions.ts`
+3. 將 `tests/contract` 從設計稿轉成可執行 contract tests
+4. 讓 `scripts/test-plugin.sh` 與 runnable tests 接成閉環
 5. 再讓 AI 依據 contract 與測試去持續實作、除錯、迭代
 
 ## 10. 移植到其他 repo 時
@@ -159,8 +162,8 @@ tests/
 - 環境已有基礎可跑路徑
 - 平台骨架已存在
 - 命名層已初步收斂，且目前 demo 三平台手動驗證通過
-- 文件與測試骨架已存在
-- 下一個關鍵點是把正式 `definitions.ts` 與正式測試單元定下來
+- 文件、正式暫定 contract、測試設計稿與 script 主線已存在
+- 下一個關鍵點是把正式測試設計稿接成可執行 contract tests
 
 後續若有分歧，優先守住這個原則：
 
