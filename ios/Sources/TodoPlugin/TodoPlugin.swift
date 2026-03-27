@@ -1,7 +1,6 @@
 import Capacitor
 import Foundation
 import AVFoundation
-import Photos
 
 @objc(TodoPlugin)
 public class TodoPlugin: CAPPlugin, CAPBridgedPlugin {
@@ -10,53 +9,90 @@ public class TodoPlugin: CAPPlugin, CAPBridgedPlugin {
     public let jsName = "Todo"
 
     public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "getStatus", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "getOptions", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "setOptions", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "resetOptions", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "echo", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "startRecording", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "stopRecording", returnType: CAPPluginReturnPromise),
-        CAPPluginMethod(name: "takePhoto", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "start", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "stop", returnType: CAPPluginReturnPromise),
+        CAPPluginMethod(name: "reset", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "checkPermissions", returnType: CAPPluginReturnPromise),
         CAPPluginMethod(name: "requestPermissions", returnType: CAPPluginReturnPromise),
     ]
 
-    private let implementation = Todo()
+    private var enabled = true
+    private var debug = false
+    private var status = "idle"
+    private var pendingStartCall: CAPPluginCall?
 
-    // --------------------------------------------------
-    // MARK: - Lifecycle
-    // --------------------------------------------------
-
-    override public func load() {
-        implementation.onNotify = { [weak self] eventName, data in
-            self?.notifyListeners(eventName, data: data)
-        }
-    }
-
-    // --------------------------------------------------
-    // MARK: - Actions
-    // --------------------------------------------------
-
-    @objc func echo(_ call: CAPPluginCall) {
+    @objc func getStatus(_ call: CAPPluginCall) {
         call.resolve([
-            "value": implementation.echo(call.getString("value") ?? "")
+            "status": status
         ])
     }
 
-    @objc func startRecording(_ call: CAPPluginCall) {
-        ensurePermissions(["microphone"], call: call) {
-            self.implementation.startRecording()
-            call.resolve()
-        }
+    @objc func getOptions(_ call: CAPPluginCall) {
+        call.resolve(currentOptions())
     }
 
-    @objc func stopRecording(_ call: CAPPluginCall) {
-        implementation.stopRecording()
+    @objc func setOptions(_ call: CAPPluginCall) {
+        if let nextEnabled = call.getBool("enabled") {
+            enabled = nextEnabled
+        }
+
+        if let nextDebug = call.getBool("debug") {
+            debug = nextDebug
+        }
+
         call.resolve()
     }
 
-    @objc func takePhoto(_ call: CAPPluginCall) {
-        ensurePermissions(["camera", "photos"], call: call) {
-            self.implementation.takePhoto()
+    @objc func resetOptions(_ call: CAPPluginCall) {
+        enabled = true
+        debug = false
+        call.resolve()
+    }
+
+    @objc func echo(_ call: CAPPluginCall) {
+        call.resolve([
+            "value": call.getString("value") ?? ""
+        ])
+    }
+
+    @objc func start(_ call: CAPPluginCall) {
+        if !enabled {
+            reject(call, code: "INVALID_STATE", message: "Plugin is disabled")
+            return
+        }
+
+        if status != "idle" {
+            reject(call, code: "INVALID_STATE", message: "Plugin can only start from idle")
+            return
+        }
+
+        ensureMicrophonePermission(call: call) {
+            self.setStatus("running")
             call.resolve()
         }
+    }
+
+    @objc func stop(_ call: CAPPluginCall) {
+        if status != "running" {
+            reject(call, code: "INVALID_STATE", message: "Plugin can only stop from running")
+            return
+        }
+
+        setStatus("idle")
+        call.resolve()
+    }
+
+    @objc func reset(_ call: CAPPluginCall) {
+        setStatus("init")
+        enabled = true
+        debug = false
+        setStatus("idle")
+        call.resolve()
     }
 
     @objc override public func checkPermissions(_ call: CAPPluginCall) {
@@ -66,99 +102,68 @@ public class TodoPlugin: CAPPlugin, CAPBridgedPlugin {
     @objc override public func requestPermissions(_ call: CAPPluginCall) {
         let requested =
             call.getArray("permissions", String.self)
-            ?? ["camera", "microphone", "photos"]
+            ?? ["microphone"]
 
-        let current = checkPermissionsInternal()
-
-        let missing = requested.filter {
-            !isGranted(current[$0])
+        let invalid = requested.first {
+            $0 != "microphone"
         }
 
-        if missing.isEmpty {
-            call.resolve(current)
+        if invalid != nil {
+            reject(call, code: "INVALID_ARGUMENT", message: "Unsupported permission request")
             return
         }
 
-        requestPermissionsInternal(missing) {
+        if requested.isEmpty {
+            call.resolve(checkPermissionsInternal())
+            return
+        }
+
+        requestPermissionsInternal {
             call.resolve(self.checkPermissionsInternal())
         }
     }
 
-    // --------------------------------------------------
-    // MARK: - Permission Management
-    // --------------------------------------------------
-
-    private func ensurePermissions(_ required: [String], call: CAPPluginCall, onGranted: @escaping () -> Void) {
+    private func ensureMicrophonePermission(call: CAPPluginCall, onGranted: @escaping () -> Void) {
         let current = checkPermissionsInternal()
-
-        let missing = required.filter {
-            !isGranted(current[$0])
-        }
-
-        if missing.isEmpty {
+        if isGranted(current["microphone"]) {
             onGranted()
             return
         }
 
-        requestPermissionsInternal(missing) {
+        pendingStartCall = call
+        requestPermissionsInternal {
             let updated = self.checkPermissionsInternal()
-            let granted = required.allSatisfy {
-                self.isGranted(updated[$0])
+            if self.isGranted(updated["microphone"]) {
+                onGranted()
+            } else {
+                self.reject(call, code: "PERMISSION_DENIED", message: "Microphone permission is required")
             }
-
-            granted ? onGranted() : call.reject("Permission denied")
+            self.pendingStartCall = nil
         }
     }
 
     private func isGranted(_ state: String?) -> Bool {
-        return state == "granted" || state == "limited"
+        return state == "granted"
     }
 
     private func checkPermissionsInternal() -> [String: String] {
         [
-            "camera": permissionState(
-                AVCaptureDevice.authorizationStatus(for: .video)
-            ),
             "microphone": permissionState(
                 AVAudioSession.sharedInstance().recordPermission
-            ),
-            "photos": permissionState(
-                PHPhotoLibrary.authorizationStatus(for: .readWrite)
             )
         ]
     }
 
-    private func requestPermissionsInternal(_ permissions: [String], completion: @escaping () -> Void) {
-        let group = DispatchGroup()
-
-        for permission in permissions {
-            group.enter()
-            switch permission {
-            case "camera":
-                AVCaptureDevice.requestAccess(for: .video) { _ in group.leave() }
-            case "microphone":
-                AVAudioSession.sharedInstance()
-                    .requestRecordPermission { _ in group.leave() }
-            case "photos":
-                PHPhotoLibrary.requestAuthorization(for: .readWrite) { _ in group.leave() }
-            default:
-                group.leave()
+    private func requestPermissionsInternal(completion: @escaping () -> Void) {
+        AVAudioSession.sharedInstance().requestRecordPermission { _ in
+            DispatchQueue.main.async {
+                completion()
             }
         }
-
-        group.notify(queue: .main, execute: completion)
     }
 
     private func permissionState(_ status: Any) -> String {
         switch status {
-
-        case let v as AVAuthorizationStatus:
-            switch v {
-                case .authorized: return "granted"
-                case .notDetermined: return "prompt"
-                case .denied, .restricted: return "denied"
-                @unknown default: return "denied"
-            }
 
         case let v as AVAudioSession.RecordPermission:
             switch v {
@@ -168,18 +173,28 @@ public class TodoPlugin: CAPPlugin, CAPBridgedPlugin {
                 @unknown default: return "denied"
             }
 
-        case let v as PHAuthorizationStatus:
-            switch v {
-                case .authorized: return "granted"
-                case .limited: return "limited"
-                case .notDetermined: return "prompt"
-                case .denied, .restricted: return "denied"
-                @unknown default: return "denied"
-            }
-
         default:
             return "denied"
         }
     }
 
+    private func setStatus(_ nextStatus: String) {
+        if status == nextStatus {
+            return
+        }
+
+        status = nextStatus
+        notifyListeners("statusChange", data: ["status": nextStatus])
+    }
+
+    private func currentOptions() -> [String: Any] {
+        [
+            "enabled": enabled,
+            "debug": debug,
+        ]
+    }
+
+    private func reject(_ call: CAPPluginCall, code: String, message: String) {
+        call.reject(message, code, nil)
+    }
 }
