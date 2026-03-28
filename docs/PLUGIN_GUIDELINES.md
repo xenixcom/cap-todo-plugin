@@ -191,3 +191,22 @@ scripts/
 3. 只能有一套正式 contract test，不可有三套正式標準。
 4. 測試工具入口只有一個 `shell script`，不能有三套正式入口。
 5. 方法的異步行為、狀態轉移、錯誤碼、重置能力必須明確。
+## Current Platform Validation Layer
+
+- `web` 應優先作為第一條完整 formal contract pipeline。
+- `ios` 與 `android` 在實務上可先以 native core 與 bridge helper coverage 起步，再逐步提升到完整 formal bridge contract tests。
+- 各平台接入深度可以不同，但正式來源不能不同：
+  - 唯一正式 contract 仍是 [`src/definitions.ts`](/Users/james/dev2/cap-todo-plugin/src/definitions.ts)
+  - 唯一正式測試單元仍是 [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract)
+  - 唯一正式入口仍是 [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh)
+
+## Native Progression Rule
+
+- 原生平台接入時，建議依下列順序推進：
+  - native core behavior
+  - bridge helper mapping
+  - formal bridge contract tests
+- 這個順序是為了先驗證 pipeline 可行，再逐步把 bridge 層收斂到與 `web` 同一套 contract 驗收。
+- 任何中途補上的測試輔助層，都不應升格為獨立正式標準。
+- 若某平台在 local unit test 中無法穩定驗證真實 bridge 行為，例如 listener payload 或 Capacitor bridge object，本規範允許升級到更合適的原生測試層，例如 Robolectric、instrumented tests 或等價方案。
+- 但升級測試層後，正式 contract、正式測試單元與正式入口仍不得分裂。

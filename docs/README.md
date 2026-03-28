@@ -78,3 +78,33 @@ tests/
 - 讓 `tests/contract` 從測試設計稿轉成可執行 contract tests。
 - 把 `scripts/test-plugin.sh` 與正式 contract tests 接成閉環。
 - 再讓 AI 依 contract 與測試持續實作、除錯、迭代。
+## Current State
+
+- `web` 已打通正式 contract pipeline，直接對真實 [`src/web.ts`](/Users/james/dev2/cap-todo-plugin/src/web.ts) 執行 [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract)。
+- `ios` 與 `android` 已完成第一批 native core 與 bridge helper contract coverage，但尚未完全達到 `web` 那種完整 formal suite 深度。
+- [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh) 仍是唯一正式入口。
+
+## Platform Coverage
+
+- `web`
+  - 完整正式 contract tests
+  - 目前 `npm test` 為 `43` 個 tests 全通過
+- `ios`
+  - native core + bridge helper contract coverage
+  - 透過 `xcodebuild test` 驗證
+  - 已驗證最小 bridge seam 可存在且不破壞現有測試
+- `android`
+  - native core + bridge helper contract coverage
+  - 透過 `./android/gradlew -p android test` 驗證
+  - 已探測 bridge listener 邊界；local unit test 不適合直接承接真實 `notifyListeners` 驗證
+
+## Current Direction
+
+- 維持單一 [`src/definitions.ts`](/Users/james/dev2/cap-todo-plugin/src/definitions.ts)。
+- 維持單一正式測試單元 [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract)。
+- 下一步是把 `ios` / `android` 逐步提升到與 `web` 更接近的 formal bridge contract coverage，而不是發展各平台各自的標準。
+- 目前建議先推 `ios` 的第一個 bridge event test，再決定 `android` 的下一層原生測試形態。
+
+## Related Notes
+
+- [`PIPELINE_RETROSPECTIVE.md`](/Users/james/dev2/cap-todo-plugin/docs/PIPELINE_RETROSPECTIVE.md): records lessons learned from temporary private tests and platform bridge probing.

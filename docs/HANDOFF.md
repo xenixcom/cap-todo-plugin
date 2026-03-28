@@ -171,3 +171,48 @@ tests/
 
 - 人負責定義正確性
 - AI 負責逼近正確性
+## Current Verification Status
+
+- `web` 已是完整的正式 contract pipeline。
+- 正式來源為 [`src/definitions.ts`](/Users/james/dev2/cap-todo-plugin/src/definitions.ts) 與 [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract)。
+- `web` 端正式 contract tests 已直接對真實 [`src/web.ts`](/Users/james/dev2/cap-todo-plugin/src/web.ts) 執行，不再依賴臨時 reference harness。
+- 目前 `npm test` 會執行：
+  - `options.spec.ts`
+  - `lifecycle.spec.ts`
+  - `status.spec.ts`
+  - `error-handling.spec.ts`
+  - `edge-cases.spec.ts`
+- 最新驗證結果為 `5` 個 test files、`43` 個 tests 全數通過。
+
+## Native Coverage Status
+
+- `ios` 與 `android` 已完成第一批 native core contract coverage。
+- 這一層主要驗證：
+  - options 與 default state
+  - lifecycle 與錯誤碼
+  - reset 行為
+  - `statusChange` payload
+  - `checkPermissions` / `requestPermissions` 相關 mapping 與正規化 helper
+- `ios` 目前透過 [`ios/Sources/TodoPlugin/Todo.swift`](/Users/james/dev2/cap-todo-plugin/ios/Sources/TodoPlugin/Todo.swift) 與 [`ios/Tests/TodoPluginTests/TodoTests.swift`](/Users/james/dev2/cap-todo-plugin/ios/Tests/TodoPluginTests/TodoTests.swift) 驗證。
+- `android` 目前透過 [`android/src/main/java/com/xenix/plugins/todo/TodoCore.kt`](/Users/james/dev2/cap-todo-plugin/android/src/main/java/com/xenix/plugins/todo/TodoCore.kt) 與 [`android/src/test/java/com/xenix/plugins/todo/TodoCoreTest.kt`](/Users/james/dev2/cap-todo-plugin/android/src/test/java/com/xenix/plugins/todo/TodoCoreTest.kt) 驗證。
+- 原生 bridge 仍在逐步推進；目前是以 bridge helper contract coverage 為主，尚未達到和 `web` 完全同層級的 formal contract suite。
+- `android` 已額外探測 `statusChange -> notifyListeners` 的 bridge 邊界，結果顯示目前 local unit test 一碰真實 bridge listener payload，就會受到 `JSObject` / Android SDK mock 限制。
+- 這代表 Android 若要再往前推真正的 bridge formal tests，下一層應考慮 Robolectric 或 instrumented tests，而不是繼續硬塞在目前的 local unit test。
+- `ios` 已加入對應的最小 bridge seam，現有 `xcodebuild test` 仍保持通過，代表 iOS 下一步可直接嘗試第一個真正的 bridge event test。
+
+## Single Entry Status
+
+- [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh) 仍是唯一正式測試入口。
+- 目前入口對應狀態：
+  - `web`: 跑完整正式 contract tests
+  - `ios`: 跑 native core 與 bridge helper contract coverage
+  - `android`: 跑 native core 與 bridge helper contract coverage
+- 這仍符合單一 contract、單一正式測試標準、單一正式入口的核心思想；差異只在各平台目前接入深度不同。
+
+## Next Step
+
+- 下一輪主軸不是重寫 spec，也不是再補臨時 harness。
+- 下一步應沿用既有 [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract) 與 [`src/definitions.ts`](/Users/james/dev2/cap-todo-plugin/src/definitions.ts)，把 `ios` / `android` 從 native core + bridge helper coverage 逐步推進到更完整的 formal bridge contract tests。
+- 建議順序：
+  - 先在 `ios` 補第一個真正的 `statusChange` bridge test
+  - 再決定 `android` 要升到 Robolectric 或 instrumented bridge tests
