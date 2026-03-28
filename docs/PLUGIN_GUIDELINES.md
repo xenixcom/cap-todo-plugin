@@ -191,6 +191,17 @@ scripts/
 3. 只能有一套正式 contract test，不可有三套正式標準。
 4. 測試工具入口只有一個 `shell script`，不能有三套正式入口。
 5. 方法的異步行為、狀態轉移、錯誤碼、重置能力必須明確。
+## Most Important Rule
+
+- 正式 pipeline 的唯一入口是 [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh)。
+- 正式驗收必須先讓 `test-plugin.sh` 全綠。
+- `demo` 不是正式 pipeline 的宿主。
+- `demo` 只在正式 pipeline 全綠之後，用於：
+  - 最後 UI 確認
+  - Plugin 功能展示
+  - Plugin 用法示範
+- 若設計或實作方向開始讓 `demo` 承擔正式測試責任，視為偏離主線，應立即回頭檢查。
+
 ## Current Platform Validation Layer
 
 - `web` 應優先作為第一條完整 formal contract pipeline。

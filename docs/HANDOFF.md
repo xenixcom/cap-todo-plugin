@@ -171,6 +171,13 @@ tests/
 
 - 人負責定義正確性
 - AI 負責逼近正確性
+## Critical Principle
+
+- 正式 pipeline 的唯一入口是 [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh)。
+- 正式 contract、正式測試單元、正式入口都必須先跑通，之後才做 `demo`。
+- `demo` 的定位是最後 UI 確認與功能展示，不是正式 pipeline 的執行宿主。
+- 若後續工作把 `demo` 當成正式測試主體，代表方向已偏離，應回到單一入口設計。
+
 ## Current Verification Status
 
 - `web` 已是完整的正式 contract pipeline。

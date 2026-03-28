@@ -78,6 +78,12 @@ tests/
 - 讓 `tests/contract` 從測試設計稿轉成可執行 contract tests。
 - 把 `scripts/test-plugin.sh` 與正式 contract tests 接成閉環。
 - 再讓 AI 依 contract 與測試持續實作、除錯、迭代。
+## Core Reminder
+
+- 正式 pipeline 先跑 [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh)。
+- `demo` 要等正式 pipeline 全綠後才做。
+- `demo` 只負責最後 UI 確認、功能展示、用法示範。
+
 ## Current State
 
 - `web` 已打通正式 contract pipeline，直接對真實 [`src/web.ts`](/Users/james/dev2/cap-todo-plugin/src/web.ts) 執行 [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract)。
@@ -108,3 +114,4 @@ tests/
 ## Related Notes
 
 - [`PIPELINE_RETROSPECTIVE.md`](/Users/james/dev2/cap-todo-plugin/docs/PIPELINE_RETROSPECTIVE.md): records lessons learned from temporary private tests and platform bridge probing.
+- [`tests/pipeline/README.md`](/Users/james/dev2/cap-todo-plugin/tests/pipeline/README.md): records where the future single app-level pipeline host should live.
