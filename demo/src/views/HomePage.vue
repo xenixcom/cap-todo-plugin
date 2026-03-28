@@ -13,32 +13,50 @@
         </ion-toolbar>
       </ion-header>
 
-      <div class="ion-padding">
-        <ion-input label="Echo Input" placeholder="Enter text" v-model="inputValue"></ion-input>
-        <ion-button class="ion-no-margin" expand="block" @click="runEcho">Run Echo</ion-button>
-        <p>Echo Result: {{ echoResult }}</p>
-      </div>
+      <div class="demo-shell ion-padding">
+        <section class="demo-panel">
+          <h2>Overview</h2>
+          <p>This page manually exercises the same formal contract used by the plugin pipeline.</p>
+          <p>Current status: <strong>{{ statusText }}</strong></p>
+          <p>Last statusChange: <strong>{{ lastStatusEvent }}</strong></p>
+          <p>Permissions: <strong>{{ permissionText }}</strong></p>
+          <p>Options: <strong>{{ optionsText }}</strong></p>
+          <p v-if="lastSuccess" class="success-text">Last success: {{ lastSuccess }}</p>
+          <p v-if="lastError" class="error-text">Last error: {{ lastError }}</p>
+        </section>
 
-      <div class="ion-padding">
-        <ion-button class="ion-margin-vertical" expand="block" @click="readStatus">Get Status</ion-button>
-        <ion-button class="ion-margin-vertical" expand="block" @click="readOptions">Get Options</ion-button>
-        <ion-button class="ion-margin-vertical" expand="block" @click="enableDebug">Set Debug = true</ion-button>
-        <ion-button class="ion-margin-vertical" expand="block" @click="resetOptions">Reset Options</ion-button>
-        <p>Status: {{ statusText }}</p>
-        <p>Options: {{ optionsText }}</p>
-        <p>Last statusChange: {{ lastStatusEvent }}</p>
-      </div>
+        <section class="demo-panel">
+          <h2>Echo</h2>
+          <ion-input
+            label="Echo Input"
+            placeholder="Enter text"
+            v-model="inputValue"
+          ></ion-input>
+          <ion-button class="ion-no-margin" expand="block" @click="runEcho">Run Echo</ion-button>
+          <p>Echo result: <strong>{{ echoResult }}</strong></p>
+        </section>
 
-      <div class="ion-padding">
-        <ion-button class="ion-margin-vertical" expand="block" @click="checkPermissions">Check Permissions</ion-button>
-        <ion-button class="ion-margin-vertical" expand="block" @click="requestPermissions">Request Permissions</ion-button>
-        <p>Permissions: {{ permissionText }}</p>
-      </div>
+        <section class="demo-panel">
+          <h2>Options</h2>
+          <ion-button class="ion-margin-top" expand="block" @click="readOptions">Refresh Options</ion-button>
+          <ion-button class="ion-margin-top" expand="block" @click="enableDebug">Set Debug = true</ion-button>
+          <ion-button class="ion-margin-top" expand="block" @click="disablePlugin">Set Enabled = false</ion-button>
+          <ion-button class="ion-margin-top" expand="block" @click="resetOptions">Reset Options</ion-button>
+        </section>
 
-      <div class="ion-padding">
-        <ion-button class="ion-margin-vertical" expand="block" @click="startPlugin">Start</ion-button>
-        <ion-button class="ion-margin-vertical" expand="block" @click="stopPlugin">Stop</ion-button>
-        <ion-button class="ion-margin-vertical" expand="block" @click="resetPlugin">Reset</ion-button>
+        <section class="demo-panel">
+          <h2>Permissions</h2>
+          <ion-button class="ion-margin-top" expand="block" @click="checkPermissions">Check Permissions</ion-button>
+          <ion-button class="ion-margin-top" expand="block" @click="requestPermissions">Request Permissions</ion-button>
+        </section>
+
+        <section class="demo-panel">
+          <h2>Lifecycle</h2>
+          <ion-button class="ion-margin-top" expand="block" @click="readStatus">Refresh Status</ion-button>
+          <ion-button class="ion-margin-top" expand="block" @click="startPlugin">Start</ion-button>
+          <ion-button class="ion-margin-top" expand="block" @click="stopPlugin">Stop</ion-button>
+          <ion-button class="ion-margin-top" expand="block" @click="resetPlugin">Reset</ion-button>
+        </section>
       </div>
 
     </ion-content>
@@ -50,69 +68,114 @@ import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent, IonInput, IonButt
 import { ref, onMounted, onUnmounted } from 'vue';
 import { Todo } from '@xenix/cap-todo-plugin';
 
-const inputValue = ref<string>('Hello World')
-const echoResult = ref<string>('')
-const statusText = ref<string>('unknown')
-const optionsText = ref<string>('unknown')
-const permissionText = ref<string>('unknown')
-const lastStatusEvent = ref<string>('none')
+const inputValue = ref<string>('Hello World');
+const echoResult = ref<string>('');
+const statusText = ref<string>('unknown');
+const optionsText = ref<string>('unknown');
+const permissionText = ref<string>('unknown');
+const lastStatusEvent = ref<string>('none');
+const lastSuccess = ref<string>('');
+const lastError = ref<string>('');
 
-const runEcho = async () => {
-  const res = await Todo.echo({ value: inputValue.value })
-  echoResult.value = res.value
+function setSuccess(message: string): void {
+  lastSuccess.value = message;
+  lastError.value = '';
 }
 
-const readStatus = async () => {
-  const res = await Todo.getStatus()
-  statusText.value = res.status
+function setError(error: unknown): void {
+  const detail =
+    typeof error === 'object' && error !== null && 'code' in error && 'message' in error
+      ? `${String((error as { code: unknown }).code)}: ${String((error as { message: unknown }).message)}`
+      : error instanceof Error
+        ? error.message
+        : String(error);
+  lastError.value = detail;
 }
 
-const readOptions = async () => {
-  const res = await Todo.getOptions()
-  optionsText.value = JSON.stringify(res)
+async function syncSnapshot(): Promise<void> {
+  const [status, options, permissions] = await Promise.all([
+    Todo.getStatus(),
+    Todo.getOptions(),
+    Todo.checkPermissions(),
+  ]);
+
+  statusText.value = status.status;
+  optionsText.value = JSON.stringify(options);
+  permissionText.value = JSON.stringify(permissions);
 }
 
-const enableDebug = async () => {
-  await Todo.setOptions({ debug: true })
-  await readOptions()
+async function runAction(label: string, action: () => Promise<void>): Promise<void> {
+  try {
+    await action();
+    await syncSnapshot();
+    setSuccess(label);
+  } catch (error) {
+    setError(error);
+  }
 }
 
-const resetOptions = async () => {
-  await Todo.resetOptions()
-  await readOptions()
-}
+const runEcho = async () =>
+  runAction('echo completed', async () => {
+    const res = await Todo.echo({ value: inputValue.value });
+    echoResult.value = res.value;
+  });
 
-const checkPermissions = async () => {
-  const res = await Todo.checkPermissions()
-  permissionText.value = JSON.stringify(res)
-  console.log('[APP]', 'Permission status:', JSON.stringify(res, null, 2));
-}
+const readStatus = async () =>
+  runAction('status refreshed', async () => {
+    const res = await Todo.getStatus();
+    statusText.value = res.status;
+  });
 
-const requestPermissions = async () => {
-  const res = await Todo.requestPermissions({ permissions: ['microphone'] })
-  permissionText.value = JSON.stringify(res)
-  console.log('[APP]', 'Requested permissions result:', JSON.stringify(res, null, 2));
-}
+const readOptions = async () =>
+  runAction('options refreshed', async () => {
+    const res = await Todo.getOptions();
+    optionsText.value = JSON.stringify(res);
+  });
 
-const startPlugin = async () => {
-  await Todo.start()
-  await readStatus()
-}
+const enableDebug = async () =>
+  runAction('debug enabled', async () => {
+    await Todo.setOptions({ debug: true });
+  });
 
-const stopPlugin = async () => {
-  await Todo.stop()
-  await readStatus()
-}
+const disablePlugin = async () =>
+  runAction('plugin disabled', async () => {
+    await Todo.setOptions({ enabled: false });
+  });
 
-const resetPlugin = async () => {
-  await Todo.reset()
-  await readStatus()
-  await readOptions()
-}
+const resetOptions = async () =>
+  runAction('options reset', async () => {
+    await Todo.resetOptions();
+  });
+
+const checkPermissions = async () =>
+  runAction('permissions checked', async () => {
+    const res = await Todo.checkPermissions();
+    permissionText.value = JSON.stringify(res);
+  });
+
+const requestPermissions = async () =>
+  runAction('permissions requested', async () => {
+    const res = await Todo.requestPermissions({ permissions: ['microphone'] });
+    permissionText.value = JSON.stringify(res);
+  });
+
+const startPlugin = async () =>
+  runAction('plugin started', async () => {
+    await Todo.start();
+  });
+
+const stopPlugin = async () =>
+  runAction('plugin stopped', async () => {
+    await Todo.stop();
+  });
+
+const resetPlugin = async () =>
+  runAction('plugin reset', async () => {
+    await Todo.reset();
+  });
 
 onMounted(() => {
-  void readStatus();
-  void readOptions();
+  void syncSnapshot();
   Todo.addListener('statusChange', (data: { status: string }) => {
     console.log('[APP]', `Received statusChange event: ${data.status}`);
     lastStatusEvent.value = data.status;
@@ -126,31 +189,32 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-#container {
-  text-align: center;
-  
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
+.demo-shell {
+  display: grid;
+  gap: 16px;
 }
 
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
+.demo-panel {
+  border: 1px solid var(--ion-color-medium-tint);
+  border-radius: 12px;
+  padding: 16px;
+  background: var(--ion-color-light);
 }
 
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-  
-  color: #8c8c8c;
-  
-  margin: 0;
+.demo-panel h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
 }
 
-#container a {
-  text-decoration: none;
+.demo-panel p {
+  margin: 8px 0 0;
+}
+
+.success-text {
+  color: var(--ion-color-success-shade);
+}
+
+.error-text {
+  color: var(--ion-color-danger);
 }
 </style>
