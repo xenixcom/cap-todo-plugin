@@ -27,3 +27,9 @@ It is not a demo layer.
 - `web` already proves the formal contract pipeline can run end-to-end.
 - `ios` and `android` should next be connected through a real host at this layer.
 - Temporary private tests may still exist as transition tools, but they are not the destination.
+
+## Current Seed
+
+- [`core.ts`](/Users/james/dev2/cap-todo-plugin/tests/pipeline/core.ts) defines the minimal app-level pipeline run shape.
+- It is intentionally host-agnostic.
+- It must later be connected to real platform hosts that are still launched by [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh).
