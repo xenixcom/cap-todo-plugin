@@ -35,6 +35,8 @@ LOG_FILE=""
 REPORT=0
 REPORT_FILE=""
 FAILURES=0
+CURRENT_PLATFORM_SUMMARY=""
+CURRENT_PLATFORM_FAILURE=""
 
 WEB_BUILD_CMD="npm run build"
 CONTRACT_TEST_CMD="${CONTRACT_TEST_CMD:-npm test}"
@@ -68,6 +70,13 @@ TIMESTAMP="$(date +"%Y%m%d_%H%M%S")"
 if [[ $REPORT -eq 1 ]]; then
   REPORT_FILE="plugin-report-${PLATFORM}-${TIMESTAMP}.txt"
   : > "$REPORT_FILE"
+  {
+    echo "Capacitor Plugin Test Report"
+    echo "Timestamp: $TIMESTAMP"
+    echo "Platform: $PLATFORM"
+    echo "Device: ${DEVICE:-(auto)}"
+    echo
+  } >> "$REPORT_FILE"
 fi
 
 log() {
@@ -80,10 +89,38 @@ log() {
 }
 
 report_fail() {
-  local message="$1"
+  local message="${1-}"
   if [[ $REPORT -eq 1 ]]; then
     echo "$message" >> "$REPORT_FILE"
   fi
+}
+
+report_append() {
+  local message="${1-}"
+  if [[ $REPORT -eq 1 ]]; then
+    echo "$message" >> "$REPORT_FILE"
+  fi
+}
+
+append_unique_line() {
+  local current="${1-}"
+  local line="${2-}"
+  if [[ -z "$line" ]]; then
+    echo "$current"
+    return
+  fi
+
+  case "$current" in
+    *"$line"*)
+      echo "$current"
+      ;;
+    "")
+      echo "$line"
+      ;;
+    *)
+      printf "%s\n%s" "$current" "$line"
+      ;;
+  esac
 }
 
 ensure_command() {
@@ -114,7 +151,13 @@ run_and_capture() {
   while IFS= read -r line; do
     case "$line" in
       *FAIL*|*FAILED*|*"Test Failed"*|*"✕"*)
-        report_fail "[FAIL] ${platform_name} - ${line}"
+        CURRENT_PLATFORM_FAILURE="$(append_unique_line "$CURRENT_PLATFORM_FAILURE" "$line")"
+        ;;
+      " FAIL "*|FAIL\ \ *|*"AssertionError:"*|*"Expected"*|*"Received"*|*"error: -["*|*"Execution failed for task"*|*"There were failing tests."*|"-   "*|"+   "*|"  {"|"  }")
+        CURRENT_PLATFORM_FAILURE="$(append_unique_line "$CURRENT_PLATFORM_FAILURE" "$line")"
+        ;;
+      " Test Files "*|"      Tests "*|"** TEST SUCCEEDED **"|BUILD\ SUCCESSFUL*)
+        CURRENT_PLATFORM_SUMMARY="$(append_unique_line "$CURRENT_PLATFORM_SUMMARY" "$line")"
         ;;
     esac
   done < "$temp_output"
@@ -206,11 +249,44 @@ run_android_tests() {
 run_platform() {
   local platform_label="$1"
   local platform_runner="$2"
+  CURRENT_PLATFORM_SUMMARY=""
+  CURRENT_PLATFORM_FAILURE=""
+
   if "$platform_runner"; then
     log "Result: ${platform_label} PASS"
+    if [[ $REPORT -eq 1 ]]; then
+      report_append "=============================="
+      report_append "Platform: ${platform_label}"
+      report_append "Result: PASS"
+      if [[ -n "$CURRENT_PLATFORM_SUMMARY" ]]; then
+        report_append "Summary:"
+        while IFS= read -r line; do
+          [[ -n "$line" ]] && report_append "  - $line"
+        done <<< "$CURRENT_PLATFORM_SUMMARY"
+      else
+        report_append "Summary:"
+        report_append "  - Command sequence completed successfully"
+      fi
+      report_append
+    fi
   else
     log "Result: ${platform_label} FAIL"
     FAILURES=$((FAILURES + 1))
+    if [[ $REPORT -eq 1 ]]; then
+      report_append "=============================="
+      report_append "Platform: ${platform_label}"
+      report_append "Result: FAIL"
+      if [[ -n "$CURRENT_PLATFORM_FAILURE" ]]; then
+        report_append "Failure Summary:"
+        while IFS= read -r line; do
+          [[ -n "$line" ]] && report_append "  - $line"
+        done <<< "$CURRENT_PLATFORM_FAILURE"
+      else
+        report_append "Failure Summary:"
+        report_append "  - Command failed without a parsed failure summary. Check console or --logs output."
+      fi
+      report_append
+    fi
   fi
 }
 
@@ -242,6 +318,14 @@ fi
 log "=============================="
 log "測試完成 - 平台: $PLATFORM"
 if [[ $REPORT -eq 1 ]]; then
+  report_append "=============================="
+  report_append "Overall Result"
+  report_append "Failed Platforms: $FAILURES"
+  if [[ $FAILURES -eq 0 ]]; then
+    report_append "Status: PASS"
+  else
+    report_append "Status: FAIL"
+  fi
   log "報告檔案: $REPORT_FILE"
 fi
 log "失敗平台數: $FAILURES"
