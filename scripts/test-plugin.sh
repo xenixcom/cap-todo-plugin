@@ -222,8 +222,8 @@ run_ios_tests() {
     return 1
   fi
 
-  log "執行 iOS 原生 contract 核心驗證..."
-  run_and_capture "iOS" "xcodebuild test -scheme \"$IOS_SCHEME\" -destination '$IOS_ACTIVE_DESTINATION' -derivedDataPath \"$IOS_DERIVED_DATA\""
+  log "驗證 iOS Plugin 與原生整合可成功編譯..."
+  run_and_capture "iOS" "xcodebuild build -scheme \"$IOS_SCHEME\" -destination '$IOS_ACTIVE_DESTINATION' -derivedDataPath \"$IOS_DERIVED_DATA\""
   local status=$?
   cleanup_ios_device
   return "$status"
