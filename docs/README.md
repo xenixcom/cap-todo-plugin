@@ -69,6 +69,9 @@ tests/
 ./scripts/test-plugin.sh web --logs=web_test.log
 ```
 
+目前 `scripts/test-plugin.sh` 的 web 測試命令預設為 `npm test`。
+目前 `npm test` 已可執行完整 web formal contract tests，直接接到真實 `TodoWeb`。
+後續主線是把 `iOS / Android` 逐步接上同一套正式測試入口，而不是發展各平台各自標準。
 ## 下一步
 
 - 微調並確認正式 `src/definitions.ts`。

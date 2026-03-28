@@ -110,7 +110,9 @@ tests/
 ### 6.3 `tests/contract`
 
 - 已整理成正式測試設計稿
-- 目前以 `test.todo(...)` 形式固定驗收內容與案例方向
+- `options.spec.ts` 與 `lifecycle.spec.ts` 已接到真實 `TodoWeb`
+- 目前 `npm test` 可執行這兩組正式測試
+- 其餘 spec 目前仍以 `test.todo(...)` 形式固定驗收內容與案例方向
 - 已和正式 `definitions.ts` 對齊
 - 已補上情境矩陣，但尚未完全接成可執行 runner
 

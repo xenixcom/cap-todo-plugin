@@ -19,8 +19,9 @@
 
 目前這些 spec 檔的角色是：
 
-- 先固定正式驗收內容與案例方向
-- 再依 `definitions.ts` 與 runner 落地成可執行測試
+- 所有 spec 都是正式驗收內容與案例來源
+- `web` 端目前已可透過 `npm test` 執行完整 formal contract tests
+- `iOS / Android` 仍應沿同一套 spec 逐步接入，不得自行發展第二套正式標準
 
 其中：
 
