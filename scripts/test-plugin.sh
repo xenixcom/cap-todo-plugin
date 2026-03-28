@@ -52,6 +52,27 @@ IOS_STARTED_BY_SCRIPT=0
 IOS_ACTIVE_DEVICE=""
 IOS_ACTIVE_DESTINATION=""
 
+resolve_ios_simulator_id() {
+  ensure_command xcrun || return 1
+
+  local simulator_id
+  simulator_id="$(xcrun simctl list devices available | awk -v name="$IOS_SIMULATOR_NAME" '
+    index($0, name " (") {
+      if (match($0, /\(([A-F0-9-]+)\)/)) {
+        print substr($0, RSTART + 1, RLENGTH - 2)
+        exit
+      }
+    }
+  ')"
+
+  if [[ -z "$simulator_id" ]]; then
+    log "找不到 iOS Simulator: $IOS_SIMULATOR_NAME"
+    return 1
+  fi
+
+  echo "$simulator_id"
+}
+
 for arg in "$@"; do
   case "$arg" in
     all|web|ios|android) PLATFORM="$arg" ;;
@@ -168,17 +189,24 @@ run_and_capture() {
 
 boot_ios_simulator_if_needed() {
   ensure_command xcodebuild || return 1
+  ensure_command xcrun || return 1
 
   if [[ -n "$DEVICE" ]]; then
     IOS_ACTIVE_DEVICE="$DEVICE"
     IOS_ACTIVE_DESTINATION="id=$IOS_ACTIVE_DEVICE"
     log "使用指定 iOS device: $IOS_ACTIVE_DEVICE"
+  else
+    IOS_ACTIVE_DEVICE="$(resolve_ios_simulator_id)" || return 1
+    IOS_ACTIVE_DESTINATION="id=$IOS_ACTIVE_DEVICE"
+    log "使用預設 iOS Simulator: $IOS_SIMULATOR_NAME ($IOS_ACTIVE_DEVICE)"
+  fi
+
+  if xcrun simctl list devices | grep -q "$IOS_ACTIVE_DEVICE (Booted)"; then
+    log "iOS Simulator 已啟動，直接重用。"
     return 0
   fi
 
-  IOS_ACTIVE_DESTINATION="platform=iOS Simulator,name=$IOS_SIMULATOR_NAME"
-  log "使用預設 iOS Simulator: $IOS_SIMULATOR_NAME"
-  open -a Simulator >/dev/null 2>&1 || true
+  log "將由 xcodebuild 啟動 iOS Simulator..."
   IOS_STARTED_BY_SCRIPT=1
   return 0
 }
@@ -214,13 +242,6 @@ run_ios_tests() {
   ensure_command xcodebuild || return 1
 
   boot_ios_simulator_if_needed || return 1
-
-  log "編譯 iOS Plugin..."
-  run_and_capture "iOS" "xcodebuild build -scheme \"$IOS_SCHEME\" -destination '$IOS_ACTIVE_DESTINATION' -derivedDataPath \"$IOS_DERIVED_DATA\""
-  if [[ $? -ne 0 ]]; then
-    cleanup_ios_device
-    return 1
-  fi
 
   log "驗證 iOS Plugin 與原生整合可成功編譯..."
   run_and_capture "iOS" "xcodebuild build -scheme \"$IOS_SCHEME\" -destination '$IOS_ACTIVE_DESTINATION' -derivedDataPath \"$IOS_DERIVED_DATA\""
