@@ -19,10 +19,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xenixcom/cap-plugin-todo.git"
+    "url": "git+https://github.com/xenixcom/cap-todo-plugin.git"
   },
   "bugs": {
-    "url": "https://github.com/xenixcom/cap-plugin-todo/issues"
+    "url": "https://github.com/xenixcom/cap-todo-plugin/issues"
   },
   "keywords": [
     "capacitor",

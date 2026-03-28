@@ -23,7 +23,6 @@ docs/
 src/
   definitions.ts
   index.ts
-  todo.ts
   web.ts
 ios/
 android/

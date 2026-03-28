@@ -61,7 +61,6 @@ scripts/
 src/
   definitions.ts
   index.ts
-  todo.ts
   web.ts
 ios/
 android/
@@ -106,6 +105,7 @@ tests/
 - 作用是展示 plugin 與驗證環境可跑
 - `web / iOS / Android` 已手動驗證可運作
 - 不等於正式 contract 驗收
+- `demo` 目前已調整回與正式 contract 一致的示範用法，不再引用舊版 `startRecording / takePhoto / updateTime` API
 
 ### 6.3 `tests/contract`
 
