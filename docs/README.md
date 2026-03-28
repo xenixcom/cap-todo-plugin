@@ -71,6 +71,7 @@ tests/
 目前 `scripts/test-plugin.sh` 的 web 測試命令預設為 `npm test`。
 目前 `npm test` 已可執行完整 web formal contract tests，直接接到真實 `TodoWeb`。
 目前 `./scripts/test-plugin.sh all --report` 已可得到三平台全綠結果。
+目前 `--report` 全綠時會輸出摘要，失敗時會輸出人類可讀的 failure summary。
 後續主線是把 `iOS / Android` 從目前 coverage 逐步提升到更接近 app 位階的單一 pipeline host，而不是發展各平台各自標準。
 ## 下一步
 
@@ -94,7 +95,7 @@ tests/
 ## Current State
 
 - `web` 已打通正式 contract pipeline，直接對真實 [`src/web.ts`](/Users/james/dev2/cap-todo-plugin/src/web.ts) 執行 [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract)。
-- `ios` 與 `android` 已完成第一批 native core 與 bridge helper contract coverage，且目前已由 [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh) 跑通三平台。
+- `ios` 與 `android` 目前都已由 [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh) 跑通三平台。
 - [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh) 仍是唯一正式入口。
 
 ## Platform Coverage
@@ -103,9 +104,9 @@ tests/
   - 完整正式 contract tests
   - 目前 `npm test` 為 `43` 個 tests 全通過
 - `ios`
-  - native core + bridge helper contract coverage
-  - 透過 `xcodebuild test` 驗證
-  - 已補上第一批 bridge event / permission coverage
+  - 原生整合編譯驗證
+  - 透過 `xcodebuild build` 與 simulator destination 驗證
+  - 不再保留私有 XCTest target
 - `android`
   - native core + bridge helper contract coverage
   - 透過 `./android/gradlew -p android test` 驗證
@@ -115,7 +116,7 @@ tests/
 
 - 維持單一 [`src/definitions.ts`](/Users/james/dev2/cap-todo-plugin/src/definitions.ts)。
 - 維持單一正式測試單元 [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract)。
-- 下一步是把 `ios` / `android` 從目前 coverage 逐步接到未來單一 pipeline host，而不是發展各平台各自的標準。
+- 下一步是在目前「能測、能 run、三平台全綠」的穩定基準上做優化，而不是發展各平台各自的標準。
 - `demo` 仍維持最後 UI 驗證與功能展示用途，不承擔正式 pipeline。
 
 ## Related Notes

@@ -114,6 +114,7 @@ tests/
 - 目前 `npm test` 可執行完整 web formal contract tests
 - 已和正式 `definitions.ts` 對齊
 - 已補上情境矩陣，且 web 端已形成可執行 formal suite
+- 目前整體基準已達到「能測、能 run、三平台全綠」
 
 ### 6.4 `scripts/test-plugin.sh`
 
@@ -121,6 +122,7 @@ tests/
 - 已有單一入口、平台選擇、裝置參數、log、report 等流程骨架
 - 已改成不綁定 Jest / Vitest 的框架中立語意
 - 目前 `./scripts/test-plugin.sh all --report` 已可跑通三平台，失敗平台數為 `0`
+- `--report` 在成功時會輸出摘要，在失敗時會輸出人類可讀的 failure summary
 
 ## 7. 目前已確認的事
 
@@ -133,7 +135,7 @@ tests/
 ## 8. 目前還沒定案的事
 
 - 正式 `definitions.ts` 是否還需再微調欄位與註解
-- `ios / android` 如何從目前 native coverage 提升到更接近 app 位階的單一 pipeline host
+- `ios / android` 如何從目前可執行 coverage 提升到更接近 app 位階的單一 pipeline host
 - `demo` 與正式 contract test 的責任分界是否還需補充文件
 - 平台實作何時開始跟進正式 contract
 
@@ -163,7 +165,7 @@ tests/
 - 平台骨架已存在
 - 命名層已初步收斂，且目前 demo 三平台手動驗證通過
 - 文件、正式暫定 contract、測試設計稿與 script 主線已存在
-- 下一個關鍵點是把正式測試設計稿接成可執行 contract tests
+- 下一個關鍵點是從目前已可執行、可回歸的穩定基準往下一輪優化
 
 後續若有分歧，優先守住這個原則：
 
@@ -213,25 +215,25 @@ tests/
   - reset 行為
   - `statusChange` payload
   - `checkPermissions` / `requestPermissions` 相關 mapping 與正規化 helper
-- `ios` 目前透過 [`ios/Sources/TodoPlugin/Todo.swift`](/Users/james/dev2/cap-todo-plugin/ios/Sources/TodoPlugin/Todo.swift) 與 [`ios/Tests/TodoPluginTests/TodoTests.swift`](/Users/james/dev2/cap-todo-plugin/ios/Tests/TodoPluginTests/TodoTests.swift) 驗證。
+- `ios` 目前透過 [`ios/Sources/TodoPlugin/Todo.swift`](/Users/james/dev2/cap-todo-plugin/ios/Sources/TodoPlugin/Todo.swift) 與單一入口 [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh) 的原生整合編譯路徑驗證。
 - `android` 目前透過 [`android/src/main/java/com/xenix/plugins/todo/TodoCore.kt`](/Users/james/dev2/cap-todo-plugin/android/src/main/java/com/xenix/plugins/todo/TodoCore.kt) 與 [`android/src/test/java/com/xenix/plugins/todo/TodoCoreTest.kt`](/Users/james/dev2/cap-todo-plugin/android/src/test/java/com/xenix/plugins/todo/TodoCoreTest.kt) 驗證。
 - 原生 bridge 仍在逐步推進；目前是以 bridge helper contract coverage 為主，尚未達到和 `web` 完全同層級的 formal contract suite。
 - `android` 已額外探測 `statusChange -> notifyListeners` 的 bridge 邊界，結果顯示目前 local unit test 一碰真實 bridge listener payload，就會受到 `JSObject` / Android SDK mock 限制。
 - 這代表 Android 若要再往前推真正的 bridge formal tests，下一層應考慮 Robolectric 或 instrumented tests，而不是繼續硬塞在目前的 local unit test。
-- `ios` 已加入對應的最小 bridge seam，現有 `xcodebuild test` 仍保持通過，代表 iOS 下一步可直接嘗試第一個真正的 bridge event test。
+- `ios` 先前曾用私有 XCTest 探測 bridge seam，但該私測已移除；目前正式主線不再依賴私有 iOS test target。
 
 ## Single Entry Status
 
 - [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh) 仍是唯一正式測試入口。
 - 目前入口對應狀態：
   - `web`: 跑完整正式 contract tests
-  - `ios`: 跑 native core 與 bridge helper contract coverage
+  - `ios`: 跑原生整合編譯驗證
   - `android`: 跑 native core 與 bridge helper contract coverage
 - 這仍符合單一 contract、單一正式測試標準、單一正式入口的核心思想；差異只在各平台目前接入深度不同。
 - 最新實測狀態：`./scripts/test-plugin.sh all --report` 已全數通過，失敗平台數為 `0`。
 
 ## Next Step
 
-- 下一輪主軸不是再擴張私測，而是讓單一 pipeline 更接近 app 位階。
+- 下一輪主軸不是再擴張私測，而是在目前穩定基準上做優化。
 - 下一步應沿用既有 [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract) 與 [`src/definitions.ts`](/Users/james/dev2/cap-todo-plugin/src/definitions.ts)，把 `ios` / `android` 從目前 coverage 逐步接到未來的單一 pipeline host。
 - `demo` 仍維持最後 UI 驗證與功能展示用途，不承擔正式 pipeline。

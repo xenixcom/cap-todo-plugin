@@ -38,9 +38,10 @@ The goal is to preserve the lessons without preserving every exploratory impleme
 
 ### iOS
 
-- `ios` can currently support a limited amount of real bridge coverage inside native tests.
-- A small bridge seam for `statusChange` was added and successfully validated through `xcodebuild test`.
-- Additional bridge-oriented checks for permission payload and request validation also work in the current XCTest setup.
+- `ios` bridge seams were useful as probes during exploration.
+- Those probes helped reveal what could be validated and what would become a second private testing standard.
+- The private XCTest target was removed from the formal baseline.
+- The current formal path keeps `ios` under the single entrypoint and validates native integration through successful simulator builds.
 
 ### Android
 
@@ -58,7 +59,16 @@ The goal is to preserve the lessons without preserving every exploratory impleme
   - what boundary it probes
   - what future pipeline capability should replace it
 
+## Current Stable Baseline
+
+- The repo is now at a stable point where it can test and run across all three platforms.
+- `./scripts/test-plugin.sh all --report` is green.
+- `web` remains the strongest formal contract path.
+- `ios` no longer depends on a private XCTest target.
+- `android` still uses native core and helper coverage under the same entrypoint.
+
 ## Practical Next Step
 
+- Optimize from this stable baseline rather than introducing more private test layers.
 - Continue building toward one pipeline that can call the real platform window and observe method results, events, and errors.
-- Treat current native private tests as transition knowledge, not final testing architecture.
+- Treat past native private tests as transition knowledge, not final testing architecture.
