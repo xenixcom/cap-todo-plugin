@@ -21,14 +21,17 @@ public class TodoPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(name: "requestPermissions", returnType: CAPPluginReturnPromise),
     ]
 
-    private var enabled = true
-    private var debug = false
-    private var status = "idle"
-    private var pendingStartCall: CAPPluginCall?
+    private let core = TodoCore()
+
+    public override func load() {
+        core.onStatusChange = { [weak self] status in
+            self?.notifyListeners("statusChange", data: ["status": status])
+        }
+    }
 
     @objc func getStatus(_ call: CAPPluginCall) {
         call.resolve([
-            "status": status
+            "status": core.getStatus().status
         ])
     }
 
@@ -37,61 +40,47 @@ public class TodoPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func setOptions(_ call: CAPPluginCall) {
-        if let nextEnabled = call.getBool("enabled") {
-            enabled = nextEnabled
-        }
-
-        if let nextDebug = call.getBool("debug") {
-            debug = nextDebug
-        }
-
+        core.setOptions(enabled: call.getBool("enabled"), debug: call.getBool("debug"))
         call.resolve()
     }
 
     @objc func resetOptions(_ call: CAPPluginCall) {
-        enabled = true
-        debug = false
+        core.resetOptions()
         call.resolve()
     }
 
     @objc func echo(_ call: CAPPluginCall) {
+        let result = core.echo(call.getString("value") ?? "")
         call.resolve([
-            "value": call.getString("value") ?? ""
+            "value": result.value
         ])
     }
 
     @objc func start(_ call: CAPPluginCall) {
-        if !enabled {
-            reject(call, code: "INVALID_STATE", message: "Plugin is disabled")
-            return
-        }
-
-        if status != "idle" {
-            reject(call, code: "INVALID_STATE", message: "Plugin can only start from idle")
-            return
-        }
-
-        ensureMicrophonePermission(call: call) {
-            self.setStatus("running")
+        do {
+            let permissions = checkPermissionsInternal()
+            try core.start(permissionState: permissions["microphone"] ?? "denied")
             call.resolve()
+        } catch let error as TodoPluginError {
+            reject(call, code: error.code, message: error.message)
+        } catch {
+            reject(call, code: "OPERATION_FAILED", message: "Start failed")
         }
     }
 
     @objc func stop(_ call: CAPPluginCall) {
-        if status != "running" {
-            reject(call, code: "INVALID_STATE", message: "Plugin can only stop from running")
-            return
+        do {
+            try core.stop()
+            call.resolve()
+        } catch let error as TodoPluginError {
+            reject(call, code: error.code, message: error.message)
+        } catch {
+            reject(call, code: "OPERATION_FAILED", message: "Stop failed")
         }
-
-        setStatus("idle")
-        call.resolve()
     }
 
     @objc func reset(_ call: CAPPluginCall) {
-        setStatus("init")
-        enabled = true
-        debug = false
-        setStatus("idle")
+        core.reset()
         call.resolve()
     }
 
@@ -121,29 +110,6 @@ public class TodoPlugin: CAPPlugin, CAPBridgedPlugin {
         requestPermissionsInternal {
             call.resolve(self.checkPermissionsInternal())
         }
-    }
-
-    private func ensureMicrophonePermission(call: CAPPluginCall, onGranted: @escaping () -> Void) {
-        let current = checkPermissionsInternal()
-        if isGranted(current["microphone"]) {
-            onGranted()
-            return
-        }
-
-        pendingStartCall = call
-        requestPermissionsInternal {
-            let updated = self.checkPermissionsInternal()
-            if self.isGranted(updated["microphone"]) {
-                onGranted()
-            } else {
-                self.reject(call, code: "PERMISSION_DENIED", message: "Microphone permission is required")
-            }
-            self.pendingStartCall = nil
-        }
-    }
-
-    private func isGranted(_ state: String?) -> Bool {
-        return state == "granted"
     }
 
     private func checkPermissionsInternal() -> [String: String] {
@@ -178,19 +144,11 @@ public class TodoPlugin: CAPPlugin, CAPBridgedPlugin {
         }
     }
 
-    private func setStatus(_ nextStatus: String) {
-        if status == nextStatus {
-            return
-        }
-
-        status = nextStatus
-        notifyListeners("statusChange", data: ["status": nextStatus])
-    }
-
     private func currentOptions() -> [String: Any] {
-        [
-            "enabled": enabled,
-            "debug": debug,
+        let options = core.getOptions()
+        return [
+            "enabled": options.enabled,
+            "debug": options.debug,
         ]
     }
 

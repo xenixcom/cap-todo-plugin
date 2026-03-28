@@ -19,81 +19,67 @@ class TodoPlugin : Plugin() {
         const val EVENT_STATUS_CHANGE = "statusChange"
     }
 
-    private var enabled = true
-    private var debug = false
-    private var status = "idle"
+    private val core = TodoCore()
 
-    private var pendingAction: (() -> Unit)? = null
-    private var pendingCall: PluginCall? = null
+    override fun load() {
+        core.onStatusChange = { nextStatus ->
+            notifyListeners(EVENT_STATUS_CHANGE, JSObject().put("status", nextStatus))
+        }
+    }
 
     @PluginMethod
     fun getStatus(call: PluginCall) {
-        call.resolve(JSObject().put("status", status))
+        call.resolve(JSObject().put("status", core.getStatus().status))
     }
 
     @PluginMethod
     fun getOptions(call: PluginCall) {
-        call.resolve(defaultOptions().put("enabled", enabled).put("debug", debug))
+        val options = core.getOptions()
+        call.resolve(defaultOptions().put("enabled", options.enabled).put("debug", options.debug))
     }
 
     @PluginMethod
     fun setOptions(call: PluginCall) {
-        if (call.data.has("enabled")) {
-            enabled = call.getBoolean("enabled", enabled) ?: enabled
-        }
-        if (call.data.has("debug")) {
-            debug = call.getBoolean("debug", debug) ?: debug
-        }
+        val nextEnabled = if (call.data.has("enabled")) call.getBoolean("enabled") else null
+        val nextDebug = if (call.data.has("debug")) call.getBoolean("debug") else null
+        core.setOptions(enabled = nextEnabled, debug = nextDebug)
         call.resolve()
     }
 
     @PluginMethod
     fun resetOptions(call: PluginCall) {
-        enabled = true
-        debug = false
+        core.resetOptions()
         call.resolve()
     }
 
     @PluginMethod
     fun echo(call: PluginCall) {
-        call.resolve(JSObject().put("value", call.getString("value") ?: ""))
+        call.resolve(JSObject().put("value", core.echo(call.getString("value") ?: "").value))
     }
 
     @PluginMethod
     fun start(call: PluginCall) {
-        if (!enabled) {
-            reject(call, "INVALID_STATE", "Plugin is disabled")
-            return
-        }
-
-        if (status != "idle") {
-            reject(call, "INVALID_STATE", "Plugin can only start from idle")
-            return
-        }
-
-        ensureMicrophonePermission(call) {
-            setStatus("running")
+        try {
+            core.start(checkPermissionsInternal().getString(MICROPHONE) ?: "denied")
             call.resolve()
+        } catch (error: TodoCoreException) {
+            reject(call, error.code, error.message)
         }
     }
 
     @PluginMethod
     fun stop(call: PluginCall) {
-        if (status != "running") {
-            reject(call, "INVALID_STATE", "Plugin can only stop from running")
-            return
+        try {
+            core.stop()
+            call.resolve()
+        } catch (error: TodoCoreException) {
+            reject(call, error.code, error.message)
         }
-
-        setStatus("idle")
-        call.resolve()
     }
 
     @PluginMethod
     fun reset(call: PluginCall) {
-        setStatus("init")
-        enabled = true
-        debug = false
-        setStatus("idle")
+        core.reset()
         call.resolve()
     }
 
@@ -125,35 +111,12 @@ class TodoPlugin : Plugin() {
             return
         }
 
-        pendingCall = call
         requestPermissionForAlias(MICROPHONE, call, "permissionCallback")
     }
 
     @PermissionCallback
     private fun permissionCallback(call: PluginCall) {
-        val status = checkPermissionsInternal()
-        if (status.getString(MICROPHONE) == "granted") {
-            pendingAction?.invoke()
-            pendingCall?.resolve(status)
-        } else {
-            pendingCall?.resolve(status)
-        }
-
-        pendingAction = null
-        pendingCall = null
-    }
-
-    private fun ensureMicrophonePermission(call: PluginCall, onGranted: () -> Unit) {
-        val status = checkPermissionsInternal()
-        if (status.getString(MICROPHONE) == "granted") {
-            onGranted()
-            return
-        }
-
-        pendingAction = onGranted
-        saveCall(call)
-        pendingCall = call
-        requestPermissionForAlias(MICROPHONE, call, "permissionCallback")
+        call.resolve(checkPermissionsInternal())
     }
 
     private fun checkPermissionsInternal(): JSObject =
@@ -163,8 +126,10 @@ class TodoPlugin : Plugin() {
 
     private fun permissionState(alias: String): String =
         when (
-            if (isPermissionDeclared(alias)) super.getPermissionState(alias)
-            else PermissionState.GRANTED
+            (
+                if (isPermissionDeclared(alias)) super.getPermissionState(alias)
+                else PermissionState.GRANTED
+            ) ?: PermissionState.PROMPT
         ) {
             PermissionState.GRANTED -> "granted"
             PermissionState.DENIED -> "denied"
@@ -173,15 +138,6 @@ class TodoPlugin : Plugin() {
         }
 
     private fun defaultOptions(): JSObject = JSObject().put("enabled", true).put("debug", false)
-
-    private fun setStatus(nextStatus: String) {
-        if (status == nextStatus) {
-            return
-        }
-
-        status = nextStatus
-        notifyListeners(EVENT_STATUS_CHANGE, JSObject().put("status", nextStatus))
-    }
 
     private fun reject(call: PluginCall, code: String, message: String) {
         call.reject(message, code, JSObject())

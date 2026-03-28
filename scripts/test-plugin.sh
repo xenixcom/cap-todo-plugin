@@ -2,7 +2,7 @@
 set -u
 
 # =========================================
-# Capacitor Plugin 測試 CLI (v0.4)
+# Capacitor Plugin 測試 CLI (v0.5)
 # =========================================
 # 角色:
 #   這支腳本是唯一正式測試工具入口，不是測試標準本身。
@@ -18,11 +18,11 @@ set -u
 #   ./scripts/test-plugin.sh [all|web|ios|android] [options]
 #
 # 選項:
-#   --device=<ID>        指定 iOS / Android 模擬器或真機 ID
+#   --device=<ID>        指定 iOS 模擬器或真機 ID
 #   --no-close-device    若本次測試由腳本自行開啟裝置，測完後也不要關閉
 #   --logs=<filename>    將完整 log 同步輸出到檔案
 #   --report             生成簡易 fail report
-# 
+#
 # 說明:
 #   這支腳本負責調度平台環境與正式 contract tests，
 #   但不綁定特定 JS 測試框架作為正式標準。
@@ -36,23 +36,19 @@ REPORT=0
 REPORT_FILE=""
 FAILURES=0
 
-# -----------------------
-# 內部設定區
-# -----------------------
 WEB_BUILD_CMD="npm run build"
 CONTRACT_TEST_CMD="${CONTRACT_TEST_CMD:-npm test}"
 
 IOS_SCHEME="${IOS_SCHEME:-XenixCapTodoPlugin}"
 IOS_DERIVED_DATA="${IOS_DERIVED_DATA:-./ios/build}"
-IOS_SIMULATOR_NAME="${IOS_SIMULATOR_NAME:-iPhone 15}"
+IOS_SIMULATOR_NAME="${IOS_SIMULATOR_NAME:-iPhone 17}"
 
-ANDROID_GRADLE_CMD="${ANDROID_GRADLE_CMD:-./gradlew}"
-ANDROID_APP_APK="${ANDROID_APP_APK:-./android/app/build/outputs/apk/debug/app-debug.apk}"
+ANDROID_GRADLE_CMD="${ANDROID_GRADLE_CMD:-./android/gradlew -p android}"
+ANDROID_TEST_CMD="${ANDROID_TEST_CMD:-$ANDROID_GRADLE_CMD test}"
 
 IOS_STARTED_BY_SCRIPT=0
-ANDROID_STARTED_BY_SCRIPT=0
 IOS_ACTIVE_DEVICE=""
-ANDROID_ACTIVE_DEVICE=""
+IOS_ACTIVE_DESTINATION=""
 
 for arg in "$@"; do
   case "$arg" in
@@ -127,33 +123,18 @@ run_and_capture() {
   return "$status"
 }
 
-detect_existing_ios_simulator() {
-  xcrun simctl list devices available | awk -F '[()]' '/Booted/ {print $(NF-1); exit}'
-}
-
 boot_ios_simulator_if_needed() {
-  ensure_command xcrun || return 1
+  ensure_command xcodebuild || return 1
 
   if [[ -n "$DEVICE" ]]; then
     IOS_ACTIVE_DEVICE="$DEVICE"
+    IOS_ACTIVE_DESTINATION="id=$IOS_ACTIVE_DEVICE"
     log "使用指定 iOS device: $IOS_ACTIVE_DEVICE"
     return 0
   fi
 
-  IOS_ACTIVE_DEVICE="$(detect_existing_ios_simulator)"
-  if [[ -n "$IOS_ACTIVE_DEVICE" ]]; then
-    log "使用現有已開啟的 iOS Simulator: $IOS_ACTIVE_DEVICE"
-    return 0
-  fi
-
-  IOS_ACTIVE_DEVICE="$(xcrun simctl list devices available | awk -v name="$IOS_SIMULATOR_NAME" -F '[()]' '$0 ~ name {print $(NF-1); exit}')"
-  if [[ -z "$IOS_ACTIVE_DEVICE" ]]; then
-    log "找不到可用的 iOS Simulator: $IOS_SIMULATOR_NAME"
-    return 1
-  fi
-
-  log "未發現已開啟的 iOS Simulator，改由腳本啟動: $IOS_SIMULATOR_NAME ($IOS_ACTIVE_DEVICE)"
-  xcrun simctl boot "$IOS_ACTIVE_DEVICE" >/dev/null 2>&1 || true
+  IOS_ACTIVE_DESTINATION="platform=iOS Simulator,name=$IOS_SIMULATOR_NAME"
+  log "使用預設 iOS Simulator: $IOS_SIMULATOR_NAME"
   open -a Simulator >/dev/null 2>&1 || true
   IOS_STARTED_BY_SCRIPT=1
   return 0
@@ -163,60 +144,6 @@ cleanup_ios_device() {
   if [[ $IOS_STARTED_BY_SCRIPT -eq 1 && $NO_CLOSE -eq 0 && -n "$IOS_ACTIVE_DEVICE" ]]; then
     log "關閉由腳本啟動的 iOS Simulator: $IOS_ACTIVE_DEVICE"
     xcrun simctl shutdown "$IOS_ACTIVE_DEVICE" >/dev/null 2>&1 || true
-  fi
-}
-
-detect_existing_android_device() {
-  adb devices | awk 'NR > 1 && $2 == "device" {print $1; exit}'
-}
-
-start_android_emulator_if_needed() {
-  local emulator_name
-
-  ensure_command adb || return 1
-
-  if [[ -n "$DEVICE" ]]; then
-    ANDROID_ACTIVE_DEVICE="$DEVICE"
-    log "使用指定 Android device: $ANDROID_ACTIVE_DEVICE"
-    return 0
-  fi
-
-  ANDROID_ACTIVE_DEVICE="$(detect_existing_android_device)"
-  if [[ -n "$ANDROID_ACTIVE_DEVICE" ]]; then
-    log "使用現有已連線的 Android device: $ANDROID_ACTIVE_DEVICE"
-    return 0
-  fi
-
-  ensure_command emulator || return 1
-  emulator_name="$(emulator -list-avds | head -n 1)"
-  if [[ -z "$emulator_name" ]]; then
-    log "找不到可用的 Android emulator"
-    return 1
-  fi
-
-  log "未發現已連線的 Android device，改由腳本啟動 emulator: $emulator_name"
-  emulator @"$emulator_name" >/dev/null 2>&1 &
-  ANDROID_STARTED_BY_SCRIPT=1
-
-  local waited=0
-  while [[ $waited -lt 120 ]]; do
-    ANDROID_ACTIVE_DEVICE="$(detect_existing_android_device)"
-    if [[ -n "$ANDROID_ACTIVE_DEVICE" ]]; then
-      log "Android emulator 已就緒: $ANDROID_ACTIVE_DEVICE"
-      return 0
-    fi
-    sleep 2
-    waited=$((waited + 2))
-  done
-
-  log "Android emulator 啟動逾時"
-  return 1
-}
-
-cleanup_android_device() {
-  if [[ $ANDROID_STARTED_BY_SCRIPT -eq 1 && $NO_CLOSE -eq 0 && -n "$ANDROID_ACTIVE_DEVICE" ]]; then
-    log "關閉由腳本啟動的 Android emulator: $ANDROID_ACTIVE_DEVICE"
-    adb -s "$ANDROID_ACTIVE_DEVICE" emu kill >/dev/null 2>&1 || true
   fi
 }
 
@@ -246,14 +173,14 @@ run_ios_tests() {
   boot_ios_simulator_if_needed || return 1
 
   log "編譯 iOS Plugin..."
-  run_and_capture "iOS" "xcodebuild build -scheme \"$IOS_SCHEME\" -derivedDataPath \"$IOS_DERIVED_DATA\""
+  run_and_capture "iOS" "xcodebuild build -scheme \"$IOS_SCHEME\" -destination '$IOS_ACTIVE_DESTINATION' -derivedDataPath \"$IOS_DERIVED_DATA\""
   if [[ $? -ne 0 ]]; then
     cleanup_ios_device
     return 1
   fi
 
-  log "執行 iOS 平台驗證流程..."
-  run_and_capture "iOS" "xcodebuild test -scheme \"$IOS_SCHEME\" -destination 'id=$IOS_ACTIVE_DEVICE' -derivedDataPath \"$IOS_DERIVED_DATA\""
+  log "執行 iOS 原生 contract 核心驗證..."
+  run_and_capture "iOS" "xcodebuild test -scheme \"$IOS_SCHEME\" -destination '$IOS_ACTIVE_DESTINATION' -derivedDataPath \"$IOS_DERIVED_DATA\""
   local status=$?
   cleanup_ios_device
   return "$status"
@@ -265,33 +192,15 @@ run_android_tests() {
   log "=============================="
 
   ensure_command bash || return 1
-  ensure_command adb || return 1
-
-  start_android_emulator_if_needed || return 1
 
   log "編譯 Android Plugin..."
   run_and_capture "Android" "$ANDROID_GRADLE_CMD assembleDebug"
   if [[ $? -ne 0 ]]; then
-    cleanup_android_device
     return 1
   fi
 
-  if [[ -f "$ANDROID_APP_APK" ]]; then
-    log "部署 Android APK..."
-    run_and_capture "Android" "adb -s \"$ANDROID_ACTIVE_DEVICE\" install -r \"$ANDROID_APP_APK\""
-    if [[ $? -ne 0 ]]; then
-      cleanup_android_device
-      return 1
-    fi
-  else
-    log "找不到 APK，略過安裝步驟: $ANDROID_APP_APK"
-  fi
-
-  log "執行 Android 平台驗證流程..."
-  run_and_capture "Android" "$ANDROID_GRADLE_CMD connectedAndroidTest"
-  local status=$?
-  cleanup_android_device
-  return "$status"
+  log "執行 Android 原生 contract 核心驗證..."
+  run_and_capture "Android" "$ANDROID_TEST_CMD"
 }
 
 run_platform() {
@@ -339,10 +248,5 @@ log "失敗平台數: $FAILURES"
 if [[ $NO_CLOSE -eq 1 ]]; then
   log "模擬器或裝置將保持開啟。"
 fi
-log "=============================="
 
-if [[ $FAILURES -gt 0 ]]; then
-  exit 1
-fi
-
-exit 0
+exit "$FAILURES"
