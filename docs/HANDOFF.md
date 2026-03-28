@@ -110,18 +110,17 @@ tests/
 ### 6.3 `tests/contract`
 
 - 已整理成正式測試設計稿
-- `options.spec.ts` 與 `lifecycle.spec.ts` 已接到真實 `TodoWeb`
-- 目前 `npm test` 可執行這兩組正式測試
-- 其餘 spec 目前仍以 `test.todo(...)` 形式固定驗收內容與案例方向
+- `options.spec.ts`、`lifecycle.spec.ts`、`status.spec.ts`、`error-handling.spec.ts`、`edge-cases.spec.ts` 已接到真實 `TodoWeb`
+- 目前 `npm test` 可執行完整 web formal contract tests
 - 已和正式 `definitions.ts` 對齊
-- 已補上情境矩陣，但尚未完全接成可執行 runner
+- 已補上情境矩陣，且 web 端已形成可執行 formal suite
 
 ### 6.4 `scripts/test-plugin.sh`
 
 - 已整理成唯一正式測試工具入口
 - 已有單一入口、平台選擇、裝置參數、log、report 等流程骨架
 - 已改成不綁定 Jest / Vitest 的框架中立語意
-- 目前仍待與可執行 contract tests 完成閉環驗證
+- 目前 `./scripts/test-plugin.sh all --report` 已可跑通三平台，失敗平台數為 `0`
 
 ## 7. 目前已確認的事
 
@@ -134,8 +133,7 @@ tests/
 ## 8. 目前還沒定案的事
 
 - 正式 `definitions.ts` 是否還需再微調欄位與註解
-- 正式 contract tests 如何從設計稿轉成可執行案例
-- `scripts/test-plugin.sh` 如何與 runnable contract tests 閉環
+- `ios / android` 如何從目前 native coverage 提升到更接近 app 位階的單一 pipeline host
 - `demo` 與正式 contract test 的責任分界是否還需補充文件
 - 平台實作何時開始跟進正式 contract
 
@@ -143,8 +141,8 @@ tests/
 
 1. 先把骨架清乾淨，移除過時或模板殘留
 2. 微調並確認正式 `definitions.ts`
-3. 將 `tests/contract` 從設計稿轉成可執行 contract tests
-4. 讓 `scripts/test-plugin.sh` 與 runnable tests 接成閉環
+3. 維持 `tests/contract` 作為唯一正式測試單元
+4. 讓 `scripts/test-plugin.sh` 從目前平台 coverage 逐步提升到更接近 app 位階的單一 pipeline host
 5. 再讓 AI 依據 contract 與測試去持續實作、除錯、迭代
 
 ## 10. 移植到其他 repo 時
@@ -215,11 +213,10 @@ tests/
   - `ios`: 跑 native core 與 bridge helper contract coverage
   - `android`: 跑 native core 與 bridge helper contract coverage
 - 這仍符合單一 contract、單一正式測試標準、單一正式入口的核心思想；差異只在各平台目前接入深度不同。
+- 最新實測狀態：`./scripts/test-plugin.sh all --report` 已全數通過，失敗平台數為 `0`。
 
 ## Next Step
 
-- 下一輪主軸不是重寫 spec，也不是再補臨時 harness。
-- 下一步應沿用既有 [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract) 與 [`src/definitions.ts`](/Users/james/dev2/cap-todo-plugin/src/definitions.ts)，把 `ios` / `android` 從 native core + bridge helper coverage 逐步推進到更完整的 formal bridge contract tests。
-- 建議順序：
-  - 先在 `ios` 補第一個真正的 `statusChange` bridge test
-  - 再決定 `android` 要升到 Robolectric 或 instrumented bridge tests
+- 下一輪主軸不是再擴張私測，而是讓單一 pipeline 更接近 app 位階。
+- 下一步應沿用既有 [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract) 與 [`src/definitions.ts`](/Users/james/dev2/cap-todo-plugin/src/definitions.ts)，把 `ios` / `android` 從目前 coverage 逐步接到未來的單一 pipeline host。
+- `demo` 仍維持最後 UI 驗證與功能展示用途，不承擔正式 pipeline。

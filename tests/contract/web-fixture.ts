@@ -88,6 +88,7 @@ export interface WebContractFixture {
   permissionState: PermissionStateValue;
   permissionQueries: string[];
   getUserMediaCalls: number;
+  supportsGetUserMedia: boolean;
 }
 
 export function createWebContractFixture(
@@ -98,6 +99,7 @@ export function createWebContractFixture(
   const permissionQueries: string[] = [];
   let permissionState = initialPermission;
   let getUserMediaCalls = 0;
+  let supportsGetUserMedia = true;
 
   navigatorObject.permissions = {
     query: async ({ name }) => {
@@ -106,13 +108,20 @@ export function createWebContractFixture(
     },
   };
 
-  navigatorObject.mediaDevices = {
+  const mediaDevices = {
     getUserMedia: async () => {
       getUserMediaCalls += 1;
       permissionState = 'granted';
       return new MockMediaStream();
     },
   };
+
+  Object.defineProperty(navigatorObject, 'mediaDevices', {
+    configurable: true,
+    get() {
+      return supportsGetUserMedia ? mediaDevices : undefined;
+    },
+  });
 
   const plugin = new TodoWeb();
 
@@ -121,6 +130,12 @@ export function createWebContractFixture(
     permissionQueries,
     get getUserMediaCalls() {
       return getUserMediaCalls;
+    },
+    get supportsGetUserMedia() {
+      return supportsGetUserMedia;
+    },
+    set supportsGetUserMedia(nextValue: boolean) {
+      supportsGetUserMedia = nextValue;
     },
     get permissionState() {
       return permissionState;

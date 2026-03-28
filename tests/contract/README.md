@@ -22,6 +22,7 @@
 - 所有 spec 都是正式驗收內容與案例來源
 - `web` 端目前已可透過 `npm test` 執行完整 formal contract tests
 - `iOS / Android` 仍應沿同一套 spec 逐步接入，不得自行發展第二套正式標準
+- 目前 `./scripts/test-plugin.sh all --report` 已可得到三平台全綠結果，但 `ios / android` 仍是以原生 coverage 承接，尚未完全提升到與 `web` 同層級的 app-level pipeline host
 
 其中：
 

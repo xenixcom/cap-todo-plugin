@@ -71,12 +71,13 @@ tests/
 
 目前 `scripts/test-plugin.sh` 的 web 測試命令預設為 `npm test`。
 目前 `npm test` 已可執行完整 web formal contract tests，直接接到真實 `TodoWeb`。
-後續主線是把 `iOS / Android` 逐步接上同一套正式測試入口，而不是發展各平台各自標準。
+目前 `./scripts/test-plugin.sh all --report` 已可得到三平台全綠結果。
+後續主線是把 `iOS / Android` 從目前 coverage 逐步提升到更接近 app 位階的單一 pipeline host，而不是發展各平台各自標準。
 ## 下一步
 
 - 微調並確認正式 `src/definitions.ts`。
-- 讓 `tests/contract` 從測試設計稿轉成可執行 contract tests。
-- 把 `scripts/test-plugin.sh` 與正式 contract tests 接成閉環。
+- 維持 `tests/contract` 作為唯一正式測試單元。
+- 讓 `scripts/test-plugin.sh` 從目前平台 coverage 逐步提升到更接近 app 位階的單一 pipeline host。
 - 再讓 AI 依 contract 與測試持續實作、除錯、迭代。
 ## Core Reminder
 
@@ -87,7 +88,7 @@ tests/
 ## Current State
 
 - `web` 已打通正式 contract pipeline，直接對真實 [`src/web.ts`](/Users/james/dev2/cap-todo-plugin/src/web.ts) 執行 [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract)。
-- `ios` 與 `android` 已完成第一批 native core 與 bridge helper contract coverage，但尚未完全達到 `web` 那種完整 formal suite 深度。
+- `ios` 與 `android` 已完成第一批 native core 與 bridge helper contract coverage，且目前已由 [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh) 跑通三平台。
 - [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh) 仍是唯一正式入口。
 
 ## Platform Coverage
@@ -98,7 +99,7 @@ tests/
 - `ios`
   - native core + bridge helper contract coverage
   - 透過 `xcodebuild test` 驗證
-  - 已驗證最小 bridge seam 可存在且不破壞現有測試
+  - 已補上第一批 bridge event / permission coverage
 - `android`
   - native core + bridge helper contract coverage
   - 透過 `./android/gradlew -p android test` 驗證
@@ -108,8 +109,8 @@ tests/
 
 - 維持單一 [`src/definitions.ts`](/Users/james/dev2/cap-todo-plugin/src/definitions.ts)。
 - 維持單一正式測試單元 [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract)。
-- 下一步是把 `ios` / `android` 逐步提升到與 `web` 更接近的 formal bridge contract coverage，而不是發展各平台各自的標準。
-- 目前建議先推 `ios` 的第一個 bridge event test，再決定 `android` 的下一層原生測試形態。
+- 下一步是把 `ios` / `android` 從目前 coverage 逐步接到未來單一 pipeline host，而不是發展各平台各自的標準。
+- `demo` 仍維持最後 UI 驗證與功能展示用途，不承擔正式 pipeline。
 
 ## Related Notes
 
