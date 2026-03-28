@@ -176,6 +176,21 @@ tests/
 - `demo` 的定位是最後 UI 確認與功能展示，不是正式 pipeline 的執行宿主。
 - 若後續工作把 `demo` 當成正式測試主體，代表方向已偏離，應回到單一入口設計。
 
+## Pipeline Declaration
+
+- 這條正式 pipeline 的位置，應站在最接近前端 app 呼叫 plugin 的位階。
+- Capacitor plugin 的最終目的，是把各平台能力收斂回前端 web 的單一使用面。
+- 因此，只要 `web` formal pipeline 能跑通，就代表：
+  - 正式 contract 可工作
+  - 正式測試單元可工作
+  - 正式測試入口可工作
+  - 整條 pipeline 的設計本身成立
+- 在這個前提下，若 `ios` 或 `android` 無法綠燈，優先視為平台實作或 bridge 對齊問題，而不是回頭動搖正式 pipeline 主線。
+- `TodoPlugin` 這個 repo 不只展示 plugin 功能，也展示：
+  - 如何把原生能力收斂回前端單一使用面
+  - 如何用單一 contract、單一測試單元、單一入口去驗證 Capacitor plugin
+  - 如何讓後續開發者節省平台分裂與重複摸索的時間
+
 ## Current Verification Status
 
 - `web` 已是完整的正式 contract pipeline。

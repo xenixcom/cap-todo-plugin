@@ -85,6 +85,13 @@ tests/
 - `demo` 要等正式 pipeline 全綠後才做。
 - `demo` 只負責最後 UI 確認、功能展示、用法示範。
 
+## Pipeline Manifesto
+
+- 這條正式 pipeline 應站在最接近前端 app 呼叫 plugin 的位階。
+- 只要 `web` formal pipeline 能跑通，就代表這套正式 contract、正式測試單元與正式入口的主線設計成立。
+- 若 `ios / android` 之後不綠，優先視為平台實作或 bridge 對齊問題，而不是回頭動搖 pipeline 主線。
+- `TodoPlugin` 這個 repo 的價值，不只在展示 plugin 功能，也在展示 Capacitor plugin 如何把原生能力收斂回前端單一使用面。
+
 ## Current State
 
 - `web` 已打通正式 contract pipeline，直接對真實 [`src/web.ts`](/Users/james/dev2/cap-todo-plugin/src/web.ts) 執行 [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract)。

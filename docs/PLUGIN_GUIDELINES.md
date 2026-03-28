@@ -202,6 +202,18 @@ scripts/
   - Plugin 用法示範
 - 若設計或實作方向開始讓 `demo` 承擔正式測試責任，視為偏離主線，應立即回頭檢查。
 
+## Pipeline Manifesto
+
+- 正式 pipeline 應站在最接近前端 app 呼叫 plugin 的位階，而不是平台私有測試位階。
+- Capacitor plugin 的目的不是讓各平台各自表述，而是把平台能力收斂回前端 web 的單一使用面。
+- 因此 `web` formal pipeline 的綠燈，代表正式 contract、正式測試單元與正式入口的主線設計已成立。
+- 後續若 `ios` 或 `android` 無法綠燈，應優先定位為平台實作或 bridge 對齊問題，而不是回頭質疑單一 pipeline 本身。
+- 平台私測若存在，只能作為短期過渡工具；不得升格為新的正式標準。
+- `TodoPlugin` 的示範價值不只在功能本身，也在展示：
+  - 原生能力如何透過 Capacitor bridge 回到前端單一使用面
+  - 單一 contract、單一測試單元、單一入口如何形成可持續的開發流程
+  - 這套流程如何節省後續開發者處理跨平台差異的時間
+
 ## Current Platform Validation Layer
 
 - `web` 應優先作為第一條完整 formal contract pipeline。
