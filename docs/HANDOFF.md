@@ -123,6 +123,7 @@ tests/
 - 已改成不綁定 Jest / Vitest 的框架中立語意
 - 目前 `./scripts/test-plugin.sh all --report` 已可跑通三平台，失敗平台數為 `0`
 - `--report` 在成功時會輸出摘要，在失敗時會輸出人類可讀的 failure summary
+- `--fast` 為通用快速模式旗標；目前僅 web 會跳過發佈型 build，只跑 formal contract tests，作為開發期快速回歸模式。其他平台暫時忽略。
 
 ## 7. 目前已確認的事
 
@@ -237,3 +238,32 @@ tests/
 - 下一輪主軸不是再擴張私測，而是在目前穩定基準上做優化。
 - 下一步應沿用既有 [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract) 與 [`src/definitions.ts`](/Users/james/dev2/cap-todo-plugin/src/definitions.ts)，把 `ios` / `android` 從目前 coverage 逐步接到未來的單一 pipeline host。
 - `demo` 仍維持最後 UI 驗證與功能展示用途，不承擔正式 pipeline。
+## Current Stable State
+
+- The current optimization branch still preserves the single-pipeline rule:
+  - formal entry: `./scripts/test-plugin.sh`
+  - formal contract source: `src/definitions.ts`
+  - formal web suites: `tests/contract`
+- `web`, `ios`, and `android` now all return green from `./scripts/test-plugin.sh all --report`.
+
+### iOS Status
+
+- `ios` no longer stops at compile-only verification.
+- A minimal native Swift test target is active again and currently covers:
+  - `echo`
+  - default options
+  - partial `setOptions`
+  - `resetOptions`
+  - `start -> running`
+  - `stop -> idle`
+  - disabled-state `start` rejection
+- The script also self-heals a stale default simulator entry by recreating the configured `iPhone 17` simulator when the stored CoreSimulator record no longer exists on disk.
+
+### Cleanup Controls
+
+- Use `./scripts/test-plugin.sh --clean-artifacts` for repo-local cleanup.
+- Use `./scripts/test-plugin.sh --clean-global-caches` for machine-wide cache cleanup.
+
+Keep the distinction clear:
+- `--clean-artifacts` is safe routine cleanup for this repo.
+- `--clean-global-caches` is a deliberate machine-level cleanup step.

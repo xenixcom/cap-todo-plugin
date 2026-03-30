@@ -72,3 +72,22 @@ The goal is to preserve the lessons without preserving every exploratory impleme
 - Optimize from this stable baseline rather than introducing more private test layers.
 - Continue building toward one pipeline that can call the real platform window and observe method results, events, and errors.
 - Treat past native private tests as transition knowledge, not final testing architecture.
+## Recent Lessons
+
+### 1. Green compile is not enough for native platforms
+
+The earlier `ios` path could still return green while `echo()` behavior was wrong. That proved the pipeline was not yet validating meaningful runtime contract behavior on native platforms. Reintroducing a minimal native Swift test target closed that gap.
+
+### 2. Simulator records can rot independently from repo state
+
+After artifact cleanup, the previously selected default simulator ID could still be returned by tooling even though the backing CoreSimulator device data had already disappeared from disk. The pipeline now deletes unavailable simulator records and recreates the configured simulator when necessary.
+
+### 3. Repo-local cleanup and global cleanup must stay separate
+
+Not all disk pressure came from repo-local outputs. Repo-local cleanup helps, but the largest long-lived cache sources can also live in:
+- `~/Library/Developer/CoreSimulator/Devices`
+- `~/Library/Developer/Xcode/DerivedData`
+- `~/.gradle/caches`
+- `~/.gradle/daemon`
+
+The pipeline now exposes two cleanup levels so routine repo work does not automatically wipe global machine caches.

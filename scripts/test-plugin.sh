@@ -1,4 +1,5 @@
 #!/bin/bash
+
 set -u
 
 # =========================================
@@ -20,6 +21,10 @@ set -u
 # 選項:
 #   --device=<ID>        指定 iOS 模擬器或真機 ID
 #   --no-close-device    若本次測試由腳本自行開啟裝置，測完後也不要關閉
+#   --fast               啟用快速模式；目前僅 Web 會跳過發佈型 build
+#   --keep-artifacts     保留 report 與測試產物，不自動清理
+#   --clean-artifacts    清除 repo 內測試產物後直接結束
+#   --clean-global-caches 清除全域 Xcode / Simulator / Gradle / npm 快取後直接結束
 #   --logs=<filename>    將完整 log 同步輸出到檔案
 #   --report             生成簡易 fail report
 #
@@ -35,8 +40,13 @@ LOG_FILE=""
 REPORT=0
 REPORT_FILE=""
 FAILURES=0
+FAST_MODE=0
+KEEP_ARTIFACTS=0
 CURRENT_PLATFORM_SUMMARY=""
 CURRENT_PLATFORM_FAILURE=""
+WEB_RESULT="SKIPPED"
+IOS_RESULT="SKIPPED"
+ANDROID_RESULT="SKIPPED"
 
 WEB_BUILD_CMD="npm run build"
 CONTRACT_TEST_CMD="${CONTRACT_TEST_CMD:-npm test}"
@@ -52,8 +62,52 @@ IOS_STARTED_BY_SCRIPT=0
 IOS_ACTIVE_DEVICE=""
 IOS_ACTIVE_DESTINATION=""
 
+cleanup_report_artifacts() {
+  if [[ $KEEP_ARTIFACTS -eq 1 ]]; then
+    return
+  fi
+
+  if [[ $REPORT -eq 1 && -n "${REPORT_FILE:-}" ]]; then
+    find . -maxdepth 1 -type f -name 'plugin-report-*.txt' ! -name "$REPORT_FILE" -delete 2>/dev/null || true
+  else
+    find . -maxdepth 1 -type f -name 'plugin-report-*.txt' -delete 2>/dev/null || true
+  fi
+}
+
+cleanup_ios_test_artifacts() {
+  if [[ $KEEP_ARTIFACTS -eq 1 ]]; then
+    return
+  fi
+
+  rm -rf "$IOS_DERIVED_DATA/Logs/Test" 2>/dev/null || true
+  rm -rf "$IOS_DERIVED_DATA/Logs/TestSummary" 2>/dev/null || true
+}
+
+cleanup_repo_artifacts_and_exit() {
+  rm -rf ./ios/build/Logs/Test 2>/dev/null || true
+  rm -rf ./ios/build/Logs/TestSummary 2>/dev/null || true
+  rm -rf ./android/build 2>/dev/null || true
+  rm -rf ./demo/android/app/build 2>/dev/null || true
+  find . -maxdepth 1 -type f -name 'plugin-report-*.txt' -delete 2>/dev/null || true
+  echo "已清理測試產物"
+  exit 0
+}
+
+cleanup_global_caches_and_exit() {
+  rm -rf "$HOME/Library/Developer/Xcode/DerivedData"/* 2>/dev/null || true
+  rm -rf "$HOME/Library/Developer/CoreSimulator/Devices"/* 2>/dev/null || true
+  rm -rf "$HOME/.gradle/caches"/* 2>/dev/null || true
+  rm -rf "$HOME/.gradle/daemon"/* 2>/dev/null || true
+  npm cache clean --force >/dev/null 2>&1 || true
+  echo "已清理全域快取"
+  exit 0
+}
+
 resolve_ios_simulator_id() {
   ensure_command xcrun || return 1
+
+  # 清掉 CoreSimulator 中已失效的裝置紀錄，避免命中殘留 ID
+  xcrun simctl delete unavailable >/dev/null 2>&1 || true
 
   local simulator_id
   simulator_id="$(xcrun simctl list devices available | awk -v name="$IOS_SIMULATOR_NAME" '
@@ -66,7 +120,17 @@ resolve_ios_simulator_id() {
   ')"
 
   if [[ -z "$simulator_id" ]]; then
-    log "找不到 iOS Simulator: $IOS_SIMULATOR_NAME"
+    log "找不到可用的 iOS Simulator: $IOS_SIMULATOR_NAME，嘗試重建..."
+    simulator_id="$(xcrun simctl create "$IOS_SIMULATOR_NAME" "com.apple.CoreSimulator.SimDeviceType.iPhone-17" "com.apple.CoreSimulator.SimRuntime.iOS-26-4" 2>/dev/null || true)"
+  fi
+
+  if [[ -n "$simulator_id" && ! -d "$HOME/Library/Developer/CoreSimulator/Devices/$simulator_id" ]]; then
+    xcrun simctl delete "$simulator_id" >/dev/null 2>&1 || true
+    simulator_id="$(xcrun simctl create "$IOS_SIMULATOR_NAME" "com.apple.CoreSimulator.SimDeviceType.iPhone-17" "com.apple.CoreSimulator.SimRuntime.iOS-26-4" 2>/dev/null || true)"
+  fi
+
+  if [[ -z "$simulator_id" ]]; then
+    log "無法建立 iOS Simulator: $IOS_SIMULATOR_NAME"
     return 1
   fi
 
@@ -75,9 +139,13 @@ resolve_ios_simulator_id() {
 
 for arg in "$@"; do
   case "$arg" in
+    --clean-artifacts) cleanup_repo_artifacts_and_exit ;;
+    --clean-global-caches) cleanup_global_caches_and_exit ;;
     all|web|ios|android) PLATFORM="$arg" ;;
     --device=*) DEVICE="${arg#*=}" ;;
     --no-close-device) NO_CLOSE=1 ;;
+    --fast) FAST_MODE=1 ;;
+    --keep-artifacts) KEEP_ARTIFACTS=1 ;;
     --logs=*) LOG_FILE="${arg#*=}" ;;
     --report) REPORT=1 ;;
     *)
@@ -90,6 +158,7 @@ done
 TIMESTAMP="$(date +"%Y%m%d_%H%M%S")"
 if [[ $REPORT -eq 1 ]]; then
   REPORT_FILE="plugin-report-${PLATFORM}-${TIMESTAMP}.txt"
+  cleanup_report_artifacts
   : > "$REPORT_FILE"
   {
     echo "Capacitor Plugin Test Report"
@@ -171,10 +240,10 @@ run_and_capture() {
 
   while IFS= read -r line; do
     case "$line" in
-      *FAIL*|*FAILED*|*"Test Failed"*|*"✕"*)
+      *"Test Case "*failed*|*"Testing failed:"*|*"Cannot find "*|*"Missing argument for parameter"*|*"Type '"*|*"Value of type "*|*"The following build commands failed:"*|*"AssertionError:"*|*"Expected"*|*"Received"*|*"error: -["*|*"Execution failed for task"*|*"There were failing tests."*|*"✕"*|"-   "*|"+   "*)
         CURRENT_PLATFORM_FAILURE="$(append_unique_line "$CURRENT_PLATFORM_FAILURE" "$line")"
         ;;
-      " FAIL "*|FAIL\ \ *|*"AssertionError:"*|*"Expected"*|*"Received"*|*"error: -["*|*"Execution failed for task"*|*"There were failing tests."*|"-   "*|"+   "*|"  {"|"  }")
+      *FAIL*|*FAILED*|*"Test Failed"*|"  {"|"  }")
         CURRENT_PLATFORM_FAILURE="$(append_unique_line "$CURRENT_PLATFORM_FAILURE" "$line")"
         ;;
       " Test Files "*|"      Tests "*|"** TEST SUCCEEDED **"|BUILD\ SUCCESSFUL*)
@@ -226,8 +295,13 @@ run_web_tests() {
   ensure_command npm || return 1
   ensure_command bash || return 1
 
-  log "編譯 Web Plugin..."
-  run_and_capture "Web" "$WEB_BUILD_CMD" || return 1
+  if [[ $FAST_MODE -eq 1 ]]; then
+    log "使用 Web 快速模式：跳過發佈型 build。"
+    CURRENT_PLATFORM_SUMMARY="$(append_unique_line "$CURRENT_PLATFORM_SUMMARY" "Web fast mode enabled")"
+  else
+    log "編譯 Web Plugin..."
+    run_and_capture "Web" "$WEB_BUILD_CMD" || return 1
+  fi
 
   log "執行正式 contract test..."
   run_and_capture "Web" "$CONTRACT_TEST_CMD"
@@ -242,9 +316,10 @@ run_ios_tests() {
   ensure_command xcodebuild || return 1
 
   boot_ios_simulator_if_needed || return 1
+  cleanup_ios_test_artifacts
 
-  log "驗證 iOS Plugin 與原生整合可成功編譯..."
-  run_and_capture "iOS" "xcodebuild build -scheme \"$IOS_SCHEME\" -destination '$IOS_ACTIVE_DESTINATION' -derivedDataPath \"$IOS_DERIVED_DATA\""
+  log "執行 iOS 原生 contract 驗證..."
+  run_and_capture "iOS" "xcodebuild test -scheme \"$IOS_SCHEME\" -destination '$IOS_ACTIVE_DESTINATION' -derivedDataPath \"$IOS_DERIVED_DATA\""
   local status=$?
   cleanup_ios_device
   return "$status"
@@ -270,10 +345,12 @@ run_android_tests() {
 run_platform() {
   local platform_label="$1"
   local platform_runner="$2"
+  local platform_result_var="$3"
   CURRENT_PLATFORM_SUMMARY=""
   CURRENT_PLATFORM_FAILURE=""
 
   if "$platform_runner"; then
+    printf -v "$platform_result_var" '%s' "PASS"
     log "Result: ${platform_label} PASS"
     if [[ $REPORT -eq 1 ]]; then
       report_append "=============================="
@@ -291,6 +368,7 @@ run_platform() {
       report_append
     fi
   else
+    printf -v "$platform_result_var" '%s' "FAIL"
     log "Result: ${platform_label} FAIL"
     FAILURES=$((FAILURES + 1))
     if [[ $REPORT -eq 1 ]]; then
@@ -316,6 +394,7 @@ log "Capacitor Plugin 測試"
 log "Platform: $PLATFORM"
 log "Device: ${DEVICE:-(auto)}"
 log "No close device: $NO_CLOSE"
+log "Fast mode: $FAST_MODE"
 if [[ -n "$LOG_FILE" ]]; then
   log "Log file: $LOG_FILE"
 fi
@@ -325,31 +404,62 @@ fi
 log "=============================="
 
 if [[ "$PLATFORM" == "all" || "$PLATFORM" == "web" ]]; then
-  run_platform "Web" run_web_tests
+  run_platform "Web" run_web_tests WEB_RESULT
 fi
 
 if [[ "$PLATFORM" == "all" || "$PLATFORM" == "ios" ]]; then
-  run_platform "iOS" run_ios_tests
+  run_platform "iOS" run_ios_tests IOS_RESULT
 fi
 
 if [[ "$PLATFORM" == "all" || "$PLATFORM" == "android" ]]; then
-  run_platform "Android" run_android_tests
+  run_platform "Android" run_android_tests ANDROID_RESULT
 fi
 
 log "=============================="
 log "測試完成 - 平台: $PLATFORM"
+if [[ "$PLATFORM" == "all" ]]; then
+  log "web: $WEB_RESULT"
+  log "ios: $IOS_RESULT"
+  log "android: $ANDROID_RESULT"
+else
+  if [[ -n "$CURRENT_PLATFORM_FAILURE" ]]; then
+    log "失敗摘要:"
+    while IFS= read -r line; do
+      [[ -n "$line" ]] && log "  - $line"
+    done <<< "$CURRENT_PLATFORM_FAILURE"
+  fi
+fi
 if [[ $REPORT -eq 1 ]]; then
   report_append "=============================="
   report_append "Overall Result"
-  report_append "Failed Platforms: $FAILURES"
-  if [[ $FAILURES -eq 0 ]]; then
-    report_append "Status: PASS"
+  if [[ "$PLATFORM" == "all" ]]; then
+    report_append "web: $WEB_RESULT"
+    report_append "ios: $IOS_RESULT"
+    report_append "android: $ANDROID_RESULT"
+    report_append "Failed Platforms: $FAILURES"
+    if [[ $FAILURES -eq 0 ]]; then
+      report_append "Status: PASS"
+    else
+      report_append "Status: FAIL"
+    fi
   else
-    report_append "Status: FAIL"
+    local_single_result="PASS"
+    if [[ $FAILURES -ne 0 ]]; then
+      local_single_result="FAIL"
+    fi
+    report_append "Status: $local_single_result"
+    if [[ -n "$CURRENT_PLATFORM_FAILURE" ]]; then
+      report_append "Failure Summary:"
+      while IFS= read -r line; do
+        [[ -n "$line" ]] && report_append "  - $line"
+      done <<< "$CURRENT_PLATFORM_FAILURE"
+    fi
   fi
   log "報告檔案: $REPORT_FILE"
 fi
-log "失敗平台數: $FAILURES"
+if [[ "$PLATFORM" == "all" ]]; then
+  log "失敗平台數: $FAILURES"
+fi
 if [[ $NO_CLOSE -eq 1 ]]; then
   log "模擬器或裝置將保持開啟。"
 fi

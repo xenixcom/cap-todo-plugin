@@ -51,6 +51,7 @@ public final class TodoCore {
 
     public func echo(_ value: String) -> TodoEchoResult {
         TodoEchoResult(value: value)
+        // TodoEchoResult(value: value + " (echoed)") <-- 故意製造錯誤
     }
 
     public func start(permissionState: String) throws {
@@ -70,6 +71,7 @@ public final class TodoCore {
         }
 
         setStatus("running")
+        // setStatus("running") <-- 故意製造錯誤
     }
 
     public func stop() throws {
