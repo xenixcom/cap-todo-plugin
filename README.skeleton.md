@@ -7,4 +7,4 @@
 - 交接文件：[`docs/HANDOFF.md`](/Users/james/dev2/cap-todo-plugin/docs/HANDOFF.md)
 - 移植備忘：[`docs/PORTING_NOTES.md`](/Users/james/dev2/cap-todo-plugin/docs/PORTING_NOTES.md)
 - 正式測試規格：[`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract)
-- 正式測試入口：[`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh)
+- 正式測試入口：[`tools/captool`](/Users/james/dev2/cap-todo-plugin/tools/captool)

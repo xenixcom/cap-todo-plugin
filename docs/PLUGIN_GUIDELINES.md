@@ -160,7 +160,7 @@ tools/
 說明：
 
 - `tests/contract/`：唯一正式測試規格來源。
-- `tools/test-plugin.sh`：唯一正式測試工具入口，負責依平台調度同一套 contract test。
+- `tools/captool`：唯一正式測試工具入口，負責依平台調度同一套 contract test。
 
 ## 8. Runner 原則
 
@@ -174,7 +174,7 @@ tools/
 
 ### 8.1 工具化方向
 
-- 目前唯一正式入口仍是 [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh)。
+- 目前唯一正式入口仍是 [`tools/captool`](/Users/james/dev2/cap-todo-plugin/tools/captool)。
 - 下一輪應把它逐步工具化，而不是讓更多平台私有腳本長出來。
 - 工具化後的核心責任應包含：
   - test
@@ -194,7 +194,7 @@ tools/
 - `web` 實作
 - `ios` 實作
 - `android` 實作
-- CI/CD 應統一呼叫 `tools/test-plugin.sh` 執行正式 contract test。
+- CI/CD 應統一呼叫 `tools/captool` 執行正式 contract test。
 - 平台私有測試可保留，但不得成為唯一驗收依據。
 
 ## 10. 核心結論
@@ -206,7 +206,7 @@ tools/
 5. 方法的異步行為、狀態轉移、錯誤碼、重置能力必須明確。
 ## Most Important Rule
 
-- 正式 pipeline 的唯一入口是 [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh)。
+- 正式 pipeline 的唯一入口是 [`tools/captool`](/Users/james/dev2/cap-todo-plugin/tools/captool)。
 - 正式驗收必須先讓 `test-plugin.sh` 全綠。
 - `demo` 不是正式 pipeline 的宿主。
 - `demo` 只在正式 pipeline 全綠之後，用於：
@@ -234,7 +234,7 @@ tools/
 - 各平台接入深度可以不同，但正式來源不能不同：
   - 唯一正式 contract 仍是 [`src/definitions.ts`](/Users/james/dev2/cap-todo-plugin/src/definitions.ts)
   - 唯一正式測試單元仍是 [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract)
-  - 唯一正式入口仍是 [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh)
+  - 唯一正式入口仍是 [`tools/captool`](/Users/james/dev2/cap-todo-plugin/tools/captool)
 
 ## Native Progression Rule
 

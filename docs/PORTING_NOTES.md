@@ -76,7 +76,7 @@
 
 - [`Package.swift`](/Users/james/dev2/cap-todo-plugin/Package.swift)
 - [`XenixCapTodoPlugin.podspec`](/Users/james/dev2/cap-todo-plugin/XenixCapTodoPlugin.podspec)
-- [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh)
+- [`tools/captool`](/Users/james/dev2/cap-todo-plugin/tools/captool)
 - [`demo/ios/App/CapApp-SPM/Package.swift`](/Users/james/dev2/cap-todo-plugin/demo/ios/App/CapApp-SPM/Package.swift)
 
 通常要改：
@@ -135,7 +135,7 @@
 - [`README.skeleton.md`](/Users/james/dev2/cap-todo-plugin/README.skeleton.md)
 - [`docs/README.md`](/Users/james/dev2/cap-todo-plugin/docs/README.md)
 - [`docs/HANDOFF.md`](/Users/james/dev2/cap-todo-plugin/docs/HANDOFF.md)
-- [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh)
+- [`tools/captool`](/Users/james/dev2/cap-todo-plugin/tools/captool)
 
 通常要改：
 

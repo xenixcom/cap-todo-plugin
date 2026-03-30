@@ -43,7 +43,7 @@
 - `demo` 是展示與驗證環境，不是正式 contract test
 - `src/definitions.ts` 已整理成正式暫定 contract 草案
 - `tests/contract` 已整理成正式測試設計稿與情境矩陣
-- `tools/test-plugin.sh` 已整理成框架中立的唯一正式測試入口
+- `tools/captool` 已整理成框架中立的唯一正式測試入口
 - 目前命名層已整理並通過 demo 三平台手動驗證
 
 ## 4. 目前目錄狀態
@@ -116,12 +116,12 @@ tests/
 - 已補上情境矩陣，且 web 端已形成可執行 formal suite
 - 目前整體基準已達到「能測、能 run、三平台全綠」
 
-### 6.4 `tools/test-plugin.sh`
+### 6.4 `tools/captool`
 
 - 已整理成唯一正式測試工具入口
 - 已有單一入口、平台選擇、裝置參數、log、report 等流程骨架
 - 已改成不綁定 Jest / Vitest 的框架中立語意
-- 目前 `./tools/test-plugin.sh all --report` 已可跑通三平台，失敗平台數為 `0`
+- 目前 `./tools/captool test all --report` 已可跑通三平台，失敗平台數為 `0`
 - `--report` 在成功時會輸出摘要，在失敗時會輸出人類可讀的 failure summary
 - `--fast` 為通用快速模式旗標；目前僅 web 會跳過發佈型 build，只跑 formal contract tests，作為開發期快速回歸模式。其他平台暫時忽略。
 
@@ -139,14 +139,14 @@ tests/
 - `ios / android` 如何從目前可執行 coverage 提升到更接近 app 位階的單一 pipeline host
 - `demo` 與正式 contract test 的責任分界是否還需補充文件
 - 平台實作何時開始跟進正式 contract
-- 正式入口何時從 `tools/test-plugin.sh` 逐步工具化為更完整的 `captool`
+- 正式入口何時從 `tools/captool` 逐步工具化為更完整的 `captool`
 
 ## 9. 下一步建議順序
 
 1. 先把骨架清乾淨，移除過時或模板殘留
 2. 微調並確認正式 `definitions.ts`
 3. 維持 `tests/contract` 作為唯一正式測試單元
-4. 讓 `tools/test-plugin.sh` 從目前平台 coverage 逐步提升到更接近 app 位階的單一 pipeline host
+4. 讓 `tools/captool` 從目前平台 coverage 逐步提升到更接近 app 位階的單一 pipeline host
 5. 再讓 AI 依據 contract 與測試去持續實作、除錯、迭代
 
 ## 10. 移植到其他 repo 時
@@ -175,7 +175,7 @@ tests/
 - AI 負責逼近正確性
 ## Critical Principle
 
-- 正式 pipeline 的唯一入口是 [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh)。
+- 正式 pipeline 的唯一入口是 [`tools/captool`](/Users/james/dev2/cap-todo-plugin/tools/captool)。
 - 正式 contract、正式測試單元、正式入口都必須先跑通，之後才做 `demo`。
 - `demo` 的定位是最後 UI 確認與功能展示，不是正式 pipeline 的執行宿主。
 - 若後續工作把 `demo` 當成正式測試主體，代表方向已偏離，應回到單一入口設計。
@@ -217,7 +217,7 @@ tests/
   - reset 行為
   - `statusChange` payload
   - `checkPermissions` / `requestPermissions` 相關 mapping 與正規化 helper
-- `ios` 目前透過 [`ios/Sources/TodoPlugin/Todo.swift`](/Users/james/dev2/cap-todo-plugin/ios/Sources/TodoPlugin/Todo.swift) 與單一入口 [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh) 的最小原生 contract 行為驗證。
+- `ios` 目前透過 [`ios/Sources/TodoPlugin/Todo.swift`](/Users/james/dev2/cap-todo-plugin/ios/Sources/TodoPlugin/Todo.swift) 與單一入口 [`tools/captool`](/Users/james/dev2/cap-todo-plugin/tools/captool) 的最小原生 contract 行為驗證。
 - `ios` 目前最少已驗到：
   - `echo`
   - default options
@@ -234,13 +234,13 @@ tests/
 
 ## Single Entry Status
 
-- [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh) 仍是唯一正式測試入口。
+- [`tools/captool`](/Users/james/dev2/cap-todo-plugin/tools/captool) 仍是唯一正式測試入口。
 - 目前入口對應狀態：
   - `web`: 跑完整正式 contract tests
   - `ios`: 跑最小原生 contract 行為驗證
   - `android`: 跑 native core 與 bridge helper contract coverage
 - 這仍符合單一 contract、單一正式測試標準、單一正式入口的核心思想；差異只在各平台目前接入深度不同。
-- 最新實測狀態：`./tools/test-plugin.sh all --report` 已全數通過，失敗平台數為 `0`。
+- 最新實測狀態：`./tools/captool test all --report` 已全數通過，失敗平台數為 `0`。
 
 ## Next Step
 
@@ -250,7 +250,7 @@ tests/
 
 ## Toolchain Direction
 
-- 下一輪核心主題是把 [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh) 工具化，而不是再擴張平台私測。
+- 下一輪核心主題是把 [`tools/captool`](/Users/james/dev2/cap-todo-plugin/tools/captool) 工具化，而不是再擴張平台私測。
 - 近期仍以 repo 內工具形式存在，先把命令結構、輸出、清理、平台 adapter 與模式語意收斂。
 - 中期方向是把正式入口從單一 shell script 提升為更清楚的工具界面，暫定工具名稱方向為 `captool`。
 - 長期若邊界足夠穩定，這套工具可考慮抽成獨立發行套件。
@@ -264,10 +264,10 @@ tests/
 ## Current Stable State
 
 - The current optimization branch still preserves the single-pipeline rule:
-  - formal entry: `./tools/test-plugin.sh`
+  - formal entry: `./tools/captool test`
   - formal contract source: `src/definitions.ts`
   - formal web suites: `tests/contract`
-- `web`, `ios`, and `android` now all return green from `./tools/test-plugin.sh all --report`.
+- `web`, `ios`, and `android` now all return green from `./tools/captool test all --report`.
 
 ### iOS Status
 
@@ -284,8 +284,8 @@ tests/
 
 ### Cleanup Controls
 
-- Use `./tools/test-plugin.sh --clean-artifacts` for repo-local cleanup.
-- Use `./tools/test-plugin.sh --clean-global-caches` for machine-wide cache cleanup.
+- Use `./tools/captool clean artifacts` for repo-local cleanup.
+- Use `./tools/captool clean global-caches` for machine-wide cache cleanup.
 
 Keep the distinction clear:
 - `--clean-artifacts` is safe routine cleanup for this repo.
