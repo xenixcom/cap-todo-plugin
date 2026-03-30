@@ -11,7 +11,7 @@ The goal is to preserve the lessons without preserving every exploratory impleme
 - The final target remains a single pipeline:
   - one formal contract in [`src/definitions.ts`](/Users/james/dev2/cap-todo-plugin/src/definitions.ts)
   - one formal test standard in [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract)
-  - one formal entrypoint in [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh)
+  - one formal entrypoint in [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh)
 - Private tests are not the target architecture.
 - Private tests may exist temporarily to bootstrap or probe a platform boundary, but should not become a second standard.
 
@@ -62,7 +62,7 @@ The goal is to preserve the lessons without preserving every exploratory impleme
 ## Current Stable Baseline
 
 - The repo is now at a stable point where it can test and run across all three platforms.
-- `./scripts/test-plugin.sh all --report` is green.
+- `./tools/test-plugin.sh all --report` is green.
 - `web` remains the strongest formal contract path.
 - `ios` no longer depends on a private XCTest target.
 - `android` still uses native core and helper coverage under the same entrypoint.

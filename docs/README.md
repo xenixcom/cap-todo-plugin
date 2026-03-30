@@ -27,7 +27,7 @@ src/
 ios/
 android/
 demo/
-scripts/
+tools/
   test-plugin.sh
 tests/
   contract/
@@ -47,7 +47,7 @@ tests/
   完整交接文件，讓另一台電腦可直接接手。
 - [`docs/PORTING_NOTES.md`](/Users/james/dev2/cap-todo-plugin/docs/PORTING_NOTES.md)
   未來移植到其他 plugin repo 時的命名與識別字調整清單。
-- [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh)
+- [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh)
   唯一正式測試工具入口。
 - [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract)
   唯一正式測試規格來源。
@@ -57,21 +57,21 @@ tests/
 ## 測試入口
 
 ```bash
-./scripts/test-plugin.sh [all|web|ios|android] [--device=ID] [--no-close-device] [--fast] [--logs=file] [--report]
+./tools/test-plugin.sh [all|web|ios|android] [--device=ID] [--no-close-device] [--fast] [--logs=file] [--report]
 ```
 
 範例：
 
 ```bash
-./scripts/test-plugin.sh all --logs=plugin_test.log --report
-./scripts/test-plugin.sh ios --device=00008030-001D195E3A90002E --no-close-device --report
-./scripts/test-plugin.sh web --logs=web_test.log
-./scripts/test-plugin.sh web --fast
+./tools/test-plugin.sh all --logs=plugin_test.log --report
+./tools/test-plugin.sh ios --device=00008030-001D195E3A90002E --no-close-device --report
+./tools/test-plugin.sh web --logs=web_test.log
+./tools/test-plugin.sh web --fast
 ```
 
-目前 `scripts/test-plugin.sh` 的 web 測試命令預設為 `npm test`。
+目前 `tools/test-plugin.sh` 的 web 測試命令預設為 `npm test`。
 目前 `npm test` 已可執行完整 web formal contract tests，直接接到真實 `TodoWeb`。
-目前 `./scripts/test-plugin.sh all --report` 已可得到三平台全綠結果。
+目前 `./tools/test-plugin.sh all --report` 已可得到三平台全綠結果。
 目前 `--report` 全綠時會輸出摘要，失敗時會輸出人類可讀的 failure summary。
 目前 `--fast` 為通用快速模式旗標；目前僅 web 會跳過發佈型 build，只跑 formal contract tests，適合日常快速回歸。其他平台暫時忽略此旗標。
 後續主線是把 `iOS / Android` 從目前 coverage 逐步提升到更接近 app 位階的單一 pipeline host，而不是發展各平台各自標準。
@@ -79,11 +79,11 @@ tests/
 
 - 微調並確認正式 `src/definitions.ts`。
 - 維持 `tests/contract` 作為唯一正式測試單元。
-- 讓 `scripts/test-plugin.sh` 從目前平台 coverage 逐步提升到更接近 app 位階的單一 pipeline host。
+- 讓 `tools/test-plugin.sh` 從目前平台 coverage 逐步提升到更接近 app 位階的單一 pipeline host。
 - 再讓 AI 依 contract 與測試持續實作、除錯、迭代。
 ## Core Reminder
 
-- 正式 pipeline 先跑 [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh)。
+- 正式 pipeline 先跑 [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh)。
 - `demo` 要等正式 pipeline 全綠後才做。
 - `demo` 只負責最後 UI 確認、功能展示、用法示範。
 
@@ -97,8 +97,8 @@ tests/
 ## Current State
 
 - `web` 已打通正式 contract pipeline，直接對真實 [`src/web.ts`](/Users/james/dev2/cap-todo-plugin/src/web.ts) 執行 [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract)。
-- `ios` 與 `android` 目前都已由 [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh) 跑通三平台。
-- [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh) 仍是唯一正式入口。
+- `ios` 與 `android` 目前都已由 [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh) 跑通三平台。
+- [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh) 仍是唯一正式入口。
 
 ## Platform Coverage
 
@@ -127,16 +127,16 @@ tests/
 - [`tests/pipeline/README.md`](/Users/james/dev2/cap-todo-plugin/tests/pipeline/README.md): records where the future single app-level pipeline host should live.
 ## Latest Baseline
 
-- `./scripts/test-plugin.sh all --report` currently passes on `web`, `ios`, and `android`.
+- `./tools/test-plugin.sh all --report` currently passes on `web`, `ios`, and `android`.
 - `ios` is no longer treated as compile-only validation. It now runs a minimal native contract test target that covers `echo`, `options`, `resetOptions`, `start/stop`, and disabled-state rejection.
 - `ios` simulator startup now avoids opening the Simulator app window and can self-heal a stale default simulator record by recreating the configured `iPhone 17` device when needed.
 
 ## Artifact Cleanup
 
 - Repo-local test artifacts can be cleaned with:
-  - `./scripts/test-plugin.sh --clean-artifacts`
+  - `./tools/test-plugin.sh --clean-artifacts`
 - Global caches can be cleaned with:
-  - `./scripts/test-plugin.sh --clean-global-caches`
+  - `./tools/test-plugin.sh --clean-global-caches`
 
 Notes:
 - `--clean-artifacts` only clears repo-local outputs such as `ios/build/Logs/Test`, Android build outputs, demo Android build outputs, and `plugin-report-*.txt`.

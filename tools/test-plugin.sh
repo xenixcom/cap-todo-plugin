@@ -16,7 +16,7 @@ set -u
 #   - 不包含 UI 驗證
 #
 # 使用方法:
-#   ./scripts/test-plugin.sh [all|web|ios|android] [options]
+#   ./tools/test-plugin.sh [all|web|ios|android] [options]
 #
 # 選項:
 #   --device=<ID>        指定 iOS 模擬器或真機 ID

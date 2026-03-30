@@ -43,7 +43,7 @@
 - `demo` 是展示與驗證環境，不是正式 contract test
 - `src/definitions.ts` 已整理成正式暫定 contract 草案
 - `tests/contract` 已整理成正式測試設計稿與情境矩陣
-- `scripts/test-plugin.sh` 已整理成框架中立的唯一正式測試入口
+- `tools/test-plugin.sh` 已整理成框架中立的唯一正式測試入口
 - 目前命名層已整理並通過 demo 三平台手動驗證
 
 ## 4. 目前目錄狀態
@@ -56,7 +56,7 @@ docs/
   PLUGIN_GUIDELINES.md
   HANDOFF.md
   PORTING_NOTES.md
-scripts/
+tools/
   test-plugin.sh
 src/
   definitions.ts
@@ -116,12 +116,12 @@ tests/
 - 已補上情境矩陣，且 web 端已形成可執行 formal suite
 - 目前整體基準已達到「能測、能 run、三平台全綠」
 
-### 6.4 `scripts/test-plugin.sh`
+### 6.4 `tools/test-plugin.sh`
 
 - 已整理成唯一正式測試工具入口
 - 已有單一入口、平台選擇、裝置參數、log、report 等流程骨架
 - 已改成不綁定 Jest / Vitest 的框架中立語意
-- 目前 `./scripts/test-plugin.sh all --report` 已可跑通三平台，失敗平台數為 `0`
+- 目前 `./tools/test-plugin.sh all --report` 已可跑通三平台，失敗平台數為 `0`
 - `--report` 在成功時會輸出摘要，在失敗時會輸出人類可讀的 failure summary
 - `--fast` 為通用快速模式旗標；目前僅 web 會跳過發佈型 build，只跑 formal contract tests，作為開發期快速回歸模式。其他平台暫時忽略。
 
@@ -145,7 +145,7 @@ tests/
 1. 先把骨架清乾淨，移除過時或模板殘留
 2. 微調並確認正式 `definitions.ts`
 3. 維持 `tests/contract` 作為唯一正式測試單元
-4. 讓 `scripts/test-plugin.sh` 從目前平台 coverage 逐步提升到更接近 app 位階的單一 pipeline host
+4. 讓 `tools/test-plugin.sh` 從目前平台 coverage 逐步提升到更接近 app 位階的單一 pipeline host
 5. 再讓 AI 依據 contract 與測試去持續實作、除錯、迭代
 
 ## 10. 移植到其他 repo 時
@@ -174,7 +174,7 @@ tests/
 - AI 負責逼近正確性
 ## Critical Principle
 
-- 正式 pipeline 的唯一入口是 [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh)。
+- 正式 pipeline 的唯一入口是 [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh)。
 - 正式 contract、正式測試單元、正式入口都必須先跑通，之後才做 `demo`。
 - `demo` 的定位是最後 UI 確認與功能展示，不是正式 pipeline 的執行宿主。
 - 若後續工作把 `demo` 當成正式測試主體，代表方向已偏離，應回到單一入口設計。
@@ -216,7 +216,7 @@ tests/
   - reset 行為
   - `statusChange` payload
   - `checkPermissions` / `requestPermissions` 相關 mapping 與正規化 helper
-- `ios` 目前透過 [`ios/Sources/TodoPlugin/Todo.swift`](/Users/james/dev2/cap-todo-plugin/ios/Sources/TodoPlugin/Todo.swift) 與單一入口 [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh) 的原生整合編譯路徑驗證。
+- `ios` 目前透過 [`ios/Sources/TodoPlugin/Todo.swift`](/Users/james/dev2/cap-todo-plugin/ios/Sources/TodoPlugin/Todo.swift) 與單一入口 [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh) 的原生整合編譯路徑驗證。
 - `android` 目前透過 [`android/src/main/java/com/xenix/plugins/todo/TodoCore.kt`](/Users/james/dev2/cap-todo-plugin/android/src/main/java/com/xenix/plugins/todo/TodoCore.kt) 與 [`android/src/test/java/com/xenix/plugins/todo/TodoCoreTest.kt`](/Users/james/dev2/cap-todo-plugin/android/src/test/java/com/xenix/plugins/todo/TodoCoreTest.kt) 驗證。
 - 原生 bridge 仍在逐步推進；目前是以 bridge helper contract coverage 為主，尚未達到和 `web` 完全同層級的 formal contract suite。
 - `android` 已額外探測 `statusChange -> notifyListeners` 的 bridge 邊界，結果顯示目前 local unit test 一碰真實 bridge listener payload，就會受到 `JSObject` / Android SDK mock 限制。
@@ -225,13 +225,13 @@ tests/
 
 ## Single Entry Status
 
-- [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh) 仍是唯一正式測試入口。
+- [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh) 仍是唯一正式測試入口。
 - 目前入口對應狀態：
   - `web`: 跑完整正式 contract tests
   - `ios`: 跑原生整合編譯驗證
   - `android`: 跑 native core 與 bridge helper contract coverage
 - 這仍符合單一 contract、單一正式測試標準、單一正式入口的核心思想；差異只在各平台目前接入深度不同。
-- 最新實測狀態：`./scripts/test-plugin.sh all --report` 已全數通過，失敗平台數為 `0`。
+- 最新實測狀態：`./tools/test-plugin.sh all --report` 已全數通過，失敗平台數為 `0`。
 
 ## Next Step
 
@@ -241,10 +241,10 @@ tests/
 ## Current Stable State
 
 - The current optimization branch still preserves the single-pipeline rule:
-  - formal entry: `./scripts/test-plugin.sh`
+  - formal entry: `./tools/test-plugin.sh`
   - formal contract source: `src/definitions.ts`
   - formal web suites: `tests/contract`
-- `web`, `ios`, and `android` now all return green from `./scripts/test-plugin.sh all --report`.
+- `web`, `ios`, and `android` now all return green from `./tools/test-plugin.sh all --report`.
 
 ### iOS Status
 
@@ -261,8 +261,8 @@ tests/
 
 ### Cleanup Controls
 
-- Use `./scripts/test-plugin.sh --clean-artifacts` for repo-local cleanup.
-- Use `./scripts/test-plugin.sh --clean-global-caches` for machine-wide cache cleanup.
+- Use `./tools/test-plugin.sh --clean-artifacts` for repo-local cleanup.
+- Use `./tools/test-plugin.sh --clean-global-caches` for machine-wide cache cleanup.
 
 Keep the distinction clear:
 - `--clean-artifacts` is safe routine cleanup for this repo.
