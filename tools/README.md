@@ -8,6 +8,10 @@ Current entrypoints:
   - The single formal pipeline entry for plugin verification.
   - It orchestrates `web`, `ios`, and `android` validation.
   - It is a tool entrypoint, not the formal contract standard itself.
+  - Current commands:
+    - `captool test`
+    - `captool clean`
+    - `captool doctor`
 - `test-plugin.sh`
   - Legacy compatibility shim.
   - It forwards to `captool` so older commands do not break during migration.

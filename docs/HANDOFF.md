@@ -286,6 +286,7 @@ tests/
 
 - Use `./tools/captool clean artifacts` for repo-local cleanup.
 - Use `./tools/captool clean global-caches` for machine-wide cache cleanup.
+- Use `./tools/captool doctor` for a quick repo and toolchain readiness check.
 
 Keep the distinction clear:
 - `--clean-artifacts` is safe routine cleanup for this repo.
