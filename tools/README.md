@@ -12,6 +12,7 @@ Current entrypoints:
     - `captool test`
     - `captool clean`
     - `captool doctor`
+    - `captool report`
     - `captool help`
 - `test-plugin.sh`
   - Legacy compatibility shim.
@@ -41,6 +42,15 @@ Options:
   - 若本次測試由腳本啟動 iOS 裝置，測完後不要關閉
 - `--keep-artifacts`
   - 保留 report 與測試產物，不自動清理
+
+Report:
+
+- `captool report`
+  - 顯示最新 report
+- `captool report latest`
+  - 明確顯示最新 report
+- `captool report <file>`
+  - 顯示指定 report 檔案內容
 
 Direction:
 

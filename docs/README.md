@@ -153,6 +153,8 @@ tests/
   - `./tools/captool clean global-caches`
 - Basic environment and repo health can be checked with:
   - `./tools/captool doctor`
+- The latest generated report can be viewed with:
+  - `./tools/captool report`
 
 Notes:
 - `--clean-artifacts` only clears repo-local outputs such as `ios/build/Logs/Test`, Android build outputs, demo Android build outputs, and `plugin-report-*.txt`.

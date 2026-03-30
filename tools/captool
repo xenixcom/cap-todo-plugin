@@ -12,6 +12,7 @@ set -u
 #   ./tools/captool test [all|web|ios|android] [options]
 #   ./tools/captool clean [artifacts|global-caches]
 #   ./tools/captool doctor
+#   ./tools/captool report [latest|<file>]
 #   ./tools/captool help
 #
 # 相容:
@@ -48,6 +49,7 @@ ANDROID_TEST_CMD="${ANDROID_TEST_CMD:-$ANDROID_GRADLE_CMD test}"
 IOS_STARTED_BY_SCRIPT=0
 IOS_ACTIVE_DEVICE=""
 IOS_ACTIVE_DESTINATION=""
+REPORT_TARGET="latest"
 
 usage() {
   cat <<'EOF'
@@ -55,6 +57,7 @@ Usage:
   ./tools/captool test [all|web|ios|android] [options]
   ./tools/captool clean [artifacts|global-caches]
   ./tools/captool doctor
+  ./tools/captool report [latest|<file>]
   ./tools/captool help
 
 Options:
@@ -70,6 +73,7 @@ Commands:
   clean artifacts        清除 repo 內測試產物
   clean global-caches    清除全域 Xcode / Simulator / Gradle / npm 快取
   doctor                 檢查本機工具鏈與 repo 關鍵路徑是否可用
+  report                 顯示最新或指定的測試報告
   help                   顯示使用說明
 EOF
 }
@@ -157,6 +161,41 @@ run_doctor_and_exit() {
     echo "Doctor Result: FAIL"
     exit 1
   fi
+}
+
+resolve_latest_report() {
+  find . -maxdepth 1 -type f -name 'plugin-report-*.txt' -print | sort | tail -n 1
+}
+
+run_report_and_exit() {
+  local report_path=""
+
+  case "${1:-latest}" in
+    latest)
+      report_path="$(resolve_latest_report)"
+      ;;
+    *)
+      report_path="$1"
+      ;;
+  esac
+
+  if [[ -z "$report_path" ]]; then
+    echo "找不到任何 report 檔案" >&2
+    exit 1
+  fi
+
+  if [[ ! -f "$report_path" ]]; then
+    echo "指定的 report 不存在: $report_path" >&2
+    exit 1
+  fi
+
+  echo "=============================="
+  echo "Captool Report"
+  echo "=============================="
+  echo "File: $report_path"
+  echo "=============================="
+  cat "$report_path"
+  exit 0
 }
 
 cleanup_report_artifacts() {
@@ -252,8 +291,7 @@ case "$COMMAND" in
     run_doctor_and_exit
     ;;
   report)
-    echo "尚未實作的命令: $COMMAND" >&2
-    exit 2
+    run_report_and_exit "${1:-latest}"
     ;;
 esac
 
