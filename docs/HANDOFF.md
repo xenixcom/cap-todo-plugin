@@ -139,6 +139,7 @@ tests/
 - `ios / android` 如何從目前可執行 coverage 提升到更接近 app 位階的單一 pipeline host
 - `demo` 與正式 contract test 的責任分界是否還需補充文件
 - 平台實作何時開始跟進正式 contract
+- 正式入口何時從 `tools/test-plugin.sh` 逐步工具化為更完整的 `captool`
 
 ## 9. 下一步建議順序
 
@@ -216,19 +217,27 @@ tests/
   - reset 行為
   - `statusChange` payload
   - `checkPermissions` / `requestPermissions` 相關 mapping 與正規化 helper
-- `ios` 目前透過 [`ios/Sources/TodoPlugin/Todo.swift`](/Users/james/dev2/cap-todo-plugin/ios/Sources/TodoPlugin/Todo.swift) 與單一入口 [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh) 的原生整合編譯路徑驗證。
+- `ios` 目前透過 [`ios/Sources/TodoPlugin/Todo.swift`](/Users/james/dev2/cap-todo-plugin/ios/Sources/TodoPlugin/Todo.swift) 與單一入口 [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh) 的最小原生 contract 行為驗證。
+- `ios` 目前最少已驗到：
+  - `echo`
+  - default options
+  - partial `setOptions`
+  - `resetOptions`
+  - `start -> running`
+  - `stop -> idle`
+  - disabled-state `start` rejection
 - `android` 目前透過 [`android/src/main/java/com/xenix/plugins/todo/TodoCore.kt`](/Users/james/dev2/cap-todo-plugin/android/src/main/java/com/xenix/plugins/todo/TodoCore.kt) 與 [`android/src/test/java/com/xenix/plugins/todo/TodoCoreTest.kt`](/Users/james/dev2/cap-todo-plugin/android/src/test/java/com/xenix/plugins/todo/TodoCoreTest.kt) 驗證。
 - 原生 bridge 仍在逐步推進；目前是以 bridge helper contract coverage 為主，尚未達到和 `web` 完全同層級的 formal contract suite。
 - `android` 已額外探測 `statusChange -> notifyListeners` 的 bridge 邊界，結果顯示目前 local unit test 一碰真實 bridge listener payload，就會受到 `JSObject` / Android SDK mock 限制。
 - 這代表 Android 若要再往前推真正的 bridge formal tests，下一層應考慮 Robolectric 或 instrumented tests，而不是繼續硬塞在目前的 local unit test。
-- `ios` 先前曾用私有 XCTest 探測 bridge seam，但該私測已移除；目前正式主線不再依賴私有 iOS test target。
+- `ios` 先前曾用私有 XCTest 探測 bridge seam，但該私測已移除；目前正式主線只保留最小必要的原生 contract 行為驗證。
 
 ## Single Entry Status
 
 - [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh) 仍是唯一正式測試入口。
 - 目前入口對應狀態：
   - `web`: 跑完整正式 contract tests
-  - `ios`: 跑原生整合編譯驗證
+  - `ios`: 跑最小原生 contract 行為驗證
   - `android`: 跑 native core 與 bridge helper contract coverage
 - 這仍符合單一 contract、單一正式測試標準、單一正式入口的核心思想；差異只在各平台目前接入深度不同。
 - 最新實測狀態：`./tools/test-plugin.sh all --report` 已全數通過，失敗平台數為 `0`。
@@ -238,6 +247,20 @@ tests/
 - 下一輪主軸不是再擴張私測，而是在目前穩定基準上做優化。
 - 下一步應沿用既有 [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract) 與 [`src/definitions.ts`](/Users/james/dev2/cap-todo-plugin/src/definitions.ts)，把 `ios` / `android` 從目前 coverage 逐步接到未來的單一 pipeline host。
 - `demo` 仍維持最後 UI 驗證與功能展示用途，不承擔正式 pipeline。
+
+## Toolchain Direction
+
+- 下一輪核心主題是把 [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh) 工具化，而不是再擴張平台私測。
+- 近期仍以 repo 內工具形式存在，先把命令結構、輸出、清理、平台 adapter 與模式語意收斂。
+- 中期方向是把正式入口從單一 shell script 提升為更清楚的工具界面，暫定工具名稱方向為 `captool`。
+- 長期若邊界足夠穩定，這套工具可考慮抽成獨立發行套件。
+- 長期願景命令包含：
+  - `captool test`
+  - `captool clean`
+  - `captool doctor`
+  - `captool report`
+  - `captool create`
+- `captool create` 的願景不是只產生官方樣板，而是直接建立帶有正式 contract、正式測試單元、正式入口與文件基線的 plugin 開發骨架。
 ## Current Stable State
 
 - The current optimization branch still preserves the single-pipeline rule:

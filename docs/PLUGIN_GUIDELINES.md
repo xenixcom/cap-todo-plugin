@@ -172,6 +172,19 @@ tools/
 - Pass / fail 以 command exit status 為主，log 關鍵字解析只作輔助摘要。
 - 各平台不得各自定義正式測試入口或正式驗收標準。
 
+### 8.1 工具化方向
+
+- 目前唯一正式入口仍是 [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh)。
+- 下一輪應把它逐步工具化，而不是讓更多平台私有腳本長出來。
+- 工具化後的核心責任應包含：
+  - test
+  - clean
+  - doctor
+  - report
+- 工具化過程中，runner 可以使用 `Vitest` 或其他平台適用執行器，但工具本身不得被定義成單一框架 wrapper。
+- 工具化的長期方向可收斂成獨立 CLI，暫定命名方向為 `captool`。
+- 長期若發展 `captool create`，其目標應是建立帶有正式 contract、正式測試單元、正式入口與文件基線的方法論骨架，而不只是產生空 plugin 模板。
+
 ## 9. 維護與擴展
 
 - 新功能或新能力應先更新 `definitions.ts` 與正式 contract tests，再進入平台實作。

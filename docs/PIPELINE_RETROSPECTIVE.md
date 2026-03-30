@@ -91,3 +91,10 @@ Not all disk pressure came from repo-local outputs. Repo-local cleanup helps, bu
 - `~/.gradle/daemon`
 
 The pipeline now exposes two cleanup levels so routine repo work does not automatically wipe global machine caches.
+
+## Next-Stage Tooling Lesson
+
+- Once the single entrypoint proved that Capacitor plugin development could be completed through one formal contract, one formal test standard, and one formal tool entrypoint, the next bottleneck stopped being raw platform implementation and became tool ergonomics.
+- That means the next-stage investment should go into turning the current entrypoint into a clearer toolchain surface, not back into fragmented platform scripts.
+- The long-term direction is to evolve the current entrypoint into a repo-local tool first, and only later consider extracting it as an independent CLI when the boundary is stable enough.
+- The future `captool create` idea is worth preserving, but only after `test`, `clean`, `doctor`, and `report` are already stable as a single tool experience.

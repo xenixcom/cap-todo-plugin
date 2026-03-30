@@ -1,6 +1,6 @@
 # TodoPlugin Skeleton
 
-這個 repo 是 `TodoPlugin` 的開發骨架，目標是先把單一契約、單一正式測試標準、單一正式測試入口固定下來，再往下實作最小範例與實際平台功能。現在 repo 已經包含官方 Capacitor plugin 結構、三平台實作骨架與 `demo` 展示 app，且 `demo` 三平台已手動驗證可正確運作。這一輪已先把正式暫定 `definitions.ts`、`tests/contract` 測試設計稿、`PLUGIN_GUIDELINES` 與 `test-plugin.sh` 主線收斂完成。
+這個 repo 是 `TodoPlugin` 的開發骨架，目標是先把單一契約、單一正式測試標準、單一正式測試入口固定下來，再往下實作最小範例與實際平台功能。現在 repo 已經包含官方 Capacitor plugin 結構、三平台實作骨架與 `demo` 展示 app，且 `demo` 三平台已手動驗證可正確運作。這一輪已先把正式暫定 `definitions.ts`、`tests/contract` 測試設計稿、`PLUGIN_GUIDELINES` 與 `tools/test-plugin.sh` 主線收斂完成。
 
 ## 核心原則
 
@@ -106,9 +106,9 @@ tests/
   - 完整正式 contract tests
   - 目前 `npm test` 為 `43` 個 tests 全通過
 - `ios`
-  - 原生整合編譯驗證
-  - 透過 `xcodebuild build` 與 simulator destination 驗證
-  - 不再保留私有 XCTest target
+  - 最小原生 contract 行為驗證
+  - 透過 `xcodebuild test` 與 simulator destination 驗證
+  - 目前已驗到 `echo`、`options`、`resetOptions`、`start/stop`、disabled-state rejection
 - `android`
   - native core + bridge helper contract coverage
   - 透過 `./android/gradlew -p android test` 驗證
@@ -120,6 +120,20 @@ tests/
 - 維持單一正式測試單元 [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract)。
 - 下一步是在目前「能測、能 run、三平台全綠」的穩定基準上做優化，而不是發展各平台各自的標準。
 - `demo` 仍維持最後 UI 驗證與功能展示用途，不承擔正式 pipeline。
+
+## Tooling Vision
+
+- 下一輪主題是把 [`tools/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/tools/test-plugin.sh) 逐步工具化。
+- 近期仍留在 repo 內演化，但定位已不只是單一 shell script，而是正式工具鏈入口。
+- `Vitest` 目前是 web 端使用的 runner，但工具鏈本身不應綁死在 `Vitest-only`。
+- 長期若邊界穩定，這套工具可考慮抽成獨立 CLI；目前暫定命名方向是 `captool`。
+- 長期命令方向可包含：
+  - `captool test`
+  - `captool clean`
+  - `captool doctor`
+  - `captool report`
+  - `captool create`
+- `captool create` 的長期目標，不只是建立空 plugin，而是直接建立帶有正式 contract、正式測試單元、正式入口與文件基線的方法論骨架。
 
 ## Related Notes
 
