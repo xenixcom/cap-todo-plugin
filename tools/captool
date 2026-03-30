@@ -12,6 +12,7 @@ set -u
 #   ./tools/captool test [all|web|ios|android] [options]
 #   ./tools/captool clean [artifacts|global-caches]
 #   ./tools/captool doctor
+#   ./tools/captool help
 #
 # 相容:
 #   舊用法 ./tools/test-plugin.sh ... 仍可使用，
@@ -54,6 +55,7 @@ Usage:
   ./tools/captool test [all|web|ios|android] [options]
   ./tools/captool clean [artifacts|global-caches]
   ./tools/captool doctor
+  ./tools/captool help
 
 Options:
   --device=<ID>          指定 iOS 模擬器或真機 ID
@@ -68,6 +70,7 @@ Commands:
   clean artifacts        清除 repo 內測試產物
   clean global-caches    清除全域 Xcode / Simulator / Gradle / npm 快取
   doctor                 檢查本機工具鏈與 repo 關鍵路徑是否可用
+  help                   顯示使用說明
 EOF
 }
 

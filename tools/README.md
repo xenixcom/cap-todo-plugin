@@ -12,6 +12,7 @@ Current entrypoints:
     - `captool test`
     - `captool clean`
     - `captool doctor`
+    - `captool help`
 - `test-plugin.sh`
   - Legacy compatibility shim.
   - It forwards to `captool` so older commands do not break during migration.
@@ -24,6 +25,22 @@ Boundary:
   - formal test definitions and formal contract suites
 - `demo/`
   - final UI confirmation and feature showcase, not the formal pipeline host
+
+Options:
+
+- `--fast`
+  - 目前僅 `captool test web --fast` 會生效
+  - 跳過 web 發佈型 build，只跑 formal contract tests
+- `--report`
+  - 為 test 流程產生摘要報告
+- `--logs=<filename>`
+  - 將完整 log 同步輸出到檔案
+- `--device=<ID>`
+  - 指定 iOS simulator 或真機 ID
+- `--no-close-device`
+  - 若本次測試由腳本啟動 iOS 裝置，測完後不要關閉
+- `--keep-artifacts`
+  - 保留 report 與測試產物，不自動清理
 
 Direction:
 
