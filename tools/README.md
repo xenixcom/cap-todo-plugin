@@ -85,9 +85,22 @@ Report:
   - 明確顯示最新 report
 - `captool report list`
   - 列出目前 `reports/` 下所有報告
+  - 依新到舊排序
+  - 顯示 `filename | platform | status`
 - `captool report <file>`
   - 顯示指定 report 檔案內容
   - 若只給檔名，會先在 `reports/` 下查找
+
+Clean:
+
+- `captool clean`
+  - 預設等同 `captool clean local`
+- `captool clean local`
+  - 清 repo 內測試產物、reports、logs
+- `captool clean global`
+  - 清全域 Xcode / Simulator / Gradle / npm 快取
+- `captool clean all`
+  - 一次清 repo 內產物與全域快取
 
 Direction:
 
@@ -98,5 +111,12 @@ Direction:
   - `captool clean`
   - `captool doctor`
   - `captool report`
+  - `captool outdated`
+  - `captool update`
+  - `captool upgrade`
   - `captool create`
 - `captool create` is a future idea for scaffolding a plugin with the contract-first workflow built in, not just generating an empty template.
+- future `outdated / update / upgrade` should be designed around two distinct scopes:
+  - `scripts`
+  - `template`
+- those future commands must treat compatibility conservatively, especially for partially customized repos

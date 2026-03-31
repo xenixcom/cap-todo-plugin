@@ -13,6 +13,14 @@ Current layering:
 - platform layer
   - `platforms/`
 
+Future command space:
+
+- `outdated`
+- `update`
+- `upgrade`
+
+Those future commands should keep `scripts` and `template` as separate compatibility scopes.
+
 Boundary:
 
 - `captool`

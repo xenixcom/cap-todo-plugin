@@ -72,6 +72,19 @@ run_doctor_and_exit() {
     fi
   done
 
+  doctor_section "Output Paths"
+  if [[ -d "./logs" && -w "./logs" ]]; then
+    doctor_ok "logs writable: ./logs"
+  else
+    doctor_warn "logs missing or not writable: ./logs"
+  fi
+
+  if [[ -d "./reports" && -w "./reports" ]]; then
+    doctor_ok "reports writable: ./reports"
+  else
+    doctor_warn "reports missing or not writable: ./reports"
+  fi
+
   if [[ -f "./tools/captool" ]]; then
     doctor_ok "formal tool entrypoint present: tools/captool"
   else

@@ -2,8 +2,15 @@ resolve_latest_report() {
   find ./reports -maxdepth 1 -type f -name 'plugin-report-*.txt' -print 2>/dev/null | sort | tail -n 1
 }
 
+extract_report_field() {
+  local report_path="$1"
+  local field_name="$2"
+
+  awk -F': ' -v key="$field_name" '$1 == key { print $2; exit }' "$report_path" 2>/dev/null
+}
+
 list_reports() {
-  find ./reports -maxdepth 1 -type f -name 'plugin-report-*.txt' -print 2>/dev/null | sort
+  find ./reports -maxdepth 1 -type f -name 'plugin-report-*.txt' -print 2>/dev/null | sort -r
 }
 
 run_report_and_exit() {
@@ -18,10 +25,20 @@ run_report_and_exit() {
       echo "Captool Reports"
       echo "=============================="
       if list_reports | grep -q .; then
-        list_reports
+        list_reports | while IFS= read -r path; do
+          [[ -z "$path" ]] && continue
+          local filename platform status
+          filename="${path#./reports/}"
+          platform="$(extract_report_field "$path" "Platform")"
+          status="$(extract_report_field "$path" "Status")"
+          [[ -z "$platform" ]] && platform="unknown"
+          [[ -z "$status" ]] && status="unknown"
+          echo "- $filename | platform=$platform | status=$status"
+        done
         exit 0
       else
         echo "找不到任何 report 檔案" >&2
+        echo "提示: 先執行 ./tools/captool test <platform> --report" >&2
         exit 1
       fi
       ;;
@@ -38,6 +55,7 @@ run_report_and_exit() {
 
   if [[ -z "$report_path" ]]; then
     echo "找不到任何 report 檔案" >&2
+    echo "提示: 先執行 ./tools/captool test <platform> --report" >&2
     exit 1
   fi
 

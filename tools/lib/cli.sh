@@ -26,12 +26,15 @@ dispatch_non_test_commands() {
   esac
 
   if [[ "$COMMAND" == "clean" ]]; then
-    case "${REMAINING_ARGS[0]:-artifacts}" in
-      artifacts)
-        cleanup_repo_artifacts_and_exit
+    case "${REMAINING_ARGS[0]:-local}" in
+      local)
+        cleanup_local_and_exit
         ;;
-      global-caches)
+      global)
         cleanup_global_caches_and_exit
+        ;;
+      all)
+        cleanup_all_and_exit
         ;;
       *)
         echo "未知 clean 目標: ${REMAINING_ARGS[0]:-}" >&2

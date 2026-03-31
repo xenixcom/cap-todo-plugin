@@ -23,11 +23,12 @@ set -u
 #   tools/lib/common.sh           共用 helper
 #   tools/lib/cli.sh              CLI 參數解析與命令分派
 #   tools/lib/summary.sh          結果摘要與 report 初始化
-#   tools/lib/doctor.sh           doctor 子命令
-#   tools/lib/report.sh           report 子命令
-#   tools/lib/clean.sh            clean 子命令與 artifact 清理
-#   tools/lib/test.sh             測試主流程共用邏輯
-#   tools/lib/platform-*.sh       各平台執行細節
+#   tools/lib/commands/*          命令層
+#   tools/lib/platforms/*         各平台執行細節
+#
+# 保留方向:
+#   future outdated / update / upgrade
+#   應分開考慮 scripts 與 template 的相容性
 # =========================================
 
 COMMAND="test"
