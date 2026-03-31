@@ -1,3 +1,6 @@
+# Android adapter for `captool test`.
+# This layer owns gradle/build invocation details and can keep platform-specific
+# behavior without changing shared command semantics.
 run_android_tests() {
   log "=============================="
   log "Step: Android 測試"

@@ -32,6 +32,9 @@ run_and_capture() {
   return "$status"
 }
 
+# Shared test orchestration lives here.
+# Platform adapters are responsible only for low-level execution details and
+# should report success/failure through shell exit code plus shared summary vars.
 run_platform() {
   local platform_label="$1"
   local platform_runner="$2"

@@ -50,6 +50,7 @@ Current internal direction:
     - `commands/report.sh`
     - `commands/clean.sh`
     - `commands/test.sh`
+    - `platforms/README.md`
     - `platforms/web.sh`
     - `platforms/ios.sh`
     - `platforms/android.sh`
@@ -116,6 +117,19 @@ Clean:
   - 清全域 Xcode / Simulator / Gradle / npm 快取
 - `captool clean all`
   - 一次清 repo 內產物與全域快取
+
+Platforms:
+
+- `platforms/`
+  - adapter layer for `captool test`
+  - converts shared user-facing test intent into platform-specific execution
+- shared user-facing intent stays consistent
+  - platform
+  - fast mode
+  - report/log collection
+  - artifact policy
+- low-level execution is allowed to differ by platform
+  - `web`, `ios`, and `android` do not need identical toolchains
 
 Doctor:
 

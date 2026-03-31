@@ -1,3 +1,6 @@
+# iOS adapter for `captool test`.
+# This layer owns simulator/xcodebuild details and may implement fast mode
+# differently from other platforms while preserving the shared user-facing intent.
 resolve_ios_simulator_id() {
   ensure_command xcrun || return 1
 

@@ -1,3 +1,5 @@
+# Web adapter for `captool test`.
+# This layer translates shared test intent into web-specific build/test steps.
 run_web_tests() {
   log "=============================="
   log "Step: Web 測試"

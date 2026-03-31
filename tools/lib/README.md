@@ -12,6 +12,8 @@ Current layering:
   - `commands/`
 - platform layer
   - `platforms/`
+  - adapter layer for `captool test`
+  - translates shared test intent into `web` / `ios` / `android` execution
 
 Future command space:
 
@@ -29,6 +31,14 @@ Boundary:
   - internal implementation details
 - `tests/`
   - formal test units, not tool internals
+
+Platform role:
+
+- `commands/test.sh`
+  - orchestration and shared testing policy
+- `platforms/`
+  - platform execution adapters
+  - low-level toolchain details live here, not in top-level command dispatch
 
 Result vs Process:
 
