@@ -28,8 +28,10 @@ Boundary:
   - final UI confirmation and feature showcase, not the formal pipeline host
 - `logs/`
   - captool runtime logs
+  - execution-oriented output for debugging and trace inspection
 - `reports/`
   - captool generated test reports
+  - result-oriented summaries for humans and future AI collaboration
 - `templates/`
   - reserved for future scaffold/template assets
   - long-term direction for `captool create`
@@ -78,6 +80,19 @@ Options:
   - 保留 report 與測試產物，不自動清理
 
 Report:
+
+- `report`
+  - result layer, not raw execution output
+  - should stay short, stable, and readable
+  - should summarize platform, status, and key failure points
+- `log`
+  - process layer, not final result summary
+  - keeps raw stdout/stderr, build output, and debugging detail
+  - may be noisy; intended for deeper troubleshooting
+- the exact report format may keep evolving with future test-unit standardization and AI workflow needs
+- the boundary should remain stable:
+  - `report = result`
+  - `log = process`
 
 - `captool report`
   - 顯示最新 report

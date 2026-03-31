@@ -29,3 +29,9 @@ Compatibility rule:
 - `doctor` may inspect and report status
 - future `outdated` may inspect and compare versions
 - future `update` / `upgrade` must not assume it is always safe to modify a partially customized user repo
+
+Reporting rule:
+
+- `report` is the result-facing layer
+- `log` is the process-facing layer
+- future command work should avoid turning `report` into another raw log dump

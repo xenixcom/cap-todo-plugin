@@ -30,4 +30,13 @@ Boundary:
 - `tests/`
   - formal test units, not tool internals
 
+Result vs Process:
+
+- `report`
+  - result-oriented summary layer
+  - intended for fast human reading and future AI-facing summaries
+- `log`
+  - process-oriented execution layer
+  - intended for raw debugging detail and command traces
+
 This layer is intentionally modularized enough to support future growth without forcing over-fragmentation.
