@@ -47,18 +47,6 @@ WEB_RESULT="SKIPPED"
 IOS_RESULT="SKIPPED"
 ANDROID_RESULT="SKIPPED"
 
-WEB_BUILD_CMD="npm run build"
-CONTRACT_TEST_CMD="${CONTRACT_TEST_CMD:-npm test}"
-
-IOS_SCHEME="${IOS_SCHEME:-XenixCapTodoPlugin}"
-IOS_DERIVED_DATA="${IOS_DERIVED_DATA:-./ios/build}"
-IOS_SIMULATOR_NAME="${IOS_SIMULATOR_NAME:-iPhone 17}"
-IOS_TEST_ONLY="${IOS_TEST_ONLY:--only-testing:TodoPluginTests}"
-IOS_TEST_BUNDLE_PATH="${IOS_TEST_BUNDLE_PATH:-$IOS_DERIVED_DATA/Build/Products/Debug-iphonesimulator/TodoPluginTests.xctest/TodoPluginTests}"
-
-ANDROID_GRADLE_CMD="${ANDROID_GRADLE_CMD:-./android/gradlew -p android}"
-ANDROID_TEST_CMD="${ANDROID_TEST_CMD:-$ANDROID_GRADLE_CMD test}"
-
 IOS_STARTED_BY_SCRIPT=0
 IOS_ACTIVE_DEVICE=""
 IOS_ACTIVE_DESTINATION=""
@@ -76,6 +64,19 @@ source "$CAPTOOL_DIR/lib/commands/test.sh"
 source "$CAPTOOL_DIR/lib/platforms/web.sh"
 source "$CAPTOOL_DIR/lib/platforms/ios.sh"
 source "$CAPTOOL_DIR/lib/platforms/android.sh"
+
+WEB_BUILD_CMD="$(read_captool_config_value "platforms.web.buildCommand" || echo "npm run build")"
+CONTRACT_TEST_CMD="${CONTRACT_TEST_CMD:-npm test}"
+
+IOS_SCHEME="${IOS_SCHEME:-$(read_captool_config_value "platforms.ios.scheme" || echo "XenixCapTodoPlugin")}"
+IOS_DERIVED_DATA="${IOS_DERIVED_DATA:-$(read_captool_config_value "platforms.ios.derivedDataPath" || echo "./ios/build")}"
+IOS_SIMULATOR_NAME="${IOS_SIMULATOR_NAME:-$(read_captool_config_value "platforms.ios.simulatorName" || echo "iPhone 17")}"
+IOS_TEST_ONLY="${IOS_TEST_ONLY:--only-testing:TodoPluginTests}"
+IOS_TEST_BUNDLE_PATH="${IOS_TEST_BUNDLE_PATH:-$IOS_DERIVED_DATA/Build/Products/Debug-iphonesimulator/TodoPluginTests.xctest/TodoPluginTests}"
+
+ANDROID_GRADLE_CMD="${ANDROID_GRADLE_CMD:-./android/gradlew -p android}"
+ANDROID_TEST_CMD="${ANDROID_TEST_CMD:-$ANDROID_GRADLE_CMD test}"
+
 ensure_tool_output_dirs
 parse_command "$@"
 dispatch_non_test_commands

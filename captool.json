@@ -1,10 +1,14 @@
 {
   "platforms": {
     "web": {
-      "supported": true
+      "supported": true,
+      "buildCommand": "npm run build"
     },
     "ios": {
-      "supported": true
+      "supported": true,
+      "scheme": "XenixCapTodoPlugin",
+      "derivedDataPath": "./ios/build",
+      "simulatorName": "iPhone 17"
     },
     "android": {
       "supported": true

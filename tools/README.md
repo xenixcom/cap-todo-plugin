@@ -37,7 +37,9 @@ Boundary:
   - long-term direction for `captool create`
 - `captool.json`
   - repo-level captool declaration/config
-  - current minimal role: platform support declaration
+  - current role:
+    - platform support declaration
+    - a small set of repo-shared platform defaults
 
 Current internal direction:
 

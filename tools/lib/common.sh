@@ -87,6 +87,28 @@ ensure_captool_config() {
   [[ -f "$CAPTOOL_CONFIG" ]]
 }
 
+read_captool_config_value() {
+  local path="$1"
+  if ! ensure_captool_config; then
+    return 1
+  fi
+
+  node -e '
+    const fs = require("fs");
+    const file = process.argv[1];
+    const path = process.argv[2].split(".");
+    const json = JSON.parse(fs.readFileSync(file, "utf8"));
+    let cur = json;
+    for (const key of path) {
+      if (cur == null || !(key in cur)) process.exit(2);
+      cur = cur[key];
+    }
+    if (typeof cur === "string") process.stdout.write(cur);
+    else if (typeof cur === "number" || typeof cur === "boolean") process.stdout.write(String(cur));
+    else process.exit(3);
+  ' "$CAPTOOL_CONFIG" "$path" 2>/dev/null
+}
+
 platform_supported_declared() {
   local platform="$1"
   if ! ensure_captool_config; then
