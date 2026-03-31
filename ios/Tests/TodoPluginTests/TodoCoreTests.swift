@@ -58,4 +58,26 @@ final class TodoCoreTests: XCTestCase {
 
         XCTAssertThrowsError(try core.start(permissionState: "granted"))
     }
+
+    func testValidateStartPreconditionsThrowsWhenDisabled() {
+        let core = TodoCore()
+        core.setOptions(enabled: false, debug: nil)
+
+        XCTAssertThrowsError(try core.validateStartPreconditions())
+    }
+
+    func testValidateStartPreconditionsThrowsWhenStatusIsNotIdle() throws {
+        let core = TodoCore()
+        try core.start(permissionState: "granted")
+
+        XCTAssertThrowsError(try core.validateStartPreconditions())
+    }
+
+    func testCompleteStartThrowsWhenPermissionDeniedWithoutChangingStatus() throws {
+        let core = TodoCore()
+        try core.validateStartPreconditions()
+
+        XCTAssertThrowsError(try core.completeStart(permissionState: "denied"))
+        XCTAssertEqual(core.getStatus().status, "idle")
+    }
 }

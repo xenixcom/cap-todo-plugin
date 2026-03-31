@@ -32,6 +32,8 @@
   "scripts": {
     "verify": "npm run verify:ios && npm run verify:android && npm run verify:web",
     "verify:ios": "xcodebuild -scheme XenixCapTodoPlugin -destination generic/platform=iOS",
+    "test:ios": "xcodebuild test -scheme XenixCapTodoPlugin -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.4' -only-testing:TodoPluginTests",
+    "test:ios:fast": "IOS_DERIVED_DATA=./ios/build ./tools/captool test ios --fast",
     "verify:android": "cd android && ./gradlew clean build test && cd ..",
     "verify:web": "npm run build",
     "contract:test:web": "vitest run tests/contract/options.spec.ts tests/contract/lifecycle.spec.ts tests/contract/status.spec.ts tests/contract/error-handling.spec.ts tests/contract/edge-cases.spec.ts",

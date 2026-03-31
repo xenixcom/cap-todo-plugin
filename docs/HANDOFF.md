@@ -123,7 +123,9 @@ tests/
 - 已改成不綁定 Jest / Vitest 的框架中立語意
 - 目前 `./tools/captool test all --report` 已可跑通三平台，失敗平台數為 `0`
 - `--report` 在成功時會輸出摘要，在失敗時會輸出人類可讀的 failure summary
-- `--fast` 為通用快速模式旗標；目前僅 web 會跳過發佈型 build，只跑 formal contract tests，作為開發期快速回歸模式。其他平台暫時忽略。
+- `--fast` 為通用快速模式旗標
+- `web` 會跳過發佈型 build，只跑 formal contract tests，作為開發期快速回歸模式
+- `ios` 第一次會 `build-for-testing`，後續改走 `test-without-building`，並保留 derived data 與已啟動的 simulator，適合反覆修錯與重跑
 
 ## 7. 目前已確認的事
 

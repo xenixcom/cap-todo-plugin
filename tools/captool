@@ -42,6 +42,8 @@ CONTRACT_TEST_CMD="${CONTRACT_TEST_CMD:-npm test}"
 IOS_SCHEME="${IOS_SCHEME:-XenixCapTodoPlugin}"
 IOS_DERIVED_DATA="${IOS_DERIVED_DATA:-./ios/build}"
 IOS_SIMULATOR_NAME="${IOS_SIMULATOR_NAME:-iPhone 17}"
+IOS_TEST_ONLY="${IOS_TEST_ONLY:--only-testing:TodoPluginTests}"
+IOS_TEST_BUNDLE_PATH="${IOS_TEST_BUNDLE_PATH:-$IOS_DERIVED_DATA/Build/Products/Debug-iphonesimulator/TodoPluginTests.xctest/TodoPluginTests}"
 
 ANDROID_GRADLE_CMD="${ANDROID_GRADLE_CMD:-./android/gradlew -p android}"
 ANDROID_TEST_CMD="${ANDROID_TEST_CMD:-$ANDROID_GRADLE_CMD test}"
@@ -63,7 +65,7 @@ Usage:
 Options:
   --device=<ID>          指定 iOS 模擬器或真機 ID
   --no-close-device      若本次測試由腳本自行開啟裝置，測完後也不要關閉
-  --fast                 啟用快速模式；目前僅 Web 會跳過發佈型 build
+  --fast                 啟用快速模式；Web 會跳過 build，iOS 會重用 simulator 與 derived data
   --keep-artifacts       保留 report 與測試產物，不自動清理
   --logs=<filename>      將完整 log 同步輸出到檔案
   --report               生成簡易 fail report
@@ -211,7 +213,7 @@ cleanup_report_artifacts() {
 }
 
 cleanup_ios_test_artifacts() {
-  if [[ $KEEP_ARTIFACTS -eq 1 ]]; then
+  if [[ $KEEP_ARTIFACTS -eq 1 || $FAST_MODE -eq 1 ]]; then
     return
   fi
 
@@ -455,10 +457,31 @@ boot_ios_simulator_if_needed() {
 }
 
 cleanup_ios_device() {
+  if [[ $FAST_MODE -eq 1 ]]; then
+    log "iOS 快速模式保留 Simulator 啟動狀態。"
+    return
+  fi
+
   if [[ $IOS_STARTED_BY_SCRIPT -eq 1 && $NO_CLOSE -eq 0 && -n "$IOS_ACTIVE_DEVICE" ]]; then
     log "關閉由腳本啟動的 iOS Simulator: $IOS_ACTIVE_DEVICE"
     xcrun simctl shutdown "$IOS_ACTIVE_DEVICE" >/dev/null 2>&1 || true
   fi
+}
+
+ios_fast_test_bundle_ready() {
+  [[ -f "$IOS_TEST_BUNDLE_PATH" ]]
+}
+
+run_ios_fast_tests() {
+  if ios_fast_test_bundle_ready; then
+    log "偵測到既有 iOS test bundle，改用 test-without-building。"
+  else
+    log "尚無可重用的 iOS test bundle，先執行 build-for-testing。"
+    run_and_capture "iOS" "xcodebuild build-for-testing -scheme \"$IOS_SCHEME\" -destination '$IOS_ACTIVE_DESTINATION' -derivedDataPath \"$IOS_DERIVED_DATA\" $IOS_TEST_ONLY" || return 1
+  fi
+
+  log "執行 iOS test-without-building..."
+  run_and_capture "iOS" "xcodebuild test-without-building -scheme \"$IOS_SCHEME\" -destination '$IOS_ACTIVE_DESTINATION' -derivedDataPath \"$IOS_DERIVED_DATA\" $IOS_TEST_ONLY"
 }
 
 run_web_tests() {
@@ -490,11 +513,24 @@ run_ios_tests() {
   ensure_command xcodebuild || return 1
 
   boot_ios_simulator_if_needed || return 1
+
+  if [[ $FAST_MODE -eq 1 ]]; then
+    log "使用 iOS 快速模式：保留 derived data，並重用已啟動的 Simulator。"
+    CURRENT_PLATFORM_SUMMARY="$(append_unique_line "$CURRENT_PLATFORM_SUMMARY" "iOS fast mode enabled")"
+  fi
+
   cleanup_ios_test_artifacts
 
-  log "執行 iOS 原生 contract 驗證..."
-  run_and_capture "iOS" "xcodebuild test -scheme \"$IOS_SCHEME\" -destination '$IOS_ACTIVE_DESTINATION' -derivedDataPath \"$IOS_DERIVED_DATA\""
-  local status=$?
+  local status=0
+  if [[ $FAST_MODE -eq 1 ]]; then
+    run_ios_fast_tests
+    status=$?
+  else
+    log "執行 iOS 原生 contract 驗證..."
+    run_and_capture "iOS" "xcodebuild test -scheme \"$IOS_SCHEME\" -destination '$IOS_ACTIVE_DESTINATION' -derivedDataPath \"$IOS_DERIVED_DATA\" $IOS_TEST_ONLY"
+    status=$?
+  fi
+
   cleanup_ios_device
   return "$status"
 }

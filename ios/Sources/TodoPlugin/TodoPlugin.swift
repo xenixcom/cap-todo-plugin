@@ -58,8 +58,9 @@ public class TodoPlugin: CAPPlugin, CAPBridgedPlugin {
 
     @objc func start(_ call: CAPPluginCall) {
         do {
+            try core.validateStartPreconditions()
             let permissions = checkPermissionsInternal()
-            try core.start(permissionState: permissions["microphone"] ?? "denied")
+            try core.completeStart(permissionState: permissions["microphone"] ?? "denied")
             call.resolve()
         } catch let error as TodoPluginError {
             reject(call, code: error.code, message: error.message)

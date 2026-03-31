@@ -73,7 +73,9 @@ tests/
 目前 `npm test` 已可執行完整 web formal contract tests，直接接到真實 `TodoWeb`。
 目前 `./tools/captool test all --report` 已可得到三平台全綠結果。
 目前 `--report` 全綠時會輸出摘要，失敗時會輸出人類可讀的 failure summary。
-目前 `--fast` 為通用快速模式旗標；目前僅 web 會跳過發佈型 build，只跑 formal contract tests，適合日常快速回歸。其他平台暫時忽略此旗標。
+目前 `--fast` 為通用快速模式旗標。
+`web` 會跳過發佈型 build，只跑 formal contract tests，適合日常快速回歸。
+`ios` 第一次會 `build-for-testing`，後續改走 `test-without-building`，並保留 derived data 與已啟動的 simulator，適合反覆修錯與重跑。
 後續主線是把 `iOS / Android` 從目前 coverage 逐步提升到更接近 app 位階的單一 pipeline host，而不是發展各平台各自標準。
 ## 下一步
 

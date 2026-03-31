@@ -51,10 +51,9 @@ public final class TodoCore {
 
     public func echo(_ value: String) -> TodoEchoResult {
         TodoEchoResult(value: value)
-        // TodoEchoResult(value: value + " (echoed)") <-- 故意製造錯誤
     }
 
-    public func start(permissionState: String) throws {
+    public func validateStartPreconditions() throws {
         if !options.enabled {
             throw TodoPluginError(code: "INVALID_STATE", message: "Plugin is disabled")
         }
@@ -62,7 +61,14 @@ public final class TodoCore {
         if status != "idle" {
             throw TodoPluginError(code: "INVALID_STATE", message: "Plugin can only start from idle")
         }
+    }
 
+    public func start(permissionState: String) throws {
+        try validateStartPreconditions()
+        try completeStart(permissionState: permissionState)
+    }
+
+    func completeStart(permissionState: String) throws {
         if permissionState != "granted" {
             throw TodoPluginError(
                 code: "PERMISSION_DENIED",
@@ -71,7 +77,6 @@ public final class TodoCore {
         }
 
         setStatus("running")
-        // setStatus("running") <-- 故意製造錯誤
     }
 
     public func stop() throws {

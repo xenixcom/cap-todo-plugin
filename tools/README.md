@@ -30,8 +30,11 @@ Boundary:
 Options:
 
 - `--fast`
-  - 目前僅 `captool test web --fast` 會生效
+  - `captool test web --fast`
   - 跳過 web 發佈型 build，只跑 formal contract tests
+  - `captool test ios --fast`
+  - 第一次會 `build-for-testing`，之後改走 `test-without-building`
+  - 保留 iOS derived data，並重用已啟動的 simulator，適合反覆修錯與重跑
 - `--report`
   - 為 test 流程產生摘要報告
 - `--logs=<filename>`
