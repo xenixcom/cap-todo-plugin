@@ -61,13 +61,13 @@
 - [`ios/Sources/TodoPlugin/TodoPlugin.swift`](/Users/james/dev2/cap-todo-plugin/ios/Sources/TodoPlugin/TodoPlugin.swift)
 - [`ios/Sources/TodoPlugin/Todo.swift`](/Users/james/dev2/cap-todo-plugin/ios/Sources/TodoPlugin/Todo.swift)
 - [`android/src/main/java/com/xenix/plugins/todo/TodoPlugin.kt`](/Users/james/dev2/cap-todo-plugin/android/src/main/java/com/xenix/plugins/todo/TodoPlugin.kt)
-- [`android/src/main/java/com/xenix/plugins/todo/Todo.kt`](/Users/james/dev2/cap-todo-plugin/android/src/main/java/com/xenix/plugins/todo/Todo.kt)
+- [`android/src/main/java/com/xenix/plugins/todo/TodoCore.kt`](/Users/james/dev2/cap-todo-plugin/android/src/main/java/com/xenix/plugins/todo/TodoCore.kt)
 
 通常要改：
 
 - `TodoPlugin`
 - `TodoWeb`
-- `Todo`
+- `TodoCore`
 - 對應檔名與資料夾名稱
 
 ## 3. iOS 需要同步注意的地方
@@ -76,7 +76,7 @@
 
 - [`Package.swift`](/Users/james/dev2/cap-todo-plugin/Package.swift)
 - [`XenixCapTodoPlugin.podspec`](/Users/james/dev2/cap-todo-plugin/XenixCapTodoPlugin.podspec)
-- [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh)
+- [`tools/captool`](/Users/james/dev2/cap-todo-plugin/tools/captool)
 - [`demo/ios/App/CapApp-SPM/Package.swift`](/Users/james/dev2/cap-todo-plugin/demo/ios/App/CapApp-SPM/Package.swift)
 
 通常要改：
@@ -98,7 +98,7 @@
 
 - [`android/build.gradle`](/Users/james/dev2/cap-todo-plugin/android/build.gradle)
 - [`android/src/main/java/com/xenix/plugins/todo/TodoPlugin.kt`](/Users/james/dev2/cap-todo-plugin/android/src/main/java/com/xenix/plugins/todo/TodoPlugin.kt)
-- [`android/src/main/java/com/xenix/plugins/todo/Todo.kt`](/Users/james/dev2/cap-todo-plugin/android/src/main/java/com/xenix/plugins/todo/Todo.kt)
+- [`android/src/main/java/com/xenix/plugins/todo/TodoCore.kt`](/Users/james/dev2/cap-todo-plugin/android/src/main/java/com/xenix/plugins/todo/TodoCore.kt)
 - [`demo/android/capacitor.settings.gradle`](/Users/james/dev2/cap-todo-plugin/demo/android/capacitor.settings.gradle)
 - [`demo/android/app/capacitor.build.gradle`](/Users/james/dev2/cap-todo-plugin/demo/android/app/capacitor.build.gradle)
 
@@ -135,7 +135,7 @@
 - [`README.skeleton.md`](/Users/james/dev2/cap-todo-plugin/README.skeleton.md)
 - [`docs/README.md`](/Users/james/dev2/cap-todo-plugin/docs/README.md)
 - [`docs/HANDOFF.md`](/Users/james/dev2/cap-todo-plugin/docs/HANDOFF.md)
-- [`scripts/test-plugin.sh`](/Users/james/dev2/cap-todo-plugin/scripts/test-plugin.sh)
+- [`tools/captool`](/Users/james/dev2/cap-todo-plugin/tools/captool)
 
 通常要改：
 

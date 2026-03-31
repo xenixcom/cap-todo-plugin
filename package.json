@@ -19,10 +19,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xenixcom/cap-plugin-todo.git"
+    "url": "git+https://github.com/xenixcom/cap-todo-plugin.git"
   },
   "bugs": {
-    "url": "https://github.com/xenixcom/cap-plugin-todo/issues"
+    "url": "https://github.com/xenixcom/cap-todo-plugin/issues"
   },
   "keywords": [
     "capacitor",
@@ -32,8 +32,12 @@
   "scripts": {
     "verify": "npm run verify:ios && npm run verify:android && npm run verify:web",
     "verify:ios": "xcodebuild -scheme XenixCapTodoPlugin -destination generic/platform=iOS",
+    "test:ios": "xcodebuild test -scheme XenixCapTodoPlugin -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.4' -only-testing:TodoPluginTests",
+    "test:ios:fast": "IOS_DERIVED_DATA=./ios/build ./tools/captool test ios --fast",
     "verify:android": "cd android && ./gradlew clean build test && cd ..",
     "verify:web": "npm run build",
+    "contract:test:web": "vitest run tests/contract/options.spec.ts tests/contract/lifecycle.spec.ts tests/contract/status.spec.ts tests/contract/error-handling.spec.ts tests/contract/edge-cases.spec.ts",
+    "test": "npm run contract:test:web",
     "lint": "npm run eslint && npm run prettier -- --check && npm run swiftlint -- lint",
     "fmt": "npm run eslint -- --fix && npm run prettier -- --write && npm run swiftlint -- --fix --format",
     "eslint": "eslint . --ext ts",
@@ -59,7 +63,8 @@
     "rimraf": "^6.1.0",
     "rollup": "^4.53.2",
     "swiftlint": "^2.0.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.0"
   },
   "peerDependencies": {
     "@capacitor/core": ">=8.0.0"

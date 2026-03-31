@@ -1,35 +1,104 @@
 import Foundation
 
-@objc public class Todo: NSObject {
-    
-    public var onNotify: ((String, [String: Any]) -> Void)?
+public struct TodoOptions: Equatable {
+    public var enabled: Bool = true
+    public var debug: Bool = false
+}
 
-    @objc public func echo(_ value: String) -> String {
-        let result = "\(value) from ios"
-        print("[Todo]", "Echo called with: \(result)")
-        
-        let data: [String: Any] = [
-            "time": DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium),
-            "status": "success"
-        ]
-        
-        onNotify?("updateTime", data)
-        return result
+public struct TodoStatusResult: Equatable {
+    public var status: String
+}
+
+public struct TodoEchoResult: Equatable {
+    public var value: String
+}
+
+public struct TodoPluginError: Error, Equatable {
+    public let code: String
+    public let message: String
+}
+
+public final class TodoCore {
+
+    public var onStatusChange: ((String) -> Void)?
+
+    private var options = TodoOptions()
+    private var status = "idle"
+
+    public init() {}
+
+    public func getStatus() -> TodoStatusResult {
+        TodoStatusResult(status: status)
     }
 
-    @objc public func startRecording() {
-        print("[Todo]", "startRecording called")
-        return
+    public func getOptions() -> TodoOptions {
+        options
     }
 
-    @objc public func stopRecording() {
-        print("[Todo]", "stopRecording called")
-        return
+    public func setOptions(enabled: Bool?, debug: Bool?) {
+        if let enabled {
+            options.enabled = enabled
+        }
+
+        if let debug {
+            options.debug = debug
+        }
     }
 
-    @objc public func takePhoto() {
-        print("[Todo]", "takePhoto called")
-        return
+    public func resetOptions() {
+        options = TodoOptions()
     }
 
+    public func echo(_ value: String) -> TodoEchoResult {
+        TodoEchoResult(value: value)
+    }
+
+    public func validateStartPreconditions() throws {
+        if !options.enabled {
+            throw TodoPluginError(code: "INVALID_STATE", message: "Plugin is disabled")
+        }
+
+        if status != "idle" {
+            throw TodoPluginError(code: "INVALID_STATE", message: "Plugin can only start from idle")
+        }
+    }
+
+    public func start(permissionState: String) throws {
+        try validateStartPreconditions()
+        try completeStart(permissionState: permissionState)
+    }
+
+    func completeStart(permissionState: String) throws {
+        if permissionState != "granted" {
+            throw TodoPluginError(
+                code: "PERMISSION_DENIED",
+                message: "Microphone permission is required"
+            )
+        }
+
+        setStatus("running")
+    }
+
+    public func stop() throws {
+        if status != "running" {
+            throw TodoPluginError(code: "INVALID_STATE", message: "Plugin can only stop from running")
+        }
+
+        setStatus("idle")
+    }
+
+    public func reset() {
+        setStatus("init")
+        resetOptions()
+        setStatus("idle")
+    }
+
+    private func setStatus(_ nextStatus: String) {
+        if status == nextStatus {
+            return
+        }
+
+        status = nextStatus
+        onStatusChange?(nextStatus)
+    }
 }

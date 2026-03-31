@@ -1,7 +1,6 @@
 package com.xenix.plugins.todo;
 
 import android.Manifest
-import android.os.Build
 import com.getcapacitor.*
 import com.getcapacitor.annotation.CapacitorPlugin
 import com.getcapacitor.annotation.Permission
@@ -10,66 +9,79 @@ import com.getcapacitor.annotation.PermissionCallback
 @CapacitorPlugin(
     name = "Todo",
     permissions = [
-        Permission(alias = TodoPlugin.CAMERA, strings = [Manifest.permission.CAMERA]),
         Permission(alias = TodoPlugin.MICROPHONE, strings = [Manifest.permission.RECORD_AUDIO]),
-        Permission(alias = TodoPlugin.PHOTOS, strings = [Manifest.permission.READ_MEDIA_IMAGES]),
-        Permission(alias = TodoPlugin.PHOTOS_LEGACY, strings = [Manifest.permission.READ_EXTERNAL_STORAGE])
     ]
 )
 class TodoPlugin : Plugin() {
 
     companion object {
-        const val CAMERA = "camera"
         const val MICROPHONE = "microphone"
-        const val PHOTOS = "photos"
-        const val PHOTOS_LEGACY = "photos_legacy"
+        const val EVENT_STATUS_CHANGE = "statusChange"
     }
 
-    private val implementation = Todo()
-
-    private var pendingAction: (() -> Unit)? = null
-    private var pendingPermissionKeys: List<String> = emptyList()
-
-    // --------------------------------------------------
-    // MARK: - Lifecycle
-    // --------------------------------------------------
+    private val core = TodoCore()
 
     override fun load() {
-        implementation.onNotify = { event, payload ->
-            val data = JSObject()
-            payload.forEach { (k, v) -> data.put(k, v) }
-            notifyListeners(event, data, true)
+        core.onStatusChange = { nextStatus ->
+            notifyListeners(EVENT_STATUS_CHANGE, JSObject().put("status", nextStatus))
         }
     }
 
-    // --------------------------------------------------
-    // MARK: - Actions
-    // --------------------------------------------------
-
     @PluginMethod
-    fun echo(call: PluginCall) {
-        call.resolve(JSObject().put("value", implementation.echo(call.getString("value") ?: "")))
+    fun getStatus(call: PluginCall) {
+        call.resolve(JSObject().put("status", core.getStatus().status))
     }
 
     @PluginMethod
-    fun startRecording(call: PluginCall) =
-        ensurePermissions(call, listOf(MICROPHONE)) {
-            implementation.startRecording()
-            call.resolve()
-        }
+    fun getOptions(call: PluginCall) {
+        val options = core.getOptions()
+        call.resolve(defaultOptions().put("enabled", options.enabled).put("debug", options.debug))
+    }
 
     @PluginMethod
-    fun stopRecording(call: PluginCall) {
-        implementation.stopRecording()
+    fun setOptions(call: PluginCall) {
+        val nextEnabled = if (call.data.has("enabled")) call.getBoolean("enabled") else null
+        val nextDebug = if (call.data.has("debug")) call.getBoolean("debug") else null
+        core.setOptions(enabled = nextEnabled, debug = nextDebug)
         call.resolve()
     }
 
     @PluginMethod
-    fun takePhoto(call: PluginCall) =
-        ensurePermissions(call, listOf(CAMERA, PHOTOS)) {
-            implementation.takePhoto()
+    fun resetOptions(call: PluginCall) {
+        core.resetOptions()
+        call.resolve()
+    }
+
+    @PluginMethod
+    fun echo(call: PluginCall) {
+        call.resolve(JSObject().put("value", core.echo(call.getString("value") ?: "").value))
+    }
+
+    @PluginMethod
+    fun start(call: PluginCall) {
+        try {
+            core.start(checkPermissionsInternal().getString(MICROPHONE) ?: "denied")
             call.resolve()
+        } catch (error: TodoCoreException) {
+            reject(call, error.code, error.message)
         }
+    }
+
+    @PluginMethod
+    fun stop(call: PluginCall) {
+        try {
+            core.stop()
+            call.resolve()
+        } catch (error: TodoCoreException) {
+            reject(call, error.code, error.message)
+        }
+    }
+
+    @PluginMethod
+    fun reset(call: PluginCall) {
+        core.reset()
+        call.resolve()
+    }
 
     @PluginMethod
     override fun checkPermissions(call: PluginCall) {
@@ -78,86 +90,56 @@ class TodoPlugin : Plugin() {
 
     @PluginMethod
     override fun requestPermissions(call: PluginCall) {
-        val keys =
-            call.getArray("permissions")?.toList<String>()
-                ?: listOf(CAMERA, MICROPHONE, PHOTOS)
+        val requested = call.getArray("permissions")
+        val permissions = mutableListOf<String>()
 
-        val aliases = keys.mapNotNull { permissionAlias(it) }.toTypedArray()
-        requestPermissionForAliases(aliases, call, "permissionCallback")
-    }
-
-    // --------------------------------------------------
-    // MARK: - Permission Management
-    // --------------------------------------------------
-
-    @PermissionCallback
-    private fun permissionCallback(call: PluginCall) {
-        val status = checkPermissionsInternal()
-
-        val granted = pendingPermissionKeys.all {
-            status.getString(it) == "granted"
-        }
-
-        if (granted) {
-            pendingAction?.invoke()
+        if (requested == null) {
+            permissions.add(MICROPHONE)
         } else {
-            call.reject("Permission denied")
+            for (index in 0 until requested.length()) {
+                val permission = requested.optString(index)
+                if (permission != MICROPHONE) {
+                    reject(call, "INVALID_ARGUMENT", "Unsupported permission request")
+                    return
+                }
+                permissions.add(permission)
+            }
         }
 
-        pendingAction = null
-        pendingPermissionKeys = emptyList()
-    }
-
-    private fun ensurePermissions(call: PluginCall, requiredKeys: List<String>, onGranted: () -> Unit) {
-        val status = checkPermissionsInternal()
-
-        val missing = requiredKeys.filter {
-            status.getString(it) != "granted"
-        }
-
-        if (missing.isEmpty()) {
-            onGranted()
+        if (permissions.isEmpty()) {
+            call.resolve(checkPermissionsInternal())
             return
         }
 
-        pendingAction = onGranted
-        pendingPermissionKeys = requiredKeys
-
-        saveCall(call)
-        requestPermissionForAliases(
-            missing.mapNotNull { permissionAlias(it) }.toTypedArray(),
-            call,
-            "permissionCallback"
-        )
+        requestPermissionForAlias(MICROPHONE, call, "permissionCallback")
     }
 
-    // --------------------------------------------------
-    // MARK: - Permission Helpers
-    // --------------------------------------------------
-
-    private fun permissionAlias(key: String): String? =
-        when (key) {
-            CAMERA, MICROPHONE -> key
-            PHOTOS -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) PHOTOS else PHOTOS_LEGACY
-            else -> null
-        }
+    @PermissionCallback
+    private fun permissionCallback(call: PluginCall) {
+        call.resolve(checkPermissionsInternal())
+    }
 
     private fun checkPermissionsInternal(): JSObject =
         JSObject().apply {
-            put(CAMERA, permissionState(CAMERA))
             put(MICROPHONE, permissionState(MICROPHONE))
-            put(PHOTOS, permissionState(permissionAlias(PHOTOS)!!))
         }
 
     private fun permissionState(alias: String): String =
         when (
-            if (isPermissionDeclared(alias)) super.getPermissionState(alias)
-            else PermissionState.GRANTED
+            (
+                if (isPermissionDeclared(alias)) super.getPermissionState(alias)
+                else PermissionState.GRANTED
+            ) ?: PermissionState.PROMPT
         ) {
             PermissionState.GRANTED -> "granted"
             PermissionState.DENIED -> "denied"
             PermissionState.PROMPT,
             PermissionState.PROMPT_WITH_RATIONALE -> "prompt"
         }
-        
+
+    private fun defaultOptions(): JSObject = JSObject().put("enabled", true).put("debug", false)
+
+    private fun reject(call: PluginCall, code: String, message: String) {
+        call.reject(message, code, JSObject())
+    }
 }
