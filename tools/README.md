@@ -14,9 +14,6 @@ Current entrypoints:
     - `captool doctor`
     - `captool report`
     - `captool help`
-- `test-plugin.sh`
-  - Legacy compatibility shim.
-  - It forwards to `captool` so older commands do not break during migration.
 
 Boundary:
 
@@ -26,6 +23,25 @@ Boundary:
   - formal test definitions and formal contract suites
 - `demo/`
   - final UI confirmation and feature showcase, not the formal pipeline host
+
+Current internal direction:
+
+- `tools/captool`
+  - CLI entrypoint and command dispatch
+- `tools/lib/`
+  - shared helpers and command-specific internals
+  - current first-level split:
+    - `common.sh`
+    - `cli.sh`
+    - `summary.sh`
+    - `doctor.sh`
+    - `report.sh`
+    - `clean.sh`
+    - `test.sh`
+    - `platform-web.sh`
+    - `platform-ios.sh`
+    - `platform-android.sh`
+  - still evolving; command structure is being stabilized before any deeper subdivision
 
 Options:
 
