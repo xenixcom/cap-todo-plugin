@@ -12,7 +12,7 @@ Options:
   --no-close-device      若本次測試由腳本自行開啟裝置，測完後也不要關閉
   --fast                 啟用快速模式；Web 會跳過 build，iOS 會重用 simulator 與 derived data
   --keep-artifacts       保留 report 與測試產物，不自動清理
-  --logs=<filename>      將完整 log 同步輸出到檔案
+  --logs=<filename>      將完整 log 同步輸出到 logs/ 檔案；若含路徑則照原值
   --report               生成簡易 fail report
 
 Commands:
@@ -76,4 +76,22 @@ ensure_command() {
     return 1
   fi
   return 0
+}
+
+ensure_tool_output_dirs() {
+  mkdir -p "./logs" "./reports"
+}
+
+resolve_log_file_path() {
+  local requested_path="$1"
+  if [[ -z "$requested_path" ]]; then
+    echo ""
+    return
+  fi
+
+  if [[ "$requested_path" == */* ]]; then
+    echo "$requested_path"
+  else
+    echo "./logs/$requested_path"
+  fi
 }

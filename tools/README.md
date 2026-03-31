@@ -2,6 +2,9 @@
 
 This directory contains repo-local toolchain entrypoints.
 
+It is no longer treated as a loose scripts folder.
+It is the beginning of the repo-local `captool` toolchain surface.
+
 Current entrypoints:
 
 - `captool`
@@ -23,6 +26,13 @@ Boundary:
   - formal test definitions and formal contract suites
 - `demo/`
   - final UI confirmation and feature showcase, not the formal pipeline host
+- `logs/`
+  - captool runtime logs
+- `reports/`
+  - captool generated test reports
+- `templates/`
+  - reserved for future scaffold/template assets
+  - long-term direction for `captool create`
 
 Current internal direction:
 
@@ -34,14 +44,18 @@ Current internal direction:
     - `common.sh`
     - `cli.sh`
     - `summary.sh`
-    - `doctor.sh`
-    - `report.sh`
-    - `clean.sh`
-    - `test.sh`
-    - `platform-web.sh`
-    - `platform-ios.sh`
-    - `platform-android.sh`
+    - `commands/doctor.sh`
+    - `commands/report.sh`
+    - `commands/clean.sh`
+    - `commands/test.sh`
+    - `platforms/web.sh`
+    - `platforms/ios.sh`
+    - `platforms/android.sh`
   - still evolving; command structure is being stabilized before any deeper subdivision
+  - future space is intentionally reserved for:
+    - scaffold templates
+    - create/init flows
+    - command-specific assets
 
 Options:
 
@@ -54,7 +68,8 @@ Options:
 - `--report`
   - 為 test 流程產生摘要報告
 - `--logs=<filename>`
-  - 將完整 log 同步輸出到檔案
+  - 將完整 log 同步輸出到 `logs/`
+  - 若傳入含路徑值，則照指定路徑輸出
 - `--device=<ID>`
   - 指定 iOS simulator 或真機 ID
 - `--no-close-device`
@@ -70,6 +85,7 @@ Report:
   - 明確顯示最新 report
 - `captool report <file>`
   - 顯示指定 report 檔案內容
+  - 若只給檔名，會先在 `reports/` 下查找
 
 Direction:
 

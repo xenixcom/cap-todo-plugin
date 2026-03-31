@@ -1,7 +1,7 @@
 initialize_report_file() {
   TIMESTAMP="$(date +"%Y%m%d_%H%M%S")"
   if [[ $REPORT -eq 1 ]]; then
-    REPORT_FILE="plugin-report-${PLATFORM}-${TIMESTAMP}.txt"
+    REPORT_FILE="./reports/plugin-report-${PLATFORM}-${TIMESTAMP}.txt"
     cleanup_report_artifacts
     : > "$REPORT_FILE"
     {

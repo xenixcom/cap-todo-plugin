@@ -4,9 +4,9 @@ cleanup_report_artifacts() {
   fi
 
   if [[ $REPORT -eq 1 && -n "${REPORT_FILE:-}" ]]; then
-    find . -maxdepth 1 -type f -name 'plugin-report-*.txt' ! -name "$REPORT_FILE" -delete 2>/dev/null || true
+    find ./reports -maxdepth 1 -type f -name 'plugin-report-*.txt' ! -path "$REPORT_FILE" -delete 2>/dev/null || true
   else
-    find . -maxdepth 1 -type f -name 'plugin-report-*.txt' -delete 2>/dev/null || true
+    find ./reports -maxdepth 1 -type f -name 'plugin-report-*.txt' -delete 2>/dev/null || true
   fi
 }
 
@@ -24,7 +24,8 @@ cleanup_repo_artifacts_and_exit() {
   rm -rf ./ios/build/Logs/TestSummary 2>/dev/null || true
   rm -rf ./android/build 2>/dev/null || true
   rm -rf ./demo/android/app/build 2>/dev/null || true
-  find . -maxdepth 1 -type f -name 'plugin-report-*.txt' -delete 2>/dev/null || true
+  find ./reports -maxdepth 1 -type f -name 'plugin-report-*.txt' -delete 2>/dev/null || true
+  find ./logs -maxdepth 1 -type f -delete 2>/dev/null || true
   echo "已清理測試產物"
   exit 0
 }

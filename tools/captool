@@ -7,6 +7,10 @@ set -u
 # =========================================
 # 角色:
 #   repo-local 正式工具入口。
+#   入口只負責：
+#   - 載入工具模組
+#   - CLI 命令分派
+#   - 測試主流程組裝
 #
 # 目前支援:
 #   ./tools/captool test [all|web|ios|android] [options]
@@ -15,9 +19,15 @@ set -u
 #   ./tools/captool report [latest|<file>]
 #   ./tools/captool help
 #
-# 相容:
-#   舊用法 ./tools/test-plugin.sh ... 仍可使用，
-#   由 shim 轉接到 captool。
+# 內部骨架:
+#   tools/lib/common.sh           共用 helper
+#   tools/lib/cli.sh              CLI 參數解析與命令分派
+#   tools/lib/summary.sh          結果摘要與 report 初始化
+#   tools/lib/doctor.sh           doctor 子命令
+#   tools/lib/report.sh           report 子命令
+#   tools/lib/clean.sh            clean 子命令與 artifact 清理
+#   tools/lib/test.sh             測試主流程共用邏輯
+#   tools/lib/platform-*.sh       各平台執行細節
 # =========================================
 
 COMMAND="test"
@@ -55,14 +65,15 @@ REPORT_TARGET="latest"
 CAPTOOL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$CAPTOOL_DIR/lib/common.sh"
 source "$CAPTOOL_DIR/lib/cli.sh"
-source "$CAPTOOL_DIR/lib/doctor.sh"
-source "$CAPTOOL_DIR/lib/report.sh"
-source "$CAPTOOL_DIR/lib/clean.sh"
+source "$CAPTOOL_DIR/lib/commands/doctor.sh"
+source "$CAPTOOL_DIR/lib/commands/report.sh"
+source "$CAPTOOL_DIR/lib/commands/clean.sh"
 source "$CAPTOOL_DIR/lib/summary.sh"
-source "$CAPTOOL_DIR/lib/test.sh"
-source "$CAPTOOL_DIR/lib/platform-web.sh"
-source "$CAPTOOL_DIR/lib/platform-ios.sh"
-source "$CAPTOOL_DIR/lib/platform-android.sh"
+source "$CAPTOOL_DIR/lib/commands/test.sh"
+source "$CAPTOOL_DIR/lib/platforms/web.sh"
+source "$CAPTOOL_DIR/lib/platforms/ios.sh"
+source "$CAPTOOL_DIR/lib/platforms/android.sh"
+ensure_tool_output_dirs
 parse_command "$@"
 dispatch_non_test_commands
 parse_test_args

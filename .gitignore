@@ -71,3 +71,8 @@ captures
 
 # Temp files
 .temp
+# captool generated outputs
+logs/*
+!logs/.gitkeep
+reports/*
+!reports/.gitkeep

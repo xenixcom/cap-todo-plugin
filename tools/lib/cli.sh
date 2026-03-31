@@ -52,7 +52,7 @@ parse_test_args() {
       --no-close-device) NO_CLOSE=1 ;;
       --fast) FAST_MODE=1 ;;
       --keep-artifacts) KEEP_ARTIFACTS=1 ;;
-      --logs=*) LOG_FILE="${arg#*=}" ;;
+      --logs=*) LOG_FILE="$(resolve_log_file_path "${arg#*=}")" ;;
       --report) REPORT=1 ;;
       *)
         echo "未知參數: $arg" >&2

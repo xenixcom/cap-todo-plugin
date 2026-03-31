@@ -1,5 +1,5 @@
 resolve_latest_report() {
-  find . -maxdepth 1 -type f -name 'plugin-report-*.txt' -print | sort | tail -n 1
+  find ./reports -maxdepth 1 -type f -name 'plugin-report-*.txt' -print 2>/dev/null | sort | tail -n 1
 }
 
 run_report_and_exit() {
@@ -10,7 +10,13 @@ run_report_and_exit() {
       report_path="$(resolve_latest_report)"
       ;;
     *)
-      report_path="$1"
+      if [[ -f "$1" ]]; then
+        report_path="$1"
+      elif [[ -f "./reports/$1" ]]; then
+        report_path="./reports/$1"
+      else
+        report_path="$1"
+      fi
       ;;
   esac
 
