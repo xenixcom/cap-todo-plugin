@@ -64,6 +64,8 @@ IOS_ACTIVE_DEVICE=""
 IOS_ACTIVE_DESTINATION=""
 REPORT_TARGET="latest"
 CAPTOOL_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+CAPTOOL_ROOT="$(cd "$CAPTOOL_DIR/.." && pwd)"
+CAPTOOL_CONFIG="${CAPTOOL_CONFIG:-$CAPTOOL_ROOT/captool.json}"
 source "$CAPTOOL_DIR/lib/common.sh"
 source "$CAPTOOL_DIR/lib/cli.sh"
 source "$CAPTOOL_DIR/lib/commands/doctor.sh"
@@ -83,15 +85,15 @@ initialize_report_file
 print_test_header
 
 if [[ "$PLATFORM" == "all" || "$PLATFORM" == "web" ]]; then
-  run_platform "Web" run_web_tests WEB_RESULT
+  run_or_resolve_platform "web" "Web" run_web_tests WEB_RESULT
 fi
 
 if [[ "$PLATFORM" == "all" || "$PLATFORM" == "ios" ]]; then
-  run_platform "iOS" run_ios_tests IOS_RESULT
+  run_or_resolve_platform "ios" "iOS" run_ios_tests IOS_RESULT
 fi
 
 if [[ "$PLATFORM" == "all" || "$PLATFORM" == "android" ]]; then
-  run_platform "Android" run_android_tests ANDROID_RESULT
+  run_or_resolve_platform "android" "Android" run_android_tests ANDROID_RESULT
 fi
 
 print_test_footer

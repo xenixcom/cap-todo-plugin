@@ -34,6 +34,12 @@ run_doctor_and_exit() {
     doctor_fail_msg "npm not found"
   fi
 
+  if command -v node >/dev/null 2>&1; then
+    doctor_ok "node: $(node --version)"
+  else
+    doctor_fail_msg "node not found"
+  fi
+
   if command -v bash >/dev/null 2>&1; then
     doctor_ok "bash available"
   else
@@ -96,6 +102,36 @@ run_doctor_and_exit() {
   else
     doctor_fail_msg "missing formal contract source: src/definitions.ts"
   fi
+
+  doctor_section "Platform Support"
+  if ensure_captool_config; then
+    doctor_ok "captool config present: $CAPTOOL_CONFIG"
+  else
+    doctor_fail_msg "missing captool config: $CAPTOOL_CONFIG"
+  fi
+
+  for platform in web ios android; do
+    if platform_supported_declared "$platform"; then
+      if platform_presence_detected "$platform"; then
+        doctor_ok "$platform: declared supported and present"
+      else
+        doctor_fail_msg "$platform: declared supported but missing platform files"
+      fi
+    else
+      case $? in
+        1)
+          if platform_presence_detected "$platform"; then
+            doctor_warn "$platform: present but unsupported by design"
+          else
+            doctor_ok "$platform: unsupported by design"
+          fi
+          ;;
+        *)
+          doctor_fail_msg "$platform: unsupported declaration missing or unreadable in captool.json"
+          ;;
+      esac
+    fi
+  done
 
   echo "=============================="
   echo "Doctor Summary"

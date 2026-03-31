@@ -67,6 +67,7 @@ Support declaration rule:
 - future platform selection should not rely only on directory guessing
 - platform support should be resolved from:
   - declared support
+    - from `captool.json`
   - detected presence
 - these should remain separate states:
   - supported and present

@@ -1,0 +1,13 @@
+{
+  "platforms": {
+    "web": {
+      "supported": true
+    },
+    "ios": {
+      "supported": true
+    },
+    "android": {
+      "supported": true
+    }
+  }
+}

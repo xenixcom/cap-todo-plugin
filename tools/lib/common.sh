@@ -83,6 +83,53 @@ ensure_tool_output_dirs() {
   mkdir -p "./logs" "./reports"
 }
 
+ensure_captool_config() {
+  [[ -f "$CAPTOOL_CONFIG" ]]
+}
+
+platform_supported_declared() {
+  local platform="$1"
+  if ! ensure_captool_config; then
+    return 2
+  fi
+
+  local result
+  result="$(node -e '
+    const fs = require("fs");
+    const path = process.argv[1];
+    const platform = process.argv[2];
+    const json = JSON.parse(fs.readFileSync(path, "utf8"));
+    const supported = json?.platforms?.[platform]?.supported;
+    if (supported === true) process.stdout.write("1");
+    else if (supported === false) process.stdout.write("0");
+    else process.stdout.write("");
+  ' "$CAPTOOL_CONFIG" "$platform" 2>/dev/null || true)"
+
+  case "$result" in
+    1) return 0 ;;
+    0) return 1 ;;
+    *) return 2 ;;
+  esac
+}
+
+platform_presence_detected() {
+  local platform="$1"
+  case "$platform" in
+    web)
+      [[ -f "$CAPTOOL_ROOT/src/web.ts" ]]
+      ;;
+    ios)
+      [[ -d "$CAPTOOL_ROOT/ios" && -f "$CAPTOOL_ROOT/ios/Sources/TodoPlugin/TodoPlugin.swift" ]]
+      ;;
+    android)
+      [[ -d "$CAPTOOL_ROOT/android" && -x "$CAPTOOL_ROOT/android/gradlew" ]]
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
 resolve_log_file_path() {
   local requested_path="$1"
   if [[ -z "$requested_path" ]]; then

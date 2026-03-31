@@ -35,6 +35,9 @@ Boundary:
 - `templates/`
   - reserved for future scaffold/template assets
   - long-term direction for `captool create`
+- `captool.json`
+  - repo-level captool declaration/config
+  - current minimal role: platform support declaration
 
 Current internal direction:
 
@@ -132,6 +135,7 @@ Platforms:
   - `web`, `ios`, and `android` do not need identical toolchains
 - future supported-platform handling should come from two layers:
   - declared support
+    - from `captool.json`
     - a repo-level captool-facing declaration of which platforms are intended to exist
   - detected support
     - tooling checks that the declared platform entrypoints/files actually exist

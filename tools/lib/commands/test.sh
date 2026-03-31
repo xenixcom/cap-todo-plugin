@@ -81,3 +81,64 @@ run_platform() {
     fi
   fi
 }
+
+mark_platform_skipped() {
+  local platform_label="$1"
+  local platform_result_var="$2"
+  local reason="$3"
+  printf -v "$platform_result_var" '%s' "SKIPPED"
+  log "Result: ${platform_label} SKIPPED"
+  log "原因: $reason"
+  if [[ $REPORT -eq 1 ]]; then
+    report_append "=============================="
+    report_append "Platform: ${platform_label}"
+    report_append "Result: SKIPPED"
+    report_append "Summary:"
+    report_append "  - $reason"
+    report_append
+  fi
+}
+
+mark_platform_misconfigured() {
+  local platform_label="$1"
+  local platform_result_var="$2"
+  local reason="$3"
+  printf -v "$platform_result_var" '%s' "FAIL"
+  log "Result: ${platform_label} FAIL"
+  log "原因: $reason"
+  FAILURES=$((FAILURES + 1))
+  CURRENT_PLATFORM_FAILURE="$reason"
+  if [[ $REPORT -eq 1 ]]; then
+    report_append "=============================="
+    report_append "Platform: ${platform_label}"
+    report_append "Result: FAIL"
+    report_append "Failure Summary:"
+    report_append "  - $reason"
+    report_append
+  fi
+}
+
+run_or_resolve_platform() {
+  local platform_key="$1"
+  local platform_label="$2"
+  local platform_runner="$3"
+  local platform_result_var="$4"
+
+  if platform_supported_declared "$platform_key"; then
+    if platform_presence_detected "$platform_key"; then
+      run_platform "$platform_label" "$platform_runner" "$platform_result_var"
+    else
+      mark_platform_misconfigured "$platform_label" "$platform_result_var" "Declared supported in captool.json but platform files are missing"
+    fi
+    return
+  fi
+
+  case $? in
+    1)
+      mark_platform_skipped "$platform_label" "$platform_result_var" "Unsupported by design in captool.json"
+      ;;
+    *)
+      mark_platform_misconfigured "$platform_label" "$platform_result_var" "Missing or unreadable platform declaration in captool.json"
+      ;;
+  esac
+}
