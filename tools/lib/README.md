@@ -39,4 +39,11 @@ Result vs Process:
   - process-oriented execution layer
   - intended for raw debugging detail and command traces
 
+Doctor role:
+
+- `doctor`
+  - readiness and self-check layer
+  - checks environment/tooling/repo structure status
+  - should report findings without directly modifying user project state
+
 This layer is intentionally modularized enough to support future growth without forcing over-fragmentation.

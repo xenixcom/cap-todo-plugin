@@ -117,6 +117,24 @@ Clean:
 - `captool clean all`
   - 一次清 repo 內產物與全域快取
 
+Doctor:
+
+- `doctor`
+  - readiness and self-check layer
+  - verifies whether the development environment and captool skeleton are ready
+  - should inspect and report, not modify the repo
+  - may later surface compatibility or version hints, but should stay conservative
+- current doctor focus:
+  - toolchain availability
+  - repo path readiness
+  - output path readiness
+  - formal entrypoint presence
+- future doctor-related directions may include:
+  - `outdated`
+  - `update`
+  - `upgrade`
+  - but those should remain separate commands, not be folded into `doctor`
+
 Direction:
 
 - The next stage is to turn this directory into a clearer toolchain surface rather than keep growing one large script.

@@ -30,6 +30,12 @@ Compatibility rule:
 - future `outdated` may inspect and compare versions
 - future `update` / `upgrade` must not assume it is always safe to modify a partially customized user repo
 
+Doctor rule:
+
+- `doctor` should stay focused on readiness and self-check
+- `doctor` should not directly update scripts or templates
+- future update-oriented actions belong to separate commands, even when discovered by `doctor`
+
 Reporting rule:
 
 - `report` is the result-facing layer
