@@ -20,6 +20,7 @@ cleanup_ios_test_artifacts() {
 }
 
 cleanup_repo_artifacts_and_exit() {
+  ensure_tool_output_dirs
   rm -rf ./ios/build/Logs/Test 2>/dev/null || true
   rm -rf ./ios/build/Logs/TestSummary 2>/dev/null || true
   rm -rf ./android/build 2>/dev/null || true
@@ -27,6 +28,12 @@ cleanup_repo_artifacts_and_exit() {
   find ./reports -maxdepth 1 -type f -name 'plugin-report-*.txt' -delete 2>/dev/null || true
   find ./logs -maxdepth 1 -type f -delete 2>/dev/null || true
   echo "已清理測試產物"
+  echo "- ios/build/Logs/Test"
+  echo "- ios/build/Logs/TestSummary"
+  echo "- android/build"
+  echo "- demo/android/app/build"
+  echo "- reports/*.txt"
+  echo "- logs/*"
   exit 0
 }
 
@@ -37,5 +44,10 @@ cleanup_global_caches_and_exit() {
   rm -rf "$HOME/.gradle/daemon"/* 2>/dev/null || true
   npm cache clean --force >/dev/null 2>&1 || true
   echo "已清理全域快取"
+  echo "- ~/Library/Developer/Xcode/DerivedData/*"
+  echo "- ~/Library/Developer/CoreSimulator/Devices/*"
+  echo "- ~/.gradle/caches/*"
+  echo "- ~/.gradle/daemon/*"
+  echo "- npm cache"
   exit 0
 }

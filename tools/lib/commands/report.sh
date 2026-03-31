@@ -2,12 +2,28 @@ resolve_latest_report() {
   find ./reports -maxdepth 1 -type f -name 'plugin-report-*.txt' -print 2>/dev/null | sort | tail -n 1
 }
 
+list_reports() {
+  find ./reports -maxdepth 1 -type f -name 'plugin-report-*.txt' -print 2>/dev/null | sort
+}
+
 run_report_and_exit() {
   local report_path=""
 
   case "${1:-latest}" in
     latest)
       report_path="$(resolve_latest_report)"
+      ;;
+    list)
+      echo "=============================="
+      echo "Captool Reports"
+      echo "=============================="
+      if list_reports | grep -q .; then
+        list_reports
+        exit 0
+      else
+        echo "找不到任何 report 檔案" >&2
+        exit 1
+      fi
       ;;
     *)
       if [[ -f "$1" ]]; then

@@ -1,11 +1,15 @@
 doctor_fail=0
+doctor_warn_count=0
+doctor_ok_count=0
 
 doctor_ok() {
   echo "[OK] $1"
+  doctor_ok_count=$((doctor_ok_count + 1))
 }
 
 doctor_warn() {
   echo "[WARN] $1"
+  doctor_warn_count=$((doctor_warn_count + 1))
 }
 
 doctor_fail_msg() {
@@ -13,11 +17,17 @@ doctor_fail_msg() {
   doctor_fail=1
 }
 
+doctor_section() {
+  echo
+  echo "[$1]"
+}
+
 run_doctor_and_exit() {
   echo "=============================="
   echo "Captool Doctor"
   echo "=============================="
 
+  doctor_section "Toolchain"
   if command -v npm >/dev/null 2>&1; then
     doctor_ok "npm: $(npm --version)"
   else
@@ -53,7 +63,8 @@ run_doctor_and_exit() {
     doctor_warn "android gradlew missing or not executable"
   fi
 
-  for path in src ios android demo tests/contract tools; do
+  doctor_section "Repo Paths"
+  for path in src ios android demo tests/contract tools tools/lib tools/templates logs reports; do
     if [[ -e "$path" ]]; then
       doctor_ok "path present: $path"
     else
@@ -74,6 +85,10 @@ run_doctor_and_exit() {
   fi
 
   echo "=============================="
+  echo "Doctor Summary"
+  echo "OK: $doctor_ok_count"
+  echo "WARN: $doctor_warn_count"
+  echo "FAIL: $doctor_fail"
   if [[ $doctor_fail -eq 0 ]]; then
     echo "Doctor Result: PASS"
     exit 0

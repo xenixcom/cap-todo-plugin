@@ -4,7 +4,7 @@ Usage:
   ./tools/captool test [all|web|ios|android] [options]
   ./tools/captool clean [artifacts|global-caches]
   ./tools/captool doctor
-  ./tools/captool report [latest|<file>]
+  ./tools/captool report [latest|list|<file>]
   ./tools/captool help
 
 Options:
@@ -20,7 +20,7 @@ Commands:
   clean artifacts        清除 repo 內測試產物
   clean global-caches    清除全域 Xcode / Simulator / Gradle / npm 快取
   doctor                 檢查本機工具鏈與 repo 關鍵路徑是否可用
-  report                 顯示最新或指定的測試報告
+  report                 顯示最新、列出、或讀取指定測試報告
   help                   顯示使用說明
 EOF
 }

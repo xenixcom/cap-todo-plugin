@@ -83,6 +83,8 @@ Report:
   - 顯示最新 report
 - `captool report latest`
   - 明確顯示最新 report
+- `captool report list`
+  - 列出目前 `reports/` 下所有報告
 - `captool report <file>`
   - 顯示指定 report 檔案內容
   - 若只給檔名，會先在 `reports/` 下查找
