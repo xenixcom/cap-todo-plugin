@@ -76,3 +76,6 @@ logs/*
 !logs/.gitkeep
 reports/*
 !reports/.gitkeep
+
+# captool local fast-path artifacts
+ios/build-fast-check/

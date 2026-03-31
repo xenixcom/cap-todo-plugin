@@ -29,6 +29,10 @@ Compatibility rule:
 - `doctor` may inspect and report status
 - future `outdated` may inspect and compare versions
 - future `update` / `upgrade` must not assume it is always safe to modify a partially customized user repo
+- future platform support resolution should distinguish:
+  - declared support
+  - detected presence
+- future private/platform-local tests may be tracked by tooling without replacing the formal contract path
 
 Doctor rule:
 

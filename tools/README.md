@@ -130,6 +130,13 @@ Platforms:
   - artifact policy
 - low-level execution is allowed to differ by platform
   - `web`, `ios`, and `android` do not need identical toolchains
+- future supported-platform handling should come from two layers:
+  - declared support
+    - a repo-level captool-facing declaration of which platforms are intended to exist
+  - detected support
+    - tooling checks that the declared platform entrypoints/files actually exist
+- this avoids relying only on folder guessing
+- unsupported-by-design and misconfigured should remain distinct outcomes
 
 Doctor:
 
@@ -167,3 +174,4 @@ Direction:
   - `scripts`
   - `template`
 - those future commands must treat compatibility conservatively, especially for partially customized repos
+- future private/native-only tests may still be tracked, but should stay separate from the formal contract green-light path

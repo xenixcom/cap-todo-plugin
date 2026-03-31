@@ -60,3 +60,21 @@ Stability rule:
 - adapters should align to shared intent, not force identical low-level toolchains
 - platform differences are acceptable
 - user-facing semantics should stay consistent
+
+Support declaration rule:
+
+- a plugin may support one, two, or three platforms
+- future platform selection should not rely only on directory guessing
+- platform support should be resolved from:
+  - declared support
+  - detected presence
+- these should remain separate states:
+  - supported and present
+  - unsupported by design
+  - declared but missing / misconfigured
+
+Private test rule:
+
+- platform-private tests may still exist for platform-local confidence
+- they should be traceable by the toolchain
+- they should not automatically redefine the formal contract pass criteria
