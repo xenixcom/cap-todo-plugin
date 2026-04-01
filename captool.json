@@ -2,19 +2,31 @@
   "platforms": {
     "web": {
       "supported": true,
-      "buildCommand": "npm run build"
+      "build": {
+        "command": "npm run build"
+      }
     },
     "ios": {
       "supported": true,
-      "scheme": "XenixCapTodoPlugin",
-      "derivedDataPath": "./ios/build",
-      "simulatorName": "iPhone 17",
-      "testOnly": "-only-testing:TodoPluginTests"
+      "build": {
+        "scheme": "XenixCapTodoPlugin",
+        "derivedDataPath": "./ios/build"
+      },
+      "runtime": {
+        "simulatorName": "iPhone 17"
+      },
+      "test": {
+        "only": "-only-testing:TodoPluginTests"
+      }
     },
     "android": {
       "supported": true,
-      "gradleCommand": "./android/gradlew -p android",
-      "testCommand": "./android/gradlew -p android test"
+      "build": {
+        "gradleCommand": "./android/gradlew -p android"
+      },
+      "test": {
+        "command": "./android/gradlew -p android test"
+      }
     }
   }
 }

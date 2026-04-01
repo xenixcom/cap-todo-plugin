@@ -41,13 +41,13 @@ Boundary:
     - platform support declaration
     - a small set of repo-shared platform defaults
   - current defaults include:
-    - `platforms.web.buildCommand`
-    - `platforms.ios.scheme`
-    - `platforms.ios.derivedDataPath`
-    - `platforms.ios.simulatorName`
-    - `platforms.ios.testOnly`
-    - `platforms.android.gradleCommand`
-    - `platforms.android.testCommand`
+    - `platforms.web.build.command`
+    - `platforms.ios.build.scheme`
+    - `platforms.ios.build.derivedDataPath`
+    - `platforms.ios.runtime.simulatorName`
+    - `platforms.ios.test.only`
+    - `platforms.android.build.gradleCommand`
+    - `platforms.android.test.command`
 
 Current internal direction:
 
