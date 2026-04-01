@@ -29,6 +29,8 @@ Boundary:
   - entrypoint, sourcing, top-level orchestration
 - `tools/lib/`
   - internal implementation details
+- `tools/tests/`
+  - internal verification for the toolchain itself
 - `tests/`
   - formal test units, not tool internals
 

@@ -35,6 +35,10 @@ Boundary:
 - `templates/`
   - reserved for future scaffold/template assets
   - long-term direction for `captool create`
+- `tools/tests/`
+  - internal self-tests for `captool`
+  - not part of plugin formal contract tests
+  - used to validate tool behavior and failure handling
 - `captool.json`
   - repo-level captool declaration/config
   - current role:
@@ -78,6 +82,16 @@ Current internal direction:
     - scaffold templates
     - create/init flows
     - command-specific assets
+
+Toolchain Self-Tests:
+
+- `npm run test:tools`
+  - runs internal `captool` self-tests
+  - covers happy-path command behavior and failure injection
+  - currently focuses on:
+    - `doctor`
+    - `report`
+    - `clean`
 
 Options:
 
