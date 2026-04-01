@@ -144,6 +144,16 @@ Likely next improvement:
 - session/watch archetype example
 - event and teardown coverage for long-lived operations
 
+Current progress:
+
+- a first session-like pressure point is now present in the sample contract
+- `openSession()` / `closeSession(sessionId)` provide a minimal long-lived token flow
+- current coverage now checks:
+  - session creation
+  - duplicate-session rejection
+  - invalid token rejection
+  - return to `idle` after session close
+
 ### 4. Event Stream Capability
 
 Examples:

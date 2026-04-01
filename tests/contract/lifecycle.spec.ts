@@ -54,4 +54,34 @@ describe('Contract: Lifecycle', () => {
 
     await expectPluginError(fixture.plugin.start(), 'INVALID_STATE');
   });
+
+  it('openSession 應建立最小 session token 並進入 running', async () => {
+    const result = await fixture.plugin.openSession();
+
+    expect(result).toEqual({
+      sessionId: expect.any(String),
+    });
+    await expectStatus(fixture.plugin, 'running');
+  });
+
+  it('closeSession 應接受活躍 token 並回到 idle', async () => {
+    const result = await fixture.plugin.openSession();
+
+    await fixture.plugin.closeSession(result.sessionId);
+
+    await expectStatus(fixture.plugin, 'idle');
+  });
+
+  it('重複建立 session 應拋出 INVALID_STATE', async () => {
+    await fixture.plugin.openSession();
+
+    await expectPluginError(fixture.plugin.openSession(), 'INVALID_STATE');
+  });
+
+  it('關閉未知 session token 應拋出 INVALID_ARGUMENT', async () => {
+    await expectPluginError(
+      fixture.plugin.closeSession('unknown-session'),
+      'INVALID_ARGUMENT',
+    );
+  });
 });

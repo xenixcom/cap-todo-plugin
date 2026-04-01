@@ -138,6 +138,10 @@ export interface StatusResult {
   status: PluginStatus;
 }
 
+export interface SessionResult {
+  sessionId: string;
+}
+
 /**
  * 狀態變化事件。
  *
@@ -196,9 +200,31 @@ export interface TodoPlugin {
   start(): Promise<void>;
 
   /**
+   * 啟動一個最小長存 session，回傳正式 session token。
+   *
+   * 這個方法不是完整 watch/stream API，
+   * 而是先提供一個最小可測的 session archetype 壓測點。
+   *
+   * 規則：
+   * - 成功建立後應使狀態進入 `running`
+   * - 若目前已有活躍 session，應拋出 `INVALID_STATE`
+   */
+  openSession(): Promise<SessionResult>;
+
+  /**
    * 停止 plugin 主要功能，成功後回到 `idle`。
    */
   stop(): Promise<void>;
+
+  /**
+   * 關閉既有 session。
+   *
+   * 規則：
+   * - 只有傳入目前活躍的 session token 才能成功
+   * - 關閉後應回到 `idle`
+   * - 不合法或過期 token 應拋出 `INVALID_ARGUMENT`
+   */
+  closeSession(sessionId: string): Promise<void>;
 
   /**
    * 重置 plugin。

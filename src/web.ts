@@ -8,6 +8,7 @@ import type {
   PluginPermissionState,
   PluginPermissionStatus,
   PluginStatus,
+  SessionResult,
   StatusResult,
   TodoPlugin,
 } from './definitions';
@@ -19,6 +20,7 @@ export class TodoWeb extends WebPlugin implements TodoPlugin {
   };
 
   private status: PluginStatus = 'idle';
+  private activeSessionId: string | null = null;
 
   async getStatus(): Promise<StatusResult> {
     return { status: this.status };
@@ -59,6 +61,16 @@ export class TodoWeb extends WebPlugin implements TodoPlugin {
     this.setStatus('running');
   }
 
+  async openSession(): Promise<SessionResult> {
+    if (this.activeSessionId) {
+      throw this.createPluginError('INVALID_STATE', 'Session already active');
+    }
+
+    await this.start();
+    this.activeSessionId = 'session-1';
+    return { sessionId: this.activeSessionId };
+  }
+
   async stop(): Promise<void> {
     if (this.status !== 'running') {
       throw this.createPluginError('INVALID_STATE', 'Plugin can only stop from running');
@@ -67,8 +79,18 @@ export class TodoWeb extends WebPlugin implements TodoPlugin {
     this.setStatus('idle');
   }
 
+  async closeSession(sessionId: string): Promise<void> {
+    if (!this.activeSessionId || sessionId !== this.activeSessionId) {
+      throw this.createPluginError('INVALID_ARGUMENT', 'Unknown session token');
+    }
+
+    this.activeSessionId = null;
+    await this.stop();
+  }
+
   async reset(): Promise<void> {
     this.setStatus('init');
+    this.activeSessionId = null;
     await this.resetOptions();
     this.setStatus('idle');
   }
