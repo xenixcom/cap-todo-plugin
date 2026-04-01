@@ -40,6 +40,8 @@ Boundary:
   - current role:
     - platform support declaration
     - a small set of repo-shared platform defaults
+  - schema notes:
+    - see `docs/CAPTOOL_CONFIG.md`
   - current defaults include:
     - `platforms.web.build.command`
     - `platforms.ios.build.scheme`
