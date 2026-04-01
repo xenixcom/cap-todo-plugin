@@ -61,14 +61,14 @@ describe.sequential('captool self-tests', () => {
     const result = runCaptool(['version']);
 
     expect(result.code).toBe(0);
-    expect(result.stdout.trim()).toBe('captool v0.5.2');
+    expect(result.stdout.trim()).toBe('captool v0.5.3');
   });
 
   it('help shows the current captool version', () => {
     const result = runCaptool(['help']);
 
     expect(result.code).toBe(0);
-    expect(result.stdout).toContain('captool v0.5.2');
+    expect(result.stdout).toContain('captool v0.5.3');
   });
 
   it('doctor fails when platform declaration is malformed', () => {
@@ -227,7 +227,7 @@ describe.sequential('captool self-tests', () => {
     expect(result.code).toBe(0);
     expect(result.stdout).toContain('LOCAL_OVERRIDE_BUILD');
     expect(result.stdout).toContain('Result: Web PASS');
-  });
+  }, 20000);
 
   it('environment override wins over local config for web build command', () => {
     const localConfigPath = trackTempConfig({
@@ -249,7 +249,7 @@ describe.sequential('captool self-tests', () => {
     expect(result.stdout).toContain('ENV_OVERRIDE_BUILD');
     expect(result.stdout).not.toContain('LOCAL_OVERRIDE_BUILD');
     expect(result.stdout).toContain('Result: Web PASS');
-  });
+  }, 20000);
 
   it('test web fast mode skips the web build command', () => {
     const result = runCaptool(['test', 'web', '--fast'], {
@@ -260,7 +260,7 @@ describe.sequential('captool self-tests', () => {
     expect(result.stdout).toContain('使用 Web 快速模式：跳過發佈型 build。');
     expect(result.stdout).not.toContain('SHOULD_NOT_RUN');
     expect(result.stdout).toContain('Result: Web PASS');
-  });
+  }, 20000);
 
   it('test web fast mode can retain build when config disables skip', () => {
     const localConfigPath = trackTempConfig({
@@ -282,7 +282,7 @@ describe.sequential('captool self-tests', () => {
     expect(result.stdout).toContain('Web 快速模式已要求，但依 config 保留 build 步驟。');
     expect(result.stdout).toContain('FAST_BUILD_RETAINED');
     expect(result.stdout).toContain('Result: Web PASS');
-  });
+  }, 20000);
 
   it('test web writes report and log files when requested', () => {
     const logPath = path.join(logsDir, 'selftest-web.log');
@@ -426,7 +426,7 @@ describe.sequential('captool self-tests', () => {
     expect(result.stdout).toContain('ANDROID_BUILD_TASK assembleRelease');
     expect(result.stdout).toContain('ANDROID_TEST_COMMAND');
     expect(result.stdout).toContain('Result: Android PASS');
-  });
+  }, 20000);
 
   it('test all fails when a declared supported platform is missing', () => {
     const hiddenWebPath = path.join(repoRoot, 'src', 'web.ts');

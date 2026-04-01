@@ -123,6 +123,9 @@ Current status:
 - `v0.5.2`
   - `doctor` now surfaces platform realism settings
   - platform realism is observable, not only encoded in config
+- `v0.5.3`
+  - `v0.5.x` completion line reached
+  - platform realism work is now encoded in config, adapter behavior, self-tests, and doctor output
 
 ### v0.6.x
 
