@@ -116,6 +116,48 @@ describe.sequential('captool self-tests', () => {
     expect(result.stderr).toContain('找不到任何 report 檔案');
   });
 
+  it('local config overrides shared web build command', () => {
+    const localConfigPath = trackTempConfig({
+      platforms: {
+        web: {
+          build: {
+            command: "printf 'LOCAL_OVERRIDE_BUILD\\n'",
+          },
+        },
+      },
+    });
+
+    const result = runCaptool(['test', 'web'], {
+      CAPTOOL_LOCAL_CONFIG: localConfigPath,
+    });
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('LOCAL_OVERRIDE_BUILD');
+    expect(result.stdout).toContain('Result: Web PASS');
+  });
+
+  it('environment override wins over local config for web build command', () => {
+    const localConfigPath = trackTempConfig({
+      platforms: {
+        web: {
+          build: {
+            command: "printf 'LOCAL_OVERRIDE_BUILD\\n'",
+          },
+        },
+      },
+    });
+
+    const result = runCaptool(['test', 'web'], {
+      CAPTOOL_LOCAL_CONFIG: localConfigPath,
+      WEB_BUILD_CMD: "printf 'ENV_OVERRIDE_BUILD\\n'",
+    });
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('ENV_OVERRIDE_BUILD');
+    expect(result.stdout).not.toContain('LOCAL_OVERRIDE_BUILD');
+    expect(result.stdout).toContain('Result: Web PASS');
+  });
+
   it('clean local removes generated report and log artifacts', () => {
     const reportFile = trackFile(
       path.join(reportsDir, 'plugin-report-selftest-20990101_020202.txt'),

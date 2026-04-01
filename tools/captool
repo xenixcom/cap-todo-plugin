@@ -67,7 +67,7 @@ source "$CAPTOOL_DIR/lib/platforms/web.sh"
 source "$CAPTOOL_DIR/lib/platforms/ios.sh"
 source "$CAPTOOL_DIR/lib/platforms/android.sh"
 
-WEB_BUILD_CMD="$(read_captool_config_with_local_override "platforms.web.build.command" || echo "npm run build")"
+WEB_BUILD_CMD="${WEB_BUILD_CMD:-$(read_captool_config_with_local_override "platforms.web.build.command" || echo "npm run build")}"
 CONTRACT_TEST_CMD="${CONTRACT_TEST_CMD:-npm test}"
 
 IOS_SCHEME="${IOS_SCHEME:-$(read_captool_config_with_local_override "platforms.ios.build.scheme" || echo "XenixCapTodoPlugin")}"
