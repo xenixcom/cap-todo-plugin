@@ -91,6 +91,9 @@ Current status:
   - deeper self-tests expanded
   - config override precedence checks completed
   - report/log regression checks expanded
+- `v0.4.4`
+  - failure injection expanded
+  - failing web build and failing contract command are both covered
 
 ### v0.5.x
 

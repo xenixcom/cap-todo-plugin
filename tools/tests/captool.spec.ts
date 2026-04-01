@@ -60,14 +60,14 @@ describe.sequential('captool self-tests', () => {
     const result = runCaptool(['version']);
 
     expect(result.code).toBe(0);
-    expect(result.stdout.trim()).toBe('captool v0.4.3');
+    expect(result.stdout.trim()).toBe('captool v0.4.4');
   });
 
   it('help shows the current captool version', () => {
     const result = runCaptool(['help']);
 
     expect(result.code).toBe(0);
-    expect(result.stdout).toContain('captool v0.4.3');
+    expect(result.stdout).toContain('captool v0.4.4');
   });
 
   it('doctor fails when platform declaration is malformed', () => {
@@ -262,6 +262,38 @@ describe.sequential('captool self-tests', () => {
     const logContent = fs.readFileSync(explicitLogPath, 'utf8');
     expect(logContent).toContain('Step: Web 測試');
     expect(logContent).toContain('Result: Web PASS');
+  }, 20000);
+
+  it('test web fails when the build command fails', () => {
+    const result = runCaptool(['test', 'web'], {
+      WEB_BUILD_CMD: 'printf "BUILD_FAIL_MARKER\\n"; exit 7',
+    });
+
+    expect(result.code).toBe(1);
+    expect(result.stdout).toContain('BUILD_FAIL_MARKER');
+    expect(result.stdout).toContain('Result: Web FAIL');
+  });
+
+  it('test web writes a fail report when the contract command fails', () => {
+    const result = runCaptool(['test', 'web', '--report'], {
+      CONTRACT_TEST_CMD: 'printf "CONTRACT_FAIL_MARKER\\n"; exit 6',
+    });
+
+    expect(result.code).toBe(1);
+    expect(result.stdout).toContain('CONTRACT_FAIL_MARKER');
+    expect(result.stdout).toContain('Result: Web FAIL');
+    expect(result.stdout).toContain('Report file: ./reports/plugin-report-web-');
+
+    const reportFiles = fs
+      .readdirSync(reportsDir)
+      .filter(name => name.startsWith('plugin-report-web-') && name.endsWith('.txt'));
+
+    expect(reportFiles.length).toBeGreaterThan(0);
+
+    const latestReport = path.join(reportsDir, reportFiles.sort().at(-1)!);
+    const reportContent = fs.readFileSync(latestReport, 'utf8');
+    expect(reportContent).toContain('Result: FAIL');
+    expect(reportContent).toContain('Failure Summary:');
   }, 20000);
 
   it('clean local removes generated report and log artifacts', () => {
