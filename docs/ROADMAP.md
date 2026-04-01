@@ -116,6 +116,10 @@ Current status:
   - iOS simulator device type/runtime are no longer hard-coded in adapter logic
   - Android build task and test mode are now explicit
   - Web fast-mode build behavior is now configurable
+- `v0.5.1`
+  - platform realism self-tests added
+  - Web fast-mode retention is verified
+  - Android build task and test mode are verified
 
 ### v0.6.x
 

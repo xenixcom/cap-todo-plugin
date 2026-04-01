@@ -3,7 +3,7 @@
 set -u
 
 # =========================================
-# Captool (v0.5.0)
+# Captool (v0.5.1)
 # =========================================
 # 角色:
 #   repo-local 正式工具入口。
@@ -31,7 +31,7 @@ set -u
 #   應分開考慮 scripts 與 template 的相容性
 # =========================================
 
-CAPTOOL_VERSION="0.5.0"
+CAPTOOL_VERSION="0.5.1"
 COMMAND="test"
 PLATFORM="all"
 DEVICE=""

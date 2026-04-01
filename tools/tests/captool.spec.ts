@@ -60,14 +60,14 @@ describe.sequential('captool self-tests', () => {
     const result = runCaptool(['version']);
 
     expect(result.code).toBe(0);
-    expect(result.stdout.trim()).toBe('captool v0.5.0');
+    expect(result.stdout.trim()).toBe('captool v0.5.1');
   });
 
   it('help shows the current captool version', () => {
     const result = runCaptool(['help']);
 
     expect(result.code).toBe(0);
-    expect(result.stdout).toContain('captool v0.5.0');
+    expect(result.stdout).toContain('captool v0.5.1');
   });
 
   it('doctor fails when platform declaration is malformed', () => {
@@ -222,6 +222,28 @@ describe.sequential('captool self-tests', () => {
     expect(result.stdout).toContain('Result: Web PASS');
   });
 
+  it('test web fast mode can retain build when config disables skip', () => {
+    const localConfigPath = trackTempConfig({
+      platforms: {
+        web: {
+          runtime: {
+            fastSkipsBuild: false,
+          },
+        },
+      },
+    });
+
+    const result = runCaptool(['test', 'web', '--fast'], {
+      CAPTOOL_LOCAL_CONFIG: localConfigPath,
+      WEB_BUILD_CMD: 'printf "FAST_BUILD_RETAINED\\n"',
+    });
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('Web 快速模式已要求，但依 config 保留 build 步驟。');
+    expect(result.stdout).toContain('FAST_BUILD_RETAINED');
+    expect(result.stdout).toContain('Result: Web PASS');
+  });
+
   it('test web writes report and log files when requested', () => {
     const logPath = path.join(logsDir, 'selftest-web.log');
 
@@ -337,6 +359,33 @@ describe.sequential('captool self-tests', () => {
     expect(result.stdout).toContain('ios: SKIPPED');
     expect(result.stdout).toContain('android: SKIPPED');
     expect(result.stdout).toContain('失敗平台數: 0');
+  });
+
+  it('test android reflects configured build task and test mode', () => {
+    const localConfigPath = trackTempConfig({
+      platforms: {
+        android: {
+          build: {
+            task: 'assembleRelease',
+          },
+          test: {
+            mode: 'integration',
+          },
+        },
+      },
+    });
+
+    const result = runCaptool(['test', 'android'], {
+      CAPTOOL_LOCAL_CONFIG: localConfigPath,
+      ANDROID_GRADLE_CMD: 'printf "ANDROID_BUILD_TASK %s\\n"',
+      ANDROID_TEST_CMD: 'printf "ANDROID_TEST_COMMAND\\n"',
+    });
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('Android test mode: integration');
+    expect(result.stdout).toContain('ANDROID_BUILD_TASK assembleRelease');
+    expect(result.stdout).toContain('ANDROID_TEST_COMMAND');
+    expect(result.stdout).toContain('Result: Android PASS');
   });
 
   it('test all fails when a declared supported platform is missing', () => {
