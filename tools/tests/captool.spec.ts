@@ -63,6 +63,13 @@ describe.sequential('captool self-tests', () => {
     expect(result.stdout.trim()).toBe('captool v0.4.2');
   });
 
+  it('help shows the current captool version', () => {
+    const result = runCaptool(['help']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('captool v0.4.2');
+  });
+
   it('doctor fails when platform declaration is malformed', () => {
     const configPath = trackTempConfig({
       platforms: {
@@ -266,5 +273,12 @@ describe.sequential('captool self-tests', () => {
     expect(result.code).toBe(1);
     expect(result.stdout).toContain('web: FAIL');
     expect(result.stdout).toContain('Declared supported in captool.json but platform files are missing');
+  });
+
+  it('test rejects an unknown argument', () => {
+    const result = runCaptool(['test', 'web', '--wat']);
+
+    expect(result.code).toBe(2);
+    expect(result.stderr).toContain('未知參數: --wat');
   });
 });
