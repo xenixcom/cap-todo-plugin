@@ -85,6 +85,13 @@ Goals:
 - report/log regression checks
 - misconfiguration handling checks
 
+Current status:
+
+- `v0.4.3`
+  - deeper self-tests expanded
+  - config override precedence checks completed
+  - report/log regression checks expanded
+
 ### v0.5.x
 
 Improve platform realism.
