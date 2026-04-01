@@ -5,6 +5,7 @@ Usage:
   ./tools/captool clean [local|global|all]
   ./tools/captool doctor
   ./tools/captool report [latest|list|<file>]
+  ./tools/captool version
   ./tools/captool help
 
 Options:
@@ -22,6 +23,7 @@ Commands:
   clean all              一次清除 repo 內產物與全域快取
   doctor                 檢查本機工具鏈與 repo 關鍵路徑是否可用
   report                 顯示最新、列出、或讀取指定測試報告
+  version                顯示 captool 版本
   help                   顯示使用說明
 EOF
   echo

@@ -8,6 +8,7 @@ Current commands:
 - `clean`
 - `doctor`
 - `report`
+- `version`
 
 Reserved direction:
 

@@ -1,7 +1,7 @@
 parse_command() {
   if [[ $# -gt 0 ]]; then
     case "$1" in
-      test|clean|doctor|report|help|-h|--help)
+      test|clean|doctor|report|version|help|-h|--help)
         COMMAND="$1"
         shift
         ;;
@@ -15,6 +15,10 @@ dispatch_non_test_commands() {
   case "$COMMAND" in
     help|-h|--help)
       usage
+      exit 0
+      ;;
+    version)
+      echo "captool v${CAPTOOL_VERSION:-unknown}"
       exit 0
       ;;
     doctor)

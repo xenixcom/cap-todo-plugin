@@ -21,6 +21,7 @@ Current entrypoints:
     - `captool clean`
     - `captool doctor`
     - `captool report`
+    - `captool version`
     - `captool help`
 
 Boundary:
