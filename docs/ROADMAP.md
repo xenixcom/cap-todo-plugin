@@ -60,6 +60,19 @@ Done criteria:
 - the repo can explain, in concrete terms, how the current sample moved closer to
   real plugin behavior instead of only growing abstractions
 
+Current status:
+
+- availability capability
+  - first pressure point complete
+- permission capability
+  - first pressure point complete
+- session/watch capability
+  - first pressure point complete
+- real-world grounding
+  - capability archetype survey complete
+  - pressure-test matrix complete
+  - sample contract now reflects multiple real-world capability patterns
+
 ### v0.4.x
 
 Expand toolchain self-tests.

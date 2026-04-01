@@ -291,6 +291,22 @@ What still needs real-world strengthening:
 - resource patterns
 - platform-variant pressure tests
 
+## v0.3 Review Snapshot
+
+As of the current `v0.3.x` stage:
+
+- permission capability has a first concrete pressure point
+- availability capability has a first concrete pressure point
+- session/watch capability has a first concrete pressure point
+- event/stream semantics have started being pressure-tested through
+  `statusChange` plus session-driven event ordering
+
+This means `v0.3.x` has reached its first meaningful completion line:
+
+- the system is no longer validated only by the original sample shape
+- the sample contract has started absorbing real-world capability patterns
+- formal tests still remain readable and bounded
+
 ## Suggested Next Order
 
 1. Add one new archetype-driven sample pressure point
