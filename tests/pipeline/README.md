@@ -17,7 +17,7 @@ It is not a demo layer.
 ## Rules
 
 - The only formal entrypoint remains [`tools/captool`](/Users/james/dev2/cap-todo-plugin/tools/captool).
-- The host here must be driven by `test-plugin.sh`.
+- The host here must be driven by [`tools/captool`](/Users/james/dev2/cap-todo-plugin/tools/captool).
 - The host here must follow the formal contract from [`src/definitions.ts`](/Users/james/dev2/cap-todo-plugin/src/definitions.ts).
 - The host here must execute the formal test units from [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract).
 - `demo` must not become the formal pipeline host.

@@ -96,13 +96,13 @@ export type PluginErrorCode =
 
 - 對 App 層來說，plugin 永遠只有一個唯一入口。
 - 對 plugin 內部來說，可以有多平台實作，但不得有多套對外標準。
-- 不同平台的執行差異由同一個 `shell script` 入口統一調度，但不得形成不同 contract。
+- 不同平台的執行差異由同一個正式工具入口統一調度，但不得形成不同 contract。
 - 不支援功能不得沉默失敗，必須明確回傳標準錯誤。
 
 ## 6. 測試原則
 
 - 專案只承認一套共用 contract test 作為正式驗收標準。
-- `Web`、`iOS`、`Android` 都必須透過同一個 shell script 入口執行，並驗證同一套 contract cases。
+- `Web`、`iOS`、`Android` 都必須透過同一個正式工具入口執行，並驗證同一套 contract cases。
 - 各平台可自行補充私有測試作為輔助，但不得取代或偏離共用 contract test。
 - Fail 時先定位對應平台 plugin class；不得以修改 contract 規避問題。
 
@@ -166,11 +166,11 @@ tools/
 
 ## 8. Runner 原則
 
-- `shell script` 是唯一測試工具入口，但不是測試標準本身。
+- 正式工具入口是唯一測試工具入口，但不是測試標準本身。
 - 正式測試標準是 `definitions.ts` 與 `tests/contract`，不是特定測試框架名稱。
-- `shell script` 負責環境檢查、編譯、部署、執行、收集 log、彙整失敗。
-- `shell script` 可以調度不同平台的驗證流程，但不得讓 `Web / iOS / Android` 各自演變成不同正式標準。
-- `shell script` 不應把 Jest、Vitest 或任何單一測試框架寫成正式 contract test 標準本身。
+- 正式工具入口負責環境檢查、編譯、部署、執行、收集 log、彙整失敗。
+- 正式工具入口可以調度不同平台的驗證流程，但不得讓 `Web / iOS / Android` 各自演變成不同正式標準。
+- 正式工具入口不應把 Jest、Vitest 或任何單一測試框架寫成正式 contract test 標準本身。
 - Pass / fail 以 command exit status 為主，log 關鍵字解析只作輔助摘要。
 - 各平台不得各自定義正式測試入口或正式驗收標準。
 
@@ -204,12 +204,12 @@ tools/
 1. App 層呼叫方式不變，跨平台行為一致。
 2. 測試 fail 時，優先修正對應平台 plugin class。
 3. 只能有一套正式 contract test，不可有三套正式標準。
-4. 測試工具入口只有一個 `shell script`，不能有三套正式入口。
+4. 測試工具入口只有一個 `captool`，不能有三套正式入口。
 5. 方法的異步行為、狀態轉移、錯誤碼、重置能力必須明確。
 ## Most Important Rule
 
 - 正式 pipeline 的唯一入口是 [`tools/captool`](/Users/james/dev2/cap-todo-plugin/tools/captool)。
-- 正式驗收必須先讓 `test-plugin.sh` 全綠。
+- 正式驗收必須先讓 `./tools/captool test ...` 全綠。
 - `demo` 不是正式 pipeline 的宿主。
 - `demo` 只在正式 pipeline 全綠之後，用於：
   - 最後 UI 確認

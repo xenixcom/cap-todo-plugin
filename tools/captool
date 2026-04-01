@@ -14,7 +14,7 @@ set -u
 #
 # 目前支援:
 #   ./tools/captool test [all|web|ios|android] [options]
-#   ./tools/captool clean [artifacts|global-caches]
+#   ./tools/captool clean [local|global|all]
 #   ./tools/captool doctor
 #   ./tools/captool report [latest|<file>]
 #   ./tools/captool help

@@ -7,7 +7,7 @@
 - App 層只寫一套程式。
 - Plugin 對外只提供一套 interface。
 - 正式測試標準只有一套 contract test。
-- 正式測試工具入口只有一個 `shell script`。
+- 正式測試工具入口只有一個 `captool`。
 - 平台差異只能存在於 plugin 內部實作，不得演變成各自表述。
 
 ## 目前結構
@@ -28,7 +28,7 @@ ios/
 android/
 demo/
 tools/
-  test-plugin.sh
+  captool
 tests/
   contract/
     README.md
@@ -108,7 +108,7 @@ tests/
 
 - `web`
   - 完整正式 contract tests
-  - 目前 `npm test` 為 `43` 個 tests 全通過
+  - 目前 `npm test` 為 `50` 個 tests 全通過
 - `ios`
   - 最小原生 contract 行為驗證
   - 透過 `xcodebuild test` 與 simulator destination 驗證
@@ -128,7 +128,7 @@ tests/
 ## Tooling Vision
 
 - 下一輪主題是把 [`tools/captool`](/Users/james/dev2/cap-todo-plugin/tools/captool) 逐步工具化。
-- 近期仍留在 repo 內演化，但定位已不只是單一 shell script，而是正式工具鏈入口。
+- 近期仍留在 repo 內演化，但定位已不只是單一腳本，而是正式工具鏈入口。
 - `Vitest` 目前是 web 端使用的 runner，但工具鏈本身不應綁死在 `Vitest-only`。
 - 長期若邊界穩定，這套工具可考慮抽成獨立 CLI；目前暫定命名方向是 `captool`。
 - 長期命令方向可包含：
@@ -152,14 +152,14 @@ tests/
 ## Artifact Cleanup
 
 - Repo-local test artifacts can be cleaned with:
-  - `./tools/captool clean artifacts`
+  - `./tools/captool clean local`
 - Global caches can be cleaned with:
-  - `./tools/captool clean global-caches`
+  - `./tools/captool clean global`
 - Basic environment and repo health can be checked with:
   - `./tools/captool doctor`
 - The latest generated report can be viewed with:
   - `./tools/captool report`
 
 Notes:
-- `--clean-artifacts` only clears repo-local outputs such as `ios/build/Logs/Test`, Android build outputs, demo Android build outputs, and `plugin-report-*.txt`.
-- `--clean-global-caches` clears global Xcode, CoreSimulator, Gradle, and npm caches. Use it intentionally because it affects the whole machine and will make later builds slower until caches warm back up.
+- `clean local` only clears repo-local outputs such as `ios/build/Logs/Test`, Android build outputs, demo Android build outputs, and `plugin-report-*.txt`.
+- `clean global` clears global Xcode, CoreSimulator, Gradle, and npm caches. Use it intentionally because it affects the whole machine and will make later builds slower until caches warm back up.

@@ -255,7 +255,7 @@ tests/
 
 - 下一輪核心主題是把 [`tools/captool`](/Users/james/dev2/cap-todo-plugin/tools/captool) 工具化，而不是再擴張平台私測。
 - 近期仍以 repo 內工具形式存在，先把命令結構、輸出、清理、平台 adapter 與模式語意收斂。
-- 中期方向是把正式入口從單一 shell script 提升為更清楚的工具界面，暫定工具名稱方向為 `captool`。
+- 中期方向是把正式入口從 repo-local 工具提升為更清楚的工具界面，暫定工具名稱方向為 `captool`。
 - 長期若邊界足夠穩定，這套工具可考慮抽成獨立發行套件。
 - 長期願景命令包含：
   - `captool test`
@@ -287,11 +287,11 @@ tests/
 
 ### Cleanup Controls
 
-- Use `./tools/captool clean artifacts` for repo-local cleanup.
-- Use `./tools/captool clean global-caches` for machine-wide cache cleanup.
+- Use `./tools/captool clean local` for repo-local cleanup.
+- Use `./tools/captool clean global` for machine-wide cache cleanup.
 - Use `./tools/captool doctor` for a quick repo and toolchain readiness check.
 - Use `./tools/captool report` to print the latest generated report.
 
 Keep the distinction clear:
-- `--clean-artifacts` is safe routine cleanup for this repo.
-- `--clean-global-caches` is a deliberate machine-level cleanup step.
+- `clean local` is safe routine cleanup for this repo.
+- `clean global` is a deliberate machine-level cleanup step.
