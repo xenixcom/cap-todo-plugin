@@ -211,6 +211,17 @@ describe.sequential('captool self-tests', () => {
     expect(result.stdout).toContain('Result: Web PASS');
   });
 
+  it('test web fast mode skips the web build command', () => {
+    const result = runCaptool(['test', 'web', '--fast'], {
+      WEB_BUILD_CMD: 'printf "SHOULD_NOT_RUN\\n"; exit 9',
+    });
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('使用 Web 快速模式：跳過發佈型 build。');
+    expect(result.stdout).not.toContain('SHOULD_NOT_RUN');
+    expect(result.stdout).toContain('Result: Web PASS');
+  });
+
   it('test web writes report and log files when requested', () => {
     const logPath = path.join(logsDir, 'selftest-web.log');
 
@@ -233,6 +244,22 @@ describe.sequential('captool self-tests', () => {
 
     expect(reportContent).toContain('Platform: web');
     expect(reportContent).toContain('Status: PASS');
+    expect(logContent).toContain('Step: Web 測試');
+    expect(logContent).toContain('Result: Web PASS');
+  }, 20000);
+
+  it('test web writes logs to an explicit path when a full path is provided', () => {
+    const explicitLogDir = fs.mkdtempSync(path.join(os.tmpdir(), 'captool-log-selftest-'));
+    createdPaths.push(explicitLogDir);
+    const explicitLogPath = path.join(explicitLogDir, 'explicit.log');
+
+    const result = runCaptool(['test', 'web', `--logs=${explicitLogPath}`]);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain(`Log file: ${explicitLogPath}`);
+    expect(fs.existsSync(explicitLogPath)).toBe(true);
+
+    const logContent = fs.readFileSync(explicitLogPath, 'utf8');
     expect(logContent).toContain('Step: Web 測試');
     expect(logContent).toContain('Result: Web PASS');
   }, 20000);
