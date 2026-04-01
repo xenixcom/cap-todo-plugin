@@ -117,7 +117,7 @@ export type PluginErrorCode =
 
 說明：
 
-- 若正式目錄仍維持五個 spec 檔，`Permissions` 可併入 `error-handling.spec.ts` 與 `edge-cases.spec.ts`。
+- 若正式目錄仍維持五個 spec 檔，`Permissions` 可併入 `error.spec.ts` 與 `edge.spec.ts`。
 - 若未來權限流程擴大，再獨立拆出 `permissions.spec.ts`。
 
 ### 6.1 測試單元設計準則
@@ -151,8 +151,8 @@ tests/
     options.spec.ts
     lifecycle.spec.ts
     status.spec.ts
-    error-handling.spec.ts
-    edge-cases.spec.ts
+    error.spec.ts
+    edge.spec.ts
 tools/
   test-plugin.sh
 ```

@@ -110,7 +110,7 @@ tests/
 ### 6.3 `tests/contract`
 
 - 已整理成正式測試設計稿
-- `options.spec.ts`、`lifecycle.spec.ts`、`status.spec.ts`、`error-handling.spec.ts`、`edge-cases.spec.ts` 已接到真實 `TodoWeb`
+- `options.spec.ts`、`lifecycle.spec.ts`、`status.spec.ts`、`error.spec.ts`、`edge.spec.ts` 已接到真實 `TodoWeb`
 - 目前 `npm test` 可執行完整 web formal contract tests
 - 已和正式 `definitions.ts` 對齊
 - 已補上情境矩陣，且 web 端已形成可執行 formal suite
@@ -206,8 +206,8 @@ tests/
   - `options.spec.ts`
   - `lifecycle.spec.ts`
   - `status.spec.ts`
-  - `error-handling.spec.ts`
-  - `edge-cases.spec.ts`
+  - `error.spec.ts`
+  - `edge.spec.ts`
 - 最新驗證結果為 `5` 個 test files、`43` 個 tests 全數通過。
 
 ## Native Coverage Status

@@ -36,7 +36,7 @@
     "test:ios:fast": "IOS_DERIVED_DATA=./ios/build ./tools/captool test ios --fast",
     "verify:android": "cd android && ./gradlew clean build test && cd ..",
     "verify:web": "npm run build",
-    "contract:test:web": "vitest run tests/contract/options.spec.ts tests/contract/lifecycle.spec.ts tests/contract/status.spec.ts tests/contract/error-handling.spec.ts tests/contract/edge-cases.spec.ts",
+    "contract:test:web": "vitest run tests/contract/options.spec.ts tests/contract/lifecycle.spec.ts tests/contract/status.spec.ts tests/contract/error.spec.ts tests/contract/edge.spec.ts",
     "test": "npm run contract:test:web",
     "lint": "npm run eslint && npm run prettier -- --check && npm run swiftlint -- lint",
     "fmt": "npm run eslint -- --fix && npm run prettier -- --write && npm run swiftlint -- --fix --format",

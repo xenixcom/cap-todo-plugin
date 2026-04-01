@@ -1,14 +1,17 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { createWebContractFixture } from './web-fixture';
+import { expectPluginError } from '../support/errors';
+import { createWebContractFixture, prepareWebContractFixture } from '../support/web';
 
 describe('Contract: EdgeCases', () => {
   const fixture = createWebContractFixture();
 
   beforeEach(async () => {
-    await fixture.plugin.reset();
-    fixture.permissionState = 'prompt';
-    fixture.supportsGetUserMedia = true;
+    await prepareWebContractFixture(fixture, {
+      permissionState: 'prompt',
+      supportsGetUserMedia: true,
+      removeListeners: false,
+    });
   });
 
   it('requestPermissions 未提供 permissions 時，應請求所有正式對外權限', async () => {
@@ -31,13 +34,12 @@ describe('Contract: EdgeCases', () => {
   });
 
   it('requestPermissions 傳入不合法權限值時應拋出 INVALID_ARGUMENT 或 UNSUPPORTED_PLATFORM', async () => {
-    await expect(
+    await expectPluginError(
       fixture.plugin.requestPermissions({
         permissions: ['camera' as never],
       }),
-    ).rejects.toMatchObject({
-      code: 'INVALID_ARGUMENT',
-    });
+      'INVALID_ARGUMENT',
+    );
   });
 
   it('平台內部更細的權限狀態應映射為 prompt、granted、denied', async () => {
@@ -87,15 +89,11 @@ describe('Contract: EdgeCases', () => {
     fixture.permissionState = 'granted';
     await fixture.plugin.start();
 
-    await expect(fixture.plugin.start()).rejects.toMatchObject({
-      code: 'INVALID_STATE',
-    });
+    await expectPluginError(fixture.plugin.start(), 'INVALID_STATE');
   });
 
   it('重複呼叫 stop 時應拋出 INVALID_STATE', async () => {
-    await expect(fixture.plugin.stop()).rejects.toMatchObject({
-      code: 'INVALID_STATE',
-    });
+    await expectPluginError(fixture.plugin.stop(), 'INVALID_STATE');
   });
 
   it('平台實作不得以靜默失敗、false 或空值取代正式錯誤契約', async () => {

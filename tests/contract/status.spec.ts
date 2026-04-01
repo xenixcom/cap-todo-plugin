@@ -1,14 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createWebContractFixture } from './web-fixture';
+import { expectPluginError } from '../support/errors';
+import { createWebContractFixture, prepareWebContractFixture } from '../support/web';
 
 describe('Contract: Status', () => {
   const fixture = createWebContractFixture();
 
   beforeEach(async () => {
-    await fixture.plugin.reset();
-    fixture.permissionState = 'granted';
-    await fixture.plugin.removeAllListeners();
+    await prepareWebContractFixture(fixture, {
+      permissionState: 'granted',
+      removeListeners: true,
+    });
   });
 
   it('getStatus 應回傳物件型別，且包含 status 欄位', async () => {
@@ -99,9 +101,7 @@ describe('Contract: Status', () => {
     const listener = vi.fn();
 
     await fixture.plugin.addListener('statusChange', listener);
-    await expect(fixture.plugin.stop()).rejects.toMatchObject({
-      code: 'INVALID_STATE',
-    });
+    await expectPluginError(fixture.plugin.stop(), 'INVALID_STATE');
 
     expect(listener).not.toHaveBeenCalled();
   });

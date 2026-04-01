@@ -35,8 +35,8 @@ tests/
     options.spec.ts
     lifecycle.spec.ts
     status.spec.ts
-    error-handling.spec.ts
-    edge-cases.spec.ts
+    error.spec.ts
+    edge.spec.ts
 ```
 
 ## 檔案定位

@@ -1,13 +1,16 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { createWebContractFixture } from './web-fixture';
+import { expectPluginError } from '../support/errors';
+import { createWebContractFixture, prepareWebContractFixture } from '../support/web';
 
 describe('Contract: Lifecycle', () => {
   const fixture = createWebContractFixture();
 
   beforeEach(async () => {
-    await fixture.plugin.reset();
-    fixture.permissionState = 'granted';
+    await prepareWebContractFixture(fixture, {
+      permissionState: 'granted',
+      removeListeners: false,
+    });
   });
 
   it('初始化完成後應進入 idle', async () => {
@@ -58,8 +61,6 @@ describe('Contract: Lifecycle', () => {
   it('enabled = false 時 start 應拒絕啟動', async () => {
     await fixture.plugin.setOptions({ enabled: false });
 
-    await expect(fixture.plugin.start()).rejects.toMatchObject({
-      code: 'INVALID_STATE',
-    });
+    await expectPluginError(fixture.plugin.start(), 'INVALID_STATE');
   });
 });

@@ -91,6 +91,12 @@ export interface WebContractFixture {
   supportsGetUserMedia: boolean;
 }
 
+export interface PrepareWebFixtureOptions {
+  permissionState?: PermissionStateValue;
+  supportsGetUserMedia?: boolean;
+  removeListeners?: boolean;
+}
+
 export function createWebContractFixture(
   initialPermission: PermissionStateValue = 'granted',
 ): WebContractFixture {
@@ -144,4 +150,18 @@ export function createWebContractFixture(
       permissionState = nextState;
     },
   };
+}
+
+export async function prepareWebContractFixture(
+  fixture: WebContractFixture,
+  options: PrepareWebFixtureOptions = {},
+): Promise<void> {
+  await fixture.plugin.reset();
+
+  fixture.permissionState = options.permissionState ?? 'granted';
+  fixture.supportsGetUserMedia = options.supportsGetUserMedia ?? true;
+
+  if (options.removeListeners ?? true) {
+    await fixture.plugin.removeAllListeners();
+  }
 }

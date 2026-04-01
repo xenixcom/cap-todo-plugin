@@ -1,5 +1,13 @@
 # Contract Tests
+`tests/contract/` contains the visible formal scenario suites.
 
+These specs should stay simple:
+- scenario
+- input
+- expectation
+
+Shared setup and small assertions may live in `tests/support/`, but contract
+suites remain the primary expression of testing intent.
 這裡是 Capacitor plugin 的唯一正式測試規格來源。
 
 原則：
@@ -14,8 +22,8 @@
 - `options.spec.ts`
 - `lifecycle.spec.ts`
 - `status.spec.ts`
-- `error-handling.spec.ts`
-- `edge-cases.spec.ts`
+- `error.spec.ts`
+- `edge.spec.ts`
 
 目前這些 spec 檔的角色是：
 
@@ -26,8 +34,11 @@
 
 其中：
 
-- `Permissions` 可先併入 `error-handling.spec.ts` 與 `edge-cases.spec.ts`
+- `Permissions` 可先併入 `error.spec.ts` 與 `edge.spec.ts`
 - 若未來權限流程擴大，再獨立拆出 `permissions.spec.ts`
+- shared fixture/setup logic 應逐步移往 `tests/support/`
+- formal suites 盡量只保留 scenario 與 assertion，不把太多環境 scaffolding 混進 spec
+- 小型可重用 assertion helper 應逐步移往 `tests/support/`
 
 建議測試情境矩陣：
 

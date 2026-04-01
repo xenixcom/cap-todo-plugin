@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { createWebContractFixture } from './web-fixture';
+import { createWebContractFixture } from '../support/web';
 
 describe('Contract: Options', () => {
   const fixture = createWebContractFixture();
