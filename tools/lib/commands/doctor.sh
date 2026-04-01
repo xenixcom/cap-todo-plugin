@@ -25,6 +25,7 @@ doctor_section() {
 run_doctor_and_exit() {
   echo "=============================="
   echo "Captool Doctor"
+  echo "Version: v${CAPTOOL_VERSION:-unknown}"
   echo "=============================="
 
   doctor_section "Toolchain"

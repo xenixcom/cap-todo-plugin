@@ -5,6 +5,11 @@ This directory contains repo-local toolchain entrypoints.
 It is no longer treated as a loose scripts folder.
 It is the beginning of the repo-local `captool` toolchain surface.
 
+Current internal version:
+
+- `captool v0.3.1`
+- roadmap position: early `v0.3.x`
+
 Current entrypoints:
 
 - `captool`

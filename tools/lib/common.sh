@@ -24,6 +24,9 @@ Commands:
   report                 顯示最新、列出、或讀取指定測試報告
   help                   顯示使用說明
 EOF
+  echo
+  echo "Version:"
+  echo "  captool v${CAPTOOL_VERSION:-unknown}"
 }
 
 log() {
