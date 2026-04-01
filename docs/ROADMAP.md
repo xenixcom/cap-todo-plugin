@@ -120,6 +120,9 @@ Current status:
   - platform realism self-tests added
   - Web fast-mode retention is verified
   - Android build task and test mode are verified
+- `v0.5.2`
+  - `doctor` now surfaces platform realism settings
+  - platform realism is observable, not only encoded in config
 
 ### v0.6.x
 

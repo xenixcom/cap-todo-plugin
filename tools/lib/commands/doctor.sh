@@ -140,6 +140,15 @@ run_doctor_and_exit() {
     fi
   done
 
+  doctor_section "Platform Runtime"
+  doctor_ok "web fast mode skips build: ${WEB_FAST_SKIP_BUILD:-unknown}"
+  doctor_ok "web test command: ${WEB_TEST_CMD:-unknown}"
+  doctor_ok "ios simulator name: ${IOS_SIMULATOR_NAME:-unknown}"
+  doctor_ok "ios simulator device type: ${IOS_SIMULATOR_DEVICE_TYPE:-unknown}"
+  doctor_ok "ios simulator runtime: ${IOS_SIMULATOR_RUNTIME_ID:-unknown}"
+  doctor_ok "android build task: ${ANDROID_BUILD_TASK:-unknown}"
+  doctor_ok "android test mode: ${ANDROID_TEST_MODE:-unknown}"
+
   echo "=============================="
   echo "Doctor Summary"
   echo "OK: $doctor_ok_count"

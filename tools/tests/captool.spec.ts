@@ -54,20 +54,21 @@ describe.sequential('captool self-tests', () => {
     expect(result.code).toBe(0);
     expect(result.stdout).toContain('Doctor Result: PASS');
     expect(result.stdout).toContain('[Platform Support]');
+    expect(result.stdout).toContain('[Platform Runtime]');
   });
 
   it('version prints the current captool version', () => {
     const result = runCaptool(['version']);
 
     expect(result.code).toBe(0);
-    expect(result.stdout.trim()).toBe('captool v0.5.1');
+    expect(result.stdout.trim()).toBe('captool v0.5.2');
   });
 
   it('help shows the current captool version', () => {
     const result = runCaptool(['help']);
 
     expect(result.code).toBe(0);
-    expect(result.stdout).toContain('captool v0.5.1');
+    expect(result.stdout).toContain('captool v0.5.2');
   });
 
   it('doctor fails when platform declaration is malformed', () => {
@@ -106,6 +107,45 @@ describe.sequential('captool self-tests', () => {
     expect(result.code).toBe(0);
     expect(result.stdout).toContain('captool local config present');
     expect(result.stdout).toContain('SelfTest Simulator');
+  });
+
+  it('doctor surfaces configured platform realism values', () => {
+    const localConfigPath = trackTempConfig({
+      platforms: {
+        web: {
+          runtime: {
+            fastSkipsBuild: false,
+          },
+        },
+        ios: {
+          runtime: {
+            simulatorName: 'Doctor Visible Simulator',
+            deviceType: 'com.example.DeviceType',
+            runtimeId: 'com.example.Runtime',
+          },
+        },
+        android: {
+          build: {
+            task: 'assembleRelease',
+          },
+          test: {
+            mode: 'integration',
+          },
+        },
+      },
+    });
+
+    const result = runCaptool(['doctor'], {
+      CAPTOOL_LOCAL_CONFIG: localConfigPath,
+    });
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('web fast mode skips build: false');
+    expect(result.stdout).toContain('ios simulator name: Doctor Visible Simulator');
+    expect(result.stdout).toContain('ios simulator device type: com.example.DeviceType');
+    expect(result.stdout).toContain('ios simulator runtime: com.example.Runtime');
+    expect(result.stdout).toContain('android build task: assembleRelease');
+    expect(result.stdout).toContain('android test mode: integration');
   });
 
   it('report list shows filename, platform, and status', () => {
