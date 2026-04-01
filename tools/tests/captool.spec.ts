@@ -154,6 +154,14 @@ describe.sequential('captool self-tests', () => {
     expect(result.stdout).not.toContain('Marker: older');
   });
 
+  it('report fails clearly when a specified report file does not exist', () => {
+    const result = runCaptool(['report', 'does-not-exist.txt']);
+
+    expect(result.code).toBe(1);
+    expect(result.stderr).toContain('指定的 report 不存在');
+    expect(result.stderr).toContain('does-not-exist.txt');
+  });
+
   it('local config overrides shared web build command', () => {
     const localConfigPath = trackTempConfig({
       platforms: {
@@ -209,6 +217,14 @@ describe.sequential('captool self-tests', () => {
     expect(result.stdout).toContain('已清理測試產物');
     expect(fs.existsSync(reportFile)).toBe(false);
     expect(fs.existsSync(logFile)).toBe(false);
+  });
+
+  it('clean rejects an unknown target', () => {
+    const result = runCaptool(['clean', 'nope']);
+
+    expect(result.code).toBe(2);
+    expect(result.stderr).toContain('未知 clean 目標: nope');
+    expect(result.stderr).toContain('./tools/captool clean [local|global|all]');
   });
 
   it('test all skips platforms that are unsupported by design', () => {
