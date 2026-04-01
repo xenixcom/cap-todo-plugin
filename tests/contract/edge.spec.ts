@@ -60,6 +60,27 @@ describe('Contract: EdgeCases', () => {
     });
   });
 
+  it('availability 應區分 platform support 與 option enablement', async () => {
+    fixture.supportsGetUserMedia = true;
+    await fixture.plugin.setOptions({ enabled: true });
+    await expect(fixture.plugin.getAvailability()).resolves.toEqual({
+      supported: true,
+      enabled: true,
+    });
+
+    await fixture.plugin.setOptions({ enabled: false });
+    await expect(fixture.plugin.getAvailability()).resolves.toEqual({
+      supported: true,
+      enabled: false,
+    });
+
+    fixture.supportsGetUserMedia = false;
+    await expect(fixture.plugin.getAvailability()).resolves.toEqual({
+      supported: false,
+      enabled: false,
+    });
+  });
+
   it('echo 應維持最小 request/response contract，回傳 value 欄位', async () => {
     await expect(fixture.plugin.echo({ value: 'contract-ping' })).resolves.toEqual({
       value: 'contract-ping',

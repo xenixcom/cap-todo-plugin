@@ -3,6 +3,7 @@ import type {
   EchoOptions,
   EchoResult,
   PermissionRequestOptions,
+  PluginAvailabilityResult,
   PluginOptions,
   PluginPermissionState,
   PluginPermissionStatus,
@@ -74,6 +75,13 @@ export class TodoWeb extends WebPlugin implements TodoPlugin {
 
   async checkPermissions(): Promise<PluginPermissionStatus> {
     return this.checkPermissionsInternal();
+  }
+
+  async getAvailability(): Promise<PluginAvailabilityResult> {
+    return {
+      supported: Boolean(navigator.mediaDevices?.getUserMedia),
+      enabled: this.options.enabled,
+    };
   }
 
   async requestPermissions(options?: PermissionRequestOptions): Promise<PluginPermissionStatus> {

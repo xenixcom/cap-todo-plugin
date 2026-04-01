@@ -59,6 +59,27 @@ export interface PluginPermissionStatus {
   microphone: PluginPermissionState;
 }
 
+// ------------------------------------------------------------
+// MARK: - Availability
+// ------------------------------------------------------------
+
+/**
+ * Plugin 對外可用性快照。
+ *
+ * - `supported`: 目前平台或執行環境是否具備這項能力
+ * - `enabled`: 目前 plugin options 是否允許進入主流程
+ *
+ * 這份結果用來區分：
+ * - unsupported by platform
+ * - disabled by current configuration
+ *
+ * 它不取代正式錯誤契約，只提供 App 層在操作前的能力探測。
+ */
+export interface PluginAvailabilityResult {
+  supported: boolean;
+  enabled: boolean;
+}
+
 /**
  * 指定要請求哪些權限。
  *
@@ -197,6 +218,16 @@ export interface TodoPlugin {
    * 各平台內部更細的原生權限狀態必須先完成映射。
    */
   checkPermissions(): Promise<PluginPermissionStatus>;
+
+  /**
+   * 取得目前 capability availability。
+   *
+   * 這個方法應提供操作前的正式能力探測，
+   * 讓 App 層可先判斷：
+   * - 平台是否支援
+   * - 目前設定是否允許執行
+   */
+  getAvailability(): Promise<PluginAvailabilityResult>;
 
   /**
    * 請求權限。
