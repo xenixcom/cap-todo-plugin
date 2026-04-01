@@ -123,8 +123,12 @@ run_or_resolve_platform() {
   local platform_label="$2"
   local platform_runner="$3"
   local platform_result_var="$4"
+  local declared_status=0
 
-  if platform_supported_declared "$platform_key"; then
+  platform_supported_declared "$platform_key"
+  declared_status=$?
+
+  if [[ $declared_status -eq 0 ]]; then
     if platform_presence_detected "$platform_key"; then
       run_platform "$platform_label" "$platform_runner" "$platform_result_var"
     else
@@ -133,7 +137,7 @@ run_or_resolve_platform() {
     return
   fi
 
-  case $? in
+  case $declared_status in
     1)
       mark_platform_skipped "$platform_label" "$platform_result_var" "Unsupported by design in captool.json"
       ;;

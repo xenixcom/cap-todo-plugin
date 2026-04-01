@@ -11,6 +11,7 @@ const reportsDir = path.join(repoRoot, 'reports');
 const logsDir = path.join(repoRoot, 'logs');
 
 const createdPaths: string[] = [];
+const renamedPaths: Array<{ from: string; to: string }> = [];
 
 function trackFile(filePath: string, content = ''): string {
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -28,10 +29,23 @@ function trackTempConfig(config: unknown): string {
 }
 
 afterEach(() => {
+  for (const entry of renamedPaths.splice(0).reverse()) {
+    if (fs.existsSync(entry.to)) {
+      fs.renameSync(entry.to, entry.from);
+    }
+  }
+
   for (const target of createdPaths.splice(0).reverse()) {
     fs.rmSync(target, { recursive: true, force: true });
   }
 });
+
+function temporarilyRename(originalPath: string): string {
+  const renamedPath = `${originalPath}.bak-selftest`;
+  fs.renameSync(originalPath, renamedPath);
+  renamedPaths.push({ from: originalPath, to: renamedPath });
+  return renamedPath;
+}
 
 describe.sequential('captool self-tests', () => {
   it('doctor passes on the current repo baseline', () => {
@@ -40,6 +54,13 @@ describe.sequential('captool self-tests', () => {
     expect(result.code).toBe(0);
     expect(result.stdout).toContain('Doctor Result: PASS');
     expect(result.stdout).toContain('[Platform Support]');
+  });
+
+  it('version prints the current captool version', () => {
+    const result = runCaptool(['version']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout.trim()).toBe('captool v0.3.1');
   });
 
   it('doctor fails when platform declaration is malformed', () => {
@@ -108,5 +129,46 @@ describe.sequential('captool self-tests', () => {
     expect(result.stdout).toContain('已清理測試產物');
     expect(fs.existsSync(reportFile)).toBe(false);
     expect(fs.existsSync(logFile)).toBe(false);
+  });
+
+  it('test all skips platforms that are unsupported by design', () => {
+    const configPath = trackTempConfig({
+      platforms: {
+        web: { supported: false },
+        ios: { supported: false },
+        android: { supported: false },
+      },
+    });
+
+    const result = runCaptool(['test', 'all'], {
+      CAPTOOL_CONFIG: configPath,
+    });
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('web: SKIPPED');
+    expect(result.stdout).toContain('ios: SKIPPED');
+    expect(result.stdout).toContain('android: SKIPPED');
+    expect(result.stdout).toContain('失敗平台數: 0');
+  });
+
+  it('test all fails when a declared supported platform is missing', () => {
+    const hiddenWebPath = path.join(repoRoot, 'src', 'web.ts');
+    temporarilyRename(hiddenWebPath);
+
+    const configPath = trackTempConfig({
+      platforms: {
+        web: { supported: true },
+        ios: { supported: false },
+        android: { supported: false },
+      },
+    });
+
+    const result = runCaptool(['test', 'all'], {
+      CAPTOOL_CONFIG: configPath,
+    });
+
+    expect(result.code).toBe(1);
+    expect(result.stdout).toContain('web: FAIL');
+    expect(result.stdout).toContain('Declared supported in captool.json but platform files are missing');
   });
 });
