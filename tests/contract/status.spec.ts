@@ -96,4 +96,27 @@ describe('Contract: Status', () => {
 
     expect(listener).not.toHaveBeenCalled();
   });
+
+  it('openSession 與 closeSession 應產生可預期的狀態事件序列', async () => {
+    const listener = vi.fn();
+
+    await fixture.plugin.addListener('statusChange', listener);
+    const session = await fixture.plugin.openSession();
+    await fixture.plugin.closeSession(session.sessionId);
+
+    expect(listener).toHaveBeenCalledTimes(2);
+    expect(listener).toHaveBeenNthCalledWith(1, { status: 'running' });
+    expect(listener).toHaveBeenNthCalledWith(2, { status: 'idle' });
+  });
+
+  it('session 建立失敗時，不應推送假的狀態事件', async () => {
+    const listener = vi.fn();
+
+    await fixture.plugin.addListener('statusChange', listener);
+    await fixture.plugin.openSession();
+    await expectPluginError(fixture.plugin.openSession(), 'INVALID_STATE');
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(listener).toHaveBeenNthCalledWith(1, { status: 'running' });
+  });
 });

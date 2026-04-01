@@ -49,6 +49,17 @@ Goals:
 - session/watch capability
 - prove the system is not only for the sample plugin
 
+Done criteria:
+
+- at least three real-world capability archetypes have a first pressure point
+- those pressure points are reflected in:
+  - `definitions.ts`
+  - `tests/contract`
+  - `tests/support` only where clearly needed
+- formal tests still stay readable and do not collapse into a second framework
+- the repo can explain, in concrete terms, how the current sample moved closer to
+  real plugin behavior instead of only growing abstractions
+
 ### v0.4.x
 
 Expand toolchain self-tests.

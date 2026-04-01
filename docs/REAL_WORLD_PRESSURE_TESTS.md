@@ -70,6 +70,18 @@ Likely next improvement:
 - permission-oriented helper pattern
 - multi-permission contract examples
 
+Current progress:
+
+- the sample contract already exposes:
+  - `checkPermissions()`
+  - `requestPermissions()`
+- current formal coverage already checks:
+  - default request-all behavior
+  - empty-permission-list behavior
+  - invalid permission rejection
+  - prompt/granted/denied mapping
+  - permission-denied failure on lifecycle entry
+
 ### 2. Availability Capability
 
 Examples:
@@ -187,6 +199,13 @@ Likely next improvement:
 
 - reusable stream/event assertions
 - explicit event ordering and silence expectations
+
+Current progress:
+
+- `statusChange` remains the first event/stream pressure point
+- coverage now checks:
+  - state-event sequence during session open/close
+  - no fake extra event when duplicate session creation is rejected
 
 ### 5. Resource Capability
 
