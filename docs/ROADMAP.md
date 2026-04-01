@@ -94,6 +94,10 @@ Current status:
 - `v0.4.4`
   - failure injection expanded
   - failing web build and failing contract command are both covered
+- `v0.4.5`
+  - misconfiguration handling checks completed
+  - missing shared config is covered in both `doctor` and `test all`
+  - `v0.4.x` completion line reached
 
 ### v0.5.x
 

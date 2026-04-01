@@ -60,14 +60,14 @@ describe.sequential('captool self-tests', () => {
     const result = runCaptool(['version']);
 
     expect(result.code).toBe(0);
-    expect(result.stdout.trim()).toBe('captool v0.4.4');
+    expect(result.stdout.trim()).toBe('captool v0.4.5');
   });
 
   it('help shows the current captool version', () => {
     const result = runCaptool(['help']);
 
     expect(result.code).toBe(0);
-    expect(result.stdout).toContain('captool v0.4.4');
+    expect(result.stdout).toContain('captool v0.4.5');
   });
 
   it('doctor fails when platform declaration is malformed', () => {
@@ -358,6 +358,33 @@ describe.sequential('captool self-tests', () => {
     expect(result.code).toBe(1);
     expect(result.stdout).toContain('web: FAIL');
     expect(result.stdout).toContain('Declared supported in captool.json but platform files are missing');
+  });
+
+  it('doctor fails clearly when the shared captool config is missing', () => {
+    const missingConfigPath = path.join(os.tmpdir(), `missing-captool-${Date.now()}.json`);
+
+    const result = runCaptool(['doctor'], {
+      CAPTOOL_CONFIG: missingConfigPath,
+    });
+
+    expect(result.code).toBe(1);
+    expect(result.stdout).toContain(`missing captool config: ${missingConfigPath}`);
+    expect(result.stdout).toContain('Doctor Result: FAIL');
+  });
+
+  it('test all fails clearly when the shared captool config is missing', () => {
+    const missingConfigPath = path.join(os.tmpdir(), `missing-captool-${Date.now()}.json`);
+
+    const result = runCaptool(['test', 'all'], {
+      CAPTOOL_CONFIG: missingConfigPath,
+    });
+
+    expect(result.code).toBe(3);
+    expect(result.stdout).toContain('web: FAIL');
+    expect(result.stdout).toContain('Missing or unreadable platform declaration in captool.json');
+    expect(result.stdout).toContain('ios: FAIL');
+    expect(result.stdout).toContain('android: FAIL');
+    expect(result.stdout).toContain('失敗平台數: 3');
   });
 
   it('test rejects an unknown argument', () => {
