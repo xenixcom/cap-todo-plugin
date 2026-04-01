@@ -79,3 +79,6 @@ reports/*
 
 # captool local fast-path artifacts
 ios/build-fast-check/
+
+# local captool machine overrides
+captool.local.json

@@ -72,6 +72,22 @@ Current direction:
 - machine-local differences should eventually be handled by:
   - CLI flags
   - environment variables
-  - or a future local override layer
+  - `captool.local.json`
+
+## Local Override Layer
+
+`captool.local.json` is optional and is not committed to git.
+
+It is intended for:
+
+- machine-local overrides
+- different simulator/device defaults per machine
+- local path or tool preferences that should not affect the repo default
+
+Current resolution direction:
+
+1. CLI flags / environment variables
+2. `captool.local.json`
+3. `captool.json`
 
 This separation keeps the repo config stable across machines while still allowing local flexibility.

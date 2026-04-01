@@ -89,7 +89,8 @@ ensure_captool_config() {
 
 read_captool_config_value() {
   local path="$1"
-  if ! ensure_captool_config; then
+  local source_file="${2:-$CAPTOOL_CONFIG}"
+  if [[ ! -f "$source_file" ]]; then
     return 1
   fi
 
@@ -106,7 +107,22 @@ read_captool_config_value() {
     if (typeof cur === "string") process.stdout.write(cur);
     else if (typeof cur === "number" || typeof cur === "boolean") process.stdout.write(String(cur));
     else process.exit(3);
-  ' "$CAPTOOL_CONFIG" "$path" 2>/dev/null
+  ' "$source_file" "$path" 2>/dev/null
+}
+
+read_captool_config_with_local_override() {
+  local path="$1"
+  local value
+
+  if [[ -f "$CAPTOOL_LOCAL_CONFIG" ]]; then
+    value="$(read_captool_config_value "$path" "$CAPTOOL_LOCAL_CONFIG" 2>/dev/null || true)"
+    if [[ -n "$value" ]]; then
+      echo "$value"
+      return 0
+    fi
+  fi
+
+  read_captool_config_value "$path" "$CAPTOOL_CONFIG"
 }
 
 platform_supported_declared() {

@@ -110,6 +110,12 @@ run_doctor_and_exit() {
     doctor_fail_msg "missing captool config: $CAPTOOL_CONFIG"
   fi
 
+  if [[ -f "$CAPTOOL_LOCAL_CONFIG" ]]; then
+    doctor_ok "captool local config present: $CAPTOOL_LOCAL_CONFIG"
+  else
+    doctor_ok "captool local config optional and not present"
+  fi
+
   for platform in web ios android; do
     if platform_supported_declared "$platform"; then
       if platform_presence_detected "$platform"; then

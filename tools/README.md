@@ -42,6 +42,10 @@ Boundary:
     - a small set of repo-shared platform defaults
   - schema notes:
     - see `docs/CAPTOOL_CONFIG.md`
+- `captool.local.json`
+  - optional machine-local override layer
+  - not committed
+  - intended for per-machine differences that should not pollute repo defaults
   - current defaults include:
     - `platforms.web.build.command`
     - `platforms.ios.build.scheme`
