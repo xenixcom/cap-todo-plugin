@@ -153,13 +153,15 @@ tests/
     status.spec.ts
     error.spec.ts
     edge.spec.ts
+  support/
 tools/
-  test-plugin.sh
+  captool
 ```
 
 說明：
 
 - `tests/contract/`：唯一正式測試規格來源。
+- `tests/support/`：薄薄的共用測試支援層，只服務 spec，不取代 spec。
 - `tools/captool`：唯一正式測試工具入口，負責依平台調度同一套 contract test。
 
 ## 8. Runner 原則

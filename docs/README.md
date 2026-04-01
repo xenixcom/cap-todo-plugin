@@ -51,6 +51,8 @@ tests/
   唯一正式測試工具入口。
 - [`tests/contract`](/Users/james/dev2/cap-todo-plugin/tests/contract)
   唯一正式測試規格來源。
+- [`tests/support`](/Users/james/dev2/cap-todo-plugin/tests/support)
+  薄薄的共用測試支援層，避免 `.spec` 膨脹。
 - [`demo`](/Users/james/dev2/cap-todo-plugin/demo)
   展示與手動驗證環境，目前三平台已手動驗證可運作。
 

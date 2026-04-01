@@ -1,44 +1,35 @@
 # Contract Tests
-`tests/contract/` contains the visible formal scenario suites.
+`tests/contract/` is the visible formal test unit layer.
 
-These specs should stay simple:
+Keep these specs simple:
 - scenario
 - input
 - expectation
 
-Shared setup and small assertions may live in `tests/support/`, but contract
-suites remain the primary expression of testing intent.
-這裡是 Capacitor plugin 的唯一正式測試規格來源。
+Use `tests/support/` only for thin shared support such as repeated setup and
+small reusable assertions. Do not move formal contract meaning out of the spec
+files.
 
-原則：
-
-- 所有正式驗收案例都放在這裡。
-- `Web`、`iOS`、`Android` 都必須驗證這一套 contract。
-- 各平台可以有輔助測試，但不得取代這裡的正式測試。
-- `tools/captool` 是唯一正式測試工具入口，負責調度這裡的測試。
-
-建議拆分：
-
+Current suites:
 - `options.spec.ts`
 - `lifecycle.spec.ts`
 - `status.spec.ts`
 - `error.spec.ts`
 - `edge.spec.ts`
 
-目前這些 spec 檔的角色是：
+Rules:
+- all formal acceptance cases live here
+- `web`, `ios`, and `android` should align to this contract over time
+- platform-specific tests may exist, but they do not replace this layer
+- `tools/captool` is the formal tool entrypoint that consumes this layer
 
-- 所有 spec 都是正式驗收內容與案例來源
-- `web` 端目前已可透過 `npm test` 執行完整 formal contract tests
-- `iOS / Android` 仍應沿同一套 spec 逐步接入，不得自行發展第二套正式標準
-- 目前 `./tools/captool test all --report` 已可得到三平台全綠結果，但 `ios / android` 仍是以原生 coverage 承接，尚未完全提升到與 `web` 同層級的 app-level pipeline host
-
-其中：
-
-- `Permissions` 可先併入 `error.spec.ts` 與 `edge.spec.ts`
-- 若未來權限流程擴大，再獨立拆出 `permissions.spec.ts`
-- shared fixture/setup logic 應逐步移往 `tests/support/`
-- formal suites 盡量只保留 scenario 與 assertion，不把太多環境 scaffolding 混進 spec
-- 小型可重用 assertion helper 應逐步移往 `tests/support/`
+Current role:
+- `web` already runs these suites directly through `npm test`
+- `ios` and `android` still bridge through native coverage and are not yet at
+  the same app-level host depth as `web`
+- permission cases currently stay inside `error.spec.ts` and `edge.spec.ts`
+- if permission behavior grows later, a dedicated `permissions.spec.ts` may be
+  justified
 
 建議測試情境矩陣：
 

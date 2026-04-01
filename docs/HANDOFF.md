@@ -43,6 +43,7 @@
 - `demo` 是展示與驗證環境，不是正式 contract test
 - `src/definitions.ts` 已整理成正式暫定 contract 草案
 - `tests/contract` 已整理成正式測試設計稿與情境矩陣
+- `tests/support` 已形成第一版薄支援層，避免 formal specs 膨脹
 - `tools/captool` 已整理成框架中立的唯一正式測試入口
 - 目前命名層已整理並通過 demo 三平台手動驗證
 
@@ -57,7 +58,7 @@ docs/
   HANDOFF.md
   PORTING_NOTES.md
 tools/
-  test-plugin.sh
+  captool
 src/
   definitions.ts
   index.ts
