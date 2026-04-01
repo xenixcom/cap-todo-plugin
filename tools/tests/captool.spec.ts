@@ -60,7 +60,7 @@ describe.sequential('captool self-tests', () => {
     const result = runCaptool(['version']);
 
     expect(result.code).toBe(0);
-    expect(result.stdout.trim()).toBe('captool v0.3.1');
+    expect(result.stdout.trim()).toBe('captool v0.4.2');
   });
 
   it('doctor fails when platform declaration is malformed', () => {
