@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { expectStatus } from '../support/contract';
 import { expectPluginError } from '../support/errors';
 import { createWebContractFixture, prepareWebContractFixture } from '../support/web';
 
@@ -40,35 +41,27 @@ describe('Contract: Status', () => {
     await fixture.plugin.start();
     await fixture.plugin.stop();
 
-    await expect(fixture.plugin.getStatus()).resolves.toEqual({
-      status: 'idle',
-    });
+    await expectStatus(fixture.plugin, 'idle');
   });
 
   it('start 後 getStatus 應回傳 running', async () => {
     await fixture.plugin.start();
 
-    await expect(fixture.plugin.getStatus()).resolves.toEqual({
-      status: 'running',
-    });
+    await expectStatus(fixture.plugin, 'running');
   });
 
   it('stop 後 getStatus 應回傳 idle', async () => {
     await fixture.plugin.start();
     await fixture.plugin.stop();
 
-    await expect(fixture.plugin.getStatus()).resolves.toEqual({
-      status: 'idle',
-    });
+    await expectStatus(fixture.plugin, 'idle');
   });
 
   it('reset 後 getStatus 最終應回到 idle', async () => {
     await fixture.plugin.start();
     await fixture.plugin.reset();
 
-    await expect(fixture.plugin.getStatus()).resolves.toEqual({
-      status: 'idle',
-    });
+    await expectStatus(fixture.plugin, 'idle');
   });
 
   it('statusChange event payload 應與 getStatus 的正式狀態一致', async () => {
@@ -80,9 +73,7 @@ describe('Contract: Status', () => {
     expect(listener).toHaveBeenCalledWith({
       status: 'running',
     });
-    await expect(fixture.plugin.getStatus()).resolves.toEqual({
-      status: 'running',
-    });
+    await expectStatus(fixture.plugin, 'running');
   });
 
   it('正式狀態變化時應觸發 statusChange event', async () => {

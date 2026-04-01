@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { expectOptions, expectStatus } from '../support/contract';
 import { expectPluginError } from '../support/errors';
 import { createWebContractFixture, prepareWebContractFixture } from '../support/web';
 
@@ -71,18 +72,14 @@ describe('Contract: EdgeCases', () => {
     await fixture.plugin.setOptions({ enabled: false, debug: true });
 
     await fixture.plugin.resetOptions();
-    await expect(fixture.plugin.getStatus()).resolves.toEqual({
-      status: 'running',
-    });
-    await expect(fixture.plugin.getOptions()).resolves.toEqual({
+    await expectStatus(fixture.plugin, 'running');
+    await expectOptions(fixture.plugin, {
       enabled: true,
       debug: false,
     });
 
     await fixture.plugin.reset();
-    await expect(fixture.plugin.getStatus()).resolves.toEqual({
-      status: 'idle',
-    });
+    await expectStatus(fixture.plugin, 'idle');
   });
 
   it('重複呼叫 start 時應拋出 INVALID_STATE', async () => {
