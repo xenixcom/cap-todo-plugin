@@ -19,12 +19,12 @@ resolve_ios_simulator_id() {
 
   if [[ -z "$simulator_id" ]]; then
     log "找不到可用的 iOS Simulator: $IOS_SIMULATOR_NAME，嘗試重建..."
-    simulator_id="$(xcrun simctl create "$IOS_SIMULATOR_NAME" "com.apple.CoreSimulator.SimDeviceType.iPhone-17" "com.apple.CoreSimulator.SimRuntime.iOS-26-4" 2>/dev/null || true)"
+    simulator_id="$(xcrun simctl create "$IOS_SIMULATOR_NAME" "$IOS_SIMULATOR_DEVICE_TYPE" "$IOS_SIMULATOR_RUNTIME_ID" 2>/dev/null || true)"
   fi
 
   if [[ -n "$simulator_id" && ! -d "$HOME/Library/Developer/CoreSimulator/Devices/$simulator_id" ]]; then
     xcrun simctl delete "$simulator_id" >/dev/null 2>&1 || true
-    simulator_id="$(xcrun simctl create "$IOS_SIMULATOR_NAME" "com.apple.CoreSimulator.SimDeviceType.iPhone-17" "com.apple.CoreSimulator.SimRuntime.iOS-26-4" 2>/dev/null || true)"
+    simulator_id="$(xcrun simctl create "$IOS_SIMULATOR_NAME" "$IOS_SIMULATOR_DEVICE_TYPE" "$IOS_SIMULATOR_RUNTIME_ID" 2>/dev/null || true)"
   fi
 
   if [[ -z "$simulator_id" ]]; then

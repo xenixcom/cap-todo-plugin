@@ -7,8 +7,8 @@ It is the beginning of the repo-local `captool` toolchain surface.
 
 Current internal version:
 
-- `captool v0.4.5`
-- roadmap position: completed `v0.4.x`
+- `captool v0.5.0`
+- roadmap position: early `v0.5.x`
 
 Current entrypoints:
 

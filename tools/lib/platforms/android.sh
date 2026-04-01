@@ -8,8 +8,11 @@ run_android_tests() {
 
   ensure_command bash || return 1
 
+  log "Android test mode: $ANDROID_TEST_MODE"
+  CURRENT_PLATFORM_SUMMARY="$(append_unique_line "$CURRENT_PLATFORM_SUMMARY" "Android test mode: $ANDROID_TEST_MODE")"
+
   log "編譯 Android Plugin..."
-  run_and_capture "Android" "$ANDROID_GRADLE_CMD assembleDebug"
+  run_and_capture "Android" "$ANDROID_GRADLE_CMD $ANDROID_BUILD_TASK"
   if [[ $? -ne 0 ]]; then
     return 1
   fi

@@ -3,7 +3,7 @@
 set -u
 
 # =========================================
-# Captool (v0.4.5)
+# Captool (v0.5.0)
 # =========================================
 # 角色:
 #   repo-local 正式工具入口。
@@ -31,7 +31,7 @@ set -u
 #   應分開考慮 scripts 與 template 的相容性
 # =========================================
 
-CAPTOOL_VERSION="0.4.5"
+CAPTOOL_VERSION="0.5.0"
 COMMAND="test"
 PLATFORM="all"
 DEVICE=""
@@ -68,15 +68,21 @@ source "$CAPTOOL_DIR/lib/platforms/ios.sh"
 source "$CAPTOOL_DIR/lib/platforms/android.sh"
 
 WEB_BUILD_CMD="${WEB_BUILD_CMD:-$(read_captool_config_with_local_override "platforms.web.build.command" || echo "npm run build")}"
-CONTRACT_TEST_CMD="${CONTRACT_TEST_CMD:-npm test}"
+WEB_TEST_CMD="${WEB_TEST_CMD:-$(read_captool_config_with_local_override "platforms.web.test.command" || echo "npm test")}"
+WEB_FAST_SKIP_BUILD="${WEB_FAST_SKIP_BUILD:-$(read_captool_config_with_local_override "platforms.web.runtime.fastSkipsBuild" || echo "true")}"
+CONTRACT_TEST_CMD="${CONTRACT_TEST_CMD:-$WEB_TEST_CMD}"
 
 IOS_SCHEME="${IOS_SCHEME:-$(read_captool_config_with_local_override "platforms.ios.build.scheme" || echo "XenixCapTodoPlugin")}"
 IOS_DERIVED_DATA="${IOS_DERIVED_DATA:-$(read_captool_config_with_local_override "platforms.ios.build.derivedDataPath" || echo "./ios/build")}"
 IOS_SIMULATOR_NAME="${IOS_SIMULATOR_NAME:-$(read_captool_config_with_local_override "platforms.ios.runtime.simulatorName" || echo "iPhone 17")}"
+IOS_SIMULATOR_DEVICE_TYPE="${IOS_SIMULATOR_DEVICE_TYPE:-$(read_captool_config_with_local_override "platforms.ios.runtime.deviceType" || echo "com.apple.CoreSimulator.SimDeviceType.iPhone-17")}"
+IOS_SIMULATOR_RUNTIME_ID="${IOS_SIMULATOR_RUNTIME_ID:-$(read_captool_config_with_local_override "platforms.ios.runtime.runtimeId" || echo "com.apple.CoreSimulator.SimRuntime.iOS-26-4")}"
 IOS_TEST_ONLY="${IOS_TEST_ONLY:-$(read_captool_config_with_local_override "platforms.ios.test.only" || echo "-only-testing:TodoPluginTests")}"
 IOS_TEST_BUNDLE_PATH="${IOS_TEST_BUNDLE_PATH:-$IOS_DERIVED_DATA/Build/Products/Debug-iphonesimulator/TodoPluginTests.xctest/TodoPluginTests}"
 
 ANDROID_GRADLE_CMD="${ANDROID_GRADLE_CMD:-$(read_captool_config_with_local_override "platforms.android.build.gradleCommand" || echo "./android/gradlew -p android")}"
+ANDROID_BUILD_TASK="${ANDROID_BUILD_TASK:-$(read_captool_config_with_local_override "platforms.android.build.task" || echo "assembleDebug")}"
+ANDROID_TEST_MODE="${ANDROID_TEST_MODE:-$(read_captool_config_with_local_override "platforms.android.test.mode" || echo "unit")}"
 ANDROID_TEST_CMD="${ANDROID_TEST_CMD:-$(read_captool_config_with_local_override "platforms.android.test.command" || echo "$ANDROID_GRADLE_CMD test")}"
 
 ensure_tool_output_dirs

@@ -109,6 +109,14 @@ Goals:
 - preserve shared formal intent while accepting real platform differences
 - avoid fake symmetry
 
+Current status:
+
+- `v0.5.0`
+  - platform realism config fields added across `web`, `ios`, and `android`
+  - iOS simulator device type/runtime are no longer hard-coded in adapter logic
+  - Android build task and test mode are now explicit
+  - Web fast-mode build behavior is now configurable
+
 ### v0.6.x
 
 Prepare template strategy.

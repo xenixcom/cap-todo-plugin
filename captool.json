@@ -4,6 +4,12 @@
       "supported": true,
       "build": {
         "command": "npm run build"
+      },
+      "test": {
+        "command": "npm test"
+      },
+      "runtime": {
+        "fastSkipsBuild": true
       }
     },
     "ios": {
@@ -13,7 +19,9 @@
         "derivedDataPath": "./ios/build"
       },
       "runtime": {
-        "simulatorName": "iPhone 17"
+        "simulatorName": "iPhone 17",
+        "deviceType": "com.apple.CoreSimulator.SimDeviceType.iPhone-17",
+        "runtimeId": "com.apple.CoreSimulator.SimRuntime.iOS-26-4"
       },
       "test": {
         "only": "-only-testing:TodoPluginTests"
@@ -22,9 +30,11 @@
     "android": {
       "supported": true,
       "build": {
-        "gradleCommand": "./android/gradlew -p android"
+        "gradleCommand": "./android/gradlew -p android",
+        "task": "assembleDebug"
       },
       "test": {
+        "mode": "unit",
         "command": "./android/gradlew -p android test"
       }
     }
