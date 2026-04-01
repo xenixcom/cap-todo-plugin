@@ -71,11 +71,11 @@ CONTRACT_TEST_CMD="${CONTRACT_TEST_CMD:-npm test}"
 IOS_SCHEME="${IOS_SCHEME:-$(read_captool_config_value "platforms.ios.scheme" || echo "XenixCapTodoPlugin")}"
 IOS_DERIVED_DATA="${IOS_DERIVED_DATA:-$(read_captool_config_value "platforms.ios.derivedDataPath" || echo "./ios/build")}"
 IOS_SIMULATOR_NAME="${IOS_SIMULATOR_NAME:-$(read_captool_config_value "platforms.ios.simulatorName" || echo "iPhone 17")}"
-IOS_TEST_ONLY="${IOS_TEST_ONLY:--only-testing:TodoPluginTests}"
+IOS_TEST_ONLY="${IOS_TEST_ONLY:-$(read_captool_config_value "platforms.ios.testOnly" || echo "-only-testing:TodoPluginTests")}"
 IOS_TEST_BUNDLE_PATH="${IOS_TEST_BUNDLE_PATH:-$IOS_DERIVED_DATA/Build/Products/Debug-iphonesimulator/TodoPluginTests.xctest/TodoPluginTests}"
 
-ANDROID_GRADLE_CMD="${ANDROID_GRADLE_CMD:-./android/gradlew -p android}"
-ANDROID_TEST_CMD="${ANDROID_TEST_CMD:-$ANDROID_GRADLE_CMD test}"
+ANDROID_GRADLE_CMD="${ANDROID_GRADLE_CMD:-$(read_captool_config_value "platforms.android.gradleCommand" || echo "./android/gradlew -p android")}"
+ANDROID_TEST_CMD="${ANDROID_TEST_CMD:-$(read_captool_config_value "platforms.android.testCommand" || echo "$ANDROID_GRADLE_CMD test")}"
 
 ensure_tool_output_dirs
 parse_command "$@"

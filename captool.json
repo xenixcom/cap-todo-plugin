@@ -8,10 +8,13 @@
       "supported": true,
       "scheme": "XenixCapTodoPlugin",
       "derivedDataPath": "./ios/build",
-      "simulatorName": "iPhone 17"
+      "simulatorName": "iPhone 17",
+      "testOnly": "-only-testing:TodoPluginTests"
     },
     "android": {
-      "supported": true
+      "supported": true,
+      "gradleCommand": "./android/gradlew -p android",
+      "testCommand": "./android/gradlew -p android test"
     }
   }
 }
