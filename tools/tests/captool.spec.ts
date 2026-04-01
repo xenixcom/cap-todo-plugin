@@ -211,6 +211,32 @@ describe.sequential('captool self-tests', () => {
     expect(result.stdout).toContain('Result: Web PASS');
   });
 
+  it('test web writes report and log files when requested', () => {
+    const logPath = path.join(logsDir, 'selftest-web.log');
+
+    const result = runCaptool(['test', 'web', '--report', '--logs=selftest-web.log']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('Report file: ./reports/plugin-report-web-');
+    expect(result.stdout).toContain('Log file: ./logs/selftest-web.log');
+    expect(fs.existsSync(logPath)).toBe(true);
+
+    const reportFiles = fs
+      .readdirSync(reportsDir)
+      .filter(name => name.startsWith('plugin-report-web-') && name.endsWith('.txt'));
+
+    expect(reportFiles.length).toBeGreaterThan(0);
+
+    const latestReport = path.join(reportsDir, reportFiles.sort().at(-1)!);
+    const reportContent = fs.readFileSync(latestReport, 'utf8');
+    const logContent = fs.readFileSync(logPath, 'utf8');
+
+    expect(reportContent).toContain('Platform: web');
+    expect(reportContent).toContain('Status: PASS');
+    expect(logContent).toContain('Step: Web 測試');
+    expect(logContent).toContain('Result: Web PASS');
+  }, 20000);
+
   it('clean local removes generated report and log artifacts', () => {
     const reportFile = trackFile(
       path.join(reportsDir, 'plugin-report-selftest-20990101_020202.txt'),
