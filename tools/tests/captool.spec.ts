@@ -81,6 +81,26 @@ describe.sequential('captool self-tests', () => {
     expect(result.stdout).toContain('Doctor Result: FAIL');
   });
 
+  it('doctor respects local config runtime overrides', () => {
+    const localConfigPath = trackTempConfig({
+      platforms: {
+        ios: {
+          runtime: {
+            simulatorName: 'SelfTest Simulator',
+          },
+        },
+      },
+    });
+
+    const result = runCaptool(['doctor'], {
+      CAPTOOL_LOCAL_CONFIG: localConfigPath,
+    });
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('captool local config present');
+    expect(result.stdout).toContain('SelfTest Simulator');
+  });
+
   it('report list shows filename, platform, and status', () => {
     trackFile(
       path.join(
@@ -114,6 +134,24 @@ describe.sequential('captool self-tests', () => {
 
     expect(result.code).toBe(1);
     expect(result.stderr).toContain('找不到任何 report 檔案');
+  });
+
+  it('report latest selects the newest report file', () => {
+    trackFile(
+      path.join(reportsDir, 'plugin-report-selftest-20990101_010101.txt'),
+      ['Platform: web', 'Status: PASS', 'Marker: older'].join('\n'),
+    );
+    trackFile(
+      path.join(reportsDir, 'plugin-report-selftest-20990101_020202.txt'),
+      ['Platform: ios', 'Status: FAIL', 'Marker: newer'].join('\n'),
+    );
+
+    const result = runCaptool(['report', 'latest']);
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toContain('plugin-report-selftest-20990101_020202.txt');
+    expect(result.stdout).toContain('Marker: newer');
+    expect(result.stdout).not.toContain('Marker: older');
   });
 
   it('local config overrides shared web build command', () => {
