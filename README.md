@@ -18,9 +18,12 @@ npx cap sync
 * [`setOptions(...)`](#setoptions)
 * [`resetOptions()`](#resetoptions)
 * [`start()`](#start)
+* [`openSession()`](#opensession)
 * [`stop()`](#stop)
+* [`closeSession(...)`](#closesession)
 * [`reset()`](#reset)
 * [`checkPermissions()`](#checkpermissions)
+* [`getAvailability()`](#getavailability)
 * [`requestPermissions(...)`](#requestpermissions)
 * [`echo(...)`](#echo)
 * [`addListener('statusChange', ...)`](#addlistenerstatuschange-)
@@ -112,6 +115,26 @@ start() => Promise<void>
 --------------------
 
 
+### openSession()
+
+```typescript
+openSession() => Promise<SessionResult>
+```
+
+啟動一個最小長存 session，回傳正式 session token。
+
+這個方法不是完整 watch/stream API，
+而是先提供一個最小可測的 session archetype 壓測點。
+
+規則：
+- 成功建立後應使狀態進入 `running`
+- 若目前已有活躍 session，應拋出 `INVALID_STATE`
+
+**Returns:** <code>Promise&lt;<a href="#sessionresult">SessionResult</a>&gt;</code>
+
+--------------------
+
+
 ### stop()
 
 ```typescript
@@ -119,6 +142,26 @@ stop() => Promise<void>
 ```
 
 停止 plugin 主要功能，成功後回到 `idle`。
+
+--------------------
+
+
+### closeSession(...)
+
+```typescript
+closeSession(sessionId: string) => Promise<void>
+```
+
+關閉既有 session。
+
+規則：
+- 只有傳入目前活躍的 session token 才能成功
+- 關閉後應回到 `idle`
+- 不合法或過期 token 應拋出 `INVALID_ARGUMENT`
+
+| Param           | Type                |
+| --------------- | ------------------- |
+| **`sessionId`** | <code>string</code> |
 
 --------------------
 
@@ -152,6 +195,24 @@ checkPermissions() => Promise<PluginPermissionStatus>
 各平台內部更細的原生權限狀態必須先完成映射。
 
 **Returns:** <code>Promise&lt;<a href="#pluginpermissionstatus">PluginPermissionStatus</a>&gt;</code>
+
+--------------------
+
+
+### getAvailability()
+
+```typescript
+getAvailability() => Promise<PluginAvailabilityResult>
+```
+
+取得目前 capability availability。
+
+這個方法應提供操作前的正式能力探測，
+讓 App 層可先判斷：
+- 平台是否支援
+- 目前設定是否允許執行
+
+**Returns:** <code>Promise&lt;<a href="#pluginavailabilityresult">PluginAvailabilityResult</a>&gt;</code>
 
 --------------------
 
@@ -255,11 +316,37 @@ Plugin 的正式設定選項。
 | **`debug`**   | <code>boolean</code> |
 
 
+#### SessionResult
+
+| Prop            | Type                |
+| --------------- | ------------------- |
+| **`sessionId`** | <code>string</code> |
+
+
 #### PluginPermissionStatus
 
 | Prop             | Type                                                                    |
 | ---------------- | ----------------------------------------------------------------------- |
 | **`microphone`** | <code><a href="#pluginpermissionstate">PluginPermissionState</a></code> |
+
+
+#### PluginAvailabilityResult
+
+Plugin 對外可用性快照。
+
+- `supported`: 目前平台或執行環境是否具備這項能力
+- `enabled`: 目前 plugin options 是否允許進入主流程
+
+這份結果用來區分：
+- unsupported by platform
+- disabled by current configuration
+
+它不取代正式錯誤契約，只提供 App 層在操作前的能力探測。
+
+| Prop            | Type                 |
+| --------------- | -------------------- |
+| **`supported`** | <code>boolean</code> |
+| **`enabled`**   | <code>boolean</code> |
 
 
 #### PermissionRequestOptions
