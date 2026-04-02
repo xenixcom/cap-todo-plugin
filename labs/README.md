@@ -64,6 +64,8 @@ These are still not settled and should only be explored through new labs:
 
 - plugin-facing hook shape
 - event and stream contracts beyond simple ordered messages
+- HTTP-backed scenarios such as remote API success, timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
+- WebSocket and long-lived remote communication such as connect, reconnect, disconnect, message ordering, idle timeout, and protocol failure
 - permission, availability, and session archetype mapping
 - how a shared scenario manifest should be shaped for long-term formal use
 - how `captool` should expose and orchestrate platform adapters
