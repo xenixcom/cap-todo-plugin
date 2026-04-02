@@ -152,6 +152,19 @@ Explored the long-term manifest shape:
 - this suggests the long-term manifest does not need to become a giant free-form DSL
 - a small family of semantic case kinds is currently enough to express mixed plugin-facing scenarios
 
+### `lab17`
+
+Explored how a toolchain entrypoint could absorb platform adapters:
+
+- one thin runner drove both iOS and Android through the same adapter protocol
+- the adapter contract stayed intentionally small:
+  - `prepare`
+  - `run normal`
+  - `run fault`
+- the adapters handled build, launch, and result-file reading
+- the caller only selected adapters, mode, and aggregated normalized JSON
+- this suggests `captool` can stay compact if platform execution details remain behind thin adapter boundaries
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -162,7 +175,6 @@ These are still not settled and should only be explored through new labs:
 - deeper HTTP-backed scenarios such as timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
 - deeper WebSocket scenarios such as reconnect, disconnect, idle timeout, protocol failure, and stream semantics
 - deeper storage-backed scenarios such as persistence across relaunch, corrupt data, quota, and sandbox edge cases
-- how `captool` should expose and orchestrate platform adapters
 
 ## Cleanup rule
 
