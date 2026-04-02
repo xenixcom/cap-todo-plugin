@@ -101,11 +101,13 @@ Explored mock-pressure boundaries:
 
 ### `lab12`
 
-Isolated the iOS local HTTP seam:
+Isolated the local HTTP seam:
 
-- bundled file-loaded `WKWebView` successfully reached a local HTTP stub
-- `127.0.0.1`, `localhost`, and host LAN IP all worked
-- this seam diagnosis helped rule out a false boundary while debugging `lab11`
+- iOS bundled file-loaded `WKWebView` successfully reached a local HTTP stub
+- `127.0.0.1`, `localhost`, and host LAN IP all worked on iOS
+- Android did not mirror the same seam-only result:
+  - `10.0.2.2`, `localhost`, and host LAN IP all failed with `Failed to fetch`
+- this seam diagnosis still helped rule out a false iOS boundary while also surfacing a platform-specific Android seam difference
 
 ## Open questions
 
@@ -114,6 +116,7 @@ These are still not settled and should only be explored through new labs:
 - event and stream contracts beyond simple ordered messages
 - deeper plugin-facing bridge-backed hook behavior
 - mock pressure inside the formal test language versus the harness layer
+- why the stripped-down Android `lab12` seam shape fails even though broader Android HTTP-backed labs pass
 - deeper HTTP-backed scenarios such as timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
 - deeper WebSocket scenarios such as reconnect, disconnect, idle timeout, protocol failure, and stream semantics
 - deeper storage-backed scenarios such as persistence across relaunch, corrupt data, quota, and sandbox edge cases

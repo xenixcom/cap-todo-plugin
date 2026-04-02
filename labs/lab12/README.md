@@ -1,10 +1,10 @@
 # Lab 12
 
-This lab isolates the iOS local HTTP seam behind `WKWebView`.
+This lab isolates the local HTTP seam behind host-backed WebViews.
 
 The question is:
 
-- from a bundled file-loaded page inside `WKWebView`
+- from a bundled file-loaded page inside a host-backed WebView
 - which local host route, if any, can reach a deterministic HTTP stub
 
 The probe keeps everything else out of the way:
@@ -22,7 +22,7 @@ It is a seam-diagnostics lab.
 
 ## Result
 
-iOS returned the following probe detail:
+iOS returned:
 
 ```json
 [
@@ -47,9 +47,27 @@ iOS returned the following probe detail:
 ]
 ```
 
+Android returned:
+
+```json
+[
+  { "id": "emulator_host", "error": "Failed to fetch" },
+  { "id": "localhost_name", "error": "Failed to fetch" },
+  { "id": "host_lan_ip", "error": "Failed to fetch" }
+]
+```
+
 ## Conclusion
 
 - `WKWebView` can reach a local HTTP stub from a bundled file-loaded page.
 - `127.0.0.1`, `localhost`, and the Mac host LAN IP all worked in this minimal seam probe.
-- The `lab11` iOS failure is not a blanket "local HTTP from WKWebView is impossible" result.
-- The remaining problem is narrower and sits in the richer mock/harness shape used by `lab11`.
+- Android did not mirror that result in the same seam-only shape:
+  - `10.0.2.2`
+  - `localhost`
+  - host LAN IP
+  all failed with `Failed to fetch`
+- This does not overturn the broader Android HTTP-backed result from `lab7` or `lab11`.
+- It means this seam probe is platform-sensitive:
+  - iOS local seam: proven
+  - Android local seam: still missing a condition in this stripped-down shape
+- The `lab11` iOS failure was not a blanket "local HTTP from WKWebView is impossible" result.
