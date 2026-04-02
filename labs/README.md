@@ -235,6 +235,41 @@ Explored WebSocket reconnect semantics:
   - the runner surfaced this as `socket not open (3)`
 - this pushes WebSocket coverage from simple request/response into connection lifecycle semantics
 
+### `lab21`
+
+Explored the plugin-facing `requestPermissions()` seam:
+
+- both hosts proved that the unsupported-permission branch is real:
+  - `requestPermissions({ permissions: ['camera'] })` crossed the bridge and surfaced the expected error
+- Android also produced a concrete normal-path result:
+  - `checkPermissions()` stayed `prompt`
+  - `requestPermissions({ permissions: ['microphone'] })` still yielded `prompt`
+  - `openSession()` remained blocked on microphone permission
+- iOS did not mirror that normal-path behavior:
+  - the page loaded
+  - the native message handler existed
+  - but the real microphone-request path did not push a final result
+- this turned the permission question into a sharper iOS seam problem rather than a bridge-existence problem
+
+### `lab22`
+
+Isolated the iOS plugin-facing `requestPermissions()` normal path:
+
+- the real microphone-request path still failed to push a final result
+- the page loaded and the native message handler existed
+- this narrowed the problem further:
+  - the seam was on the real microphone-request path itself
+  - not on the unsupported-permission path
+  - and not on whether the bridge existed
+
+### `lab23`
+
+Removed the plugin layer and probed direct `getUserMedia({ audio: true })`:
+
+- the same missing-result behavior remained
+- this ruled out `plugin.js` as the primary source of the remaining iOS permission/media problem
+- the suspected seam moved below the plugin layer into the `WKWebView` media-permission runtime path
+
 ### `lab24`
 
 Isolated the iOS `getUserMedia({ audio: true })` seam below the plugin layer:
