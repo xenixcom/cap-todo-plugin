@@ -98,3 +98,20 @@ The pipeline now exposes two cleanup levels so routine repo work does not automa
 - That means the next-stage investment should go into turning the current entrypoint into a clearer toolchain surface, not back into fragmented platform scripts.
 - The long-term direction is to evolve the current entrypoint into a repo-local tool first, and only later consider extracting it as an independent CLI when the boundary is stable enough.
 - The future `captool create` idea is worth preserving, but only after `test`, `clean`, `doctor`, and `report` are already stable as a single tool experience.
+
+## WebView Host Testing Insight
+
+- The key unresolved problem is not whether native platforms can have tests.
+- The key problem is whether a native host test can talk to the WebView JS runtime
+  without falling back to a second full testing standard per platform.
+- For app-facing behavior, the most promising direction is:
+  - keep the formal contract at the web/app-facing layer
+  - let native hosts prove they can execute JS inside the WebView and read results back
+- A minimal proving path should start with a trivial JS function such as `add()`,
+  not with full plugin behavior.
+- If a host test can reliably call JS inside `WKWebView` or Android `WebView`
+  and get a result back, then richer plugin-facing acceptance tests may later be
+  able to grow from that same path.
+- This is different from classic native unit coverage:
+  - native unit coverage validates native implementation details
+  - WebView host testing would validate app-facing behavior from the native host side
