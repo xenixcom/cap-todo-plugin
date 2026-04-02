@@ -76,35 +76,52 @@ Only prove:
 - whether the test can create and own `WKWebView` directly
 - whether a hidden or non-user-visible host window is enough
 
-## Current Repo Host Candidate
+## Lab-Only Rule
 
-The most natural host inside this repo is:
+Do not use:
 
-- `demo/ios/App`
+- `demo/`
+- mainline app hosts
+- mainline test targets
 
-Reason:
+All host experiments must stay inside:
 
-- it already has a real iOS app process
-- it already has `@UIApplicationMain`
-- it already exists as the Capacitor demo host
+- `lab/`
 
-Current limitation observed in repo structure:
+This keeps strategy research separate from the formal toolchain and contract
+test line until the direction is proven.
 
-- `demo/ios/App/App.xcodeproj` currently has only the `App` target
-- there is no app-hosted test bundle yet
+## Current iOS Probe Shape
 
-So the next engineering step is not:
+The current host-backed probe lives in:
 
-- extend the current pure package tests
+- `lab/ios-wkwebview-host`
+
+It uses:
+
+- a minimal iOS app host
+- `WKWebView`
+- inline HTML/JS
+- a file output probe
+
+Current result:
+
+- success
+- `window.__test__.add(1, 2)` returned `3`
+- the result was persisted to the simulator app container
+
+So the next engineering step is no longer:
+
+- prove basic host -> WebView -> JS on iOS
 
 It is:
 
-- add an app-hosted XCTest target to `demo/ios/App`
-- make that target own a minimal `WKWebView` probe
+- decide whether to extend the iOS lab toward a richer local page
+- or build the Android lab counterpart
 
 ## Android Follow-Up
 
-Once the iOS host-backed path is proven or disproven, compare against:
+Now that the iOS host-backed path is proven, compare against:
 
 - `WebView.evaluateJavascript(...)`
 - `addJavascriptInterface(...)`

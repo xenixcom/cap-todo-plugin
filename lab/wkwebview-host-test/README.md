@@ -54,7 +54,37 @@ Observed result:
 Current conclusion:
 
 - `WKWebView + XCTest` is not enough inside the current pure package test target
-- the next probe likely needs a real iOS host app / application-backed test bundle
+- the next probe needs a real iOS host app / application-backed runtime
 - this still supports the broader direction:
   - host-side JS testing remains plausible
   - but not from the current no-`UIApplication` package-test shape
+
+## Second Result
+
+Follow-up probe moved fully into:
+
+- `lab/ios-wkwebview-host`
+
+This app-hosted probe:
+
+- boots an iOS app host
+- creates a `WKWebView`
+- loads inline HTML/JS
+- evaluates:
+  - `window.__test__.add(1, 2)`
+- writes the result to:
+  - `Documents/wkwebview-host-probe.json`
+
+Observed result:
+
+- app build succeeded
+- app launched in the simulator
+- result file was written successfully
+- recorded payload:
+  - `{"status":"ok","detail":"3"}`
+
+Updated conclusion:
+
+- the host-backed iOS path is viable
+- the missing piece was the app-hosted runtime, not the JS call/return idea
+- future work should continue inside `lab/`, not the mainline test structure
