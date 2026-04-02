@@ -119,3 +119,17 @@ Final current conclusion:
 - the app-facing host -> WebView -> JS -> result path is no longer hypothetical
 - the next decision is not feasibility, but how far to extend the probe toward
   plugin-facing contract cases
+
+## Fault Injection Result
+
+Both labs now also catch a deliberately broken `add()` implementation.
+
+Observed payloads:
+
+- iOS fault mode:
+  - `{"status":"fail","detail":"expected 3 got -1"}`
+- Android fault mode:
+  - `{"status":"fail","detail":"expected 3 got -1"}`
+
+This means the current labs do not only execute JS successfully.
+They also detect a simple app-facing contract regression.

@@ -13,10 +13,15 @@ import java.nio.charset.StandardCharsets;
 
 public class MainActivity extends AppCompatActivity {
     private WebView webView;
+    private String probeMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        probeMode = getIntent() != null ? getIntent().getStringExtra("probe_mode") : null;
+        if (probeMode == null || probeMode.isEmpty()) {
+            probeMode = "normal";
+        }
 
         webView = new WebView(this);
         setContentView(webView);
@@ -25,9 +30,7 @@ public class MainActivity extends AppCompatActivity {
         webView.setWebViewClient(new ProbeClient());
         webView.loadDataWithBaseURL(
             "https://lab.local/",
-            "<!doctype html><html><head><meta charset=\"utf-8\"></head><body><script>" +
-                "window.__test__={add:function(a,b){return a+b;}};" +
-            "</script></body></html>",
+            buildTestHtml(probeMode),
             "text/html",
             "utf-8",
             null
@@ -43,11 +46,22 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onReceiveValue(String value) {
                         String detail = value == null ? "null" : value.replaceAll("^\"|\"$", "");
-                        writeProbeResult("{\"status\":\"ok\",\"detail\":\"" + escapeJson(detail) + "\"}");
+                        if ("3".equals(detail)) {
+                            writeProbeResult("{\"status\":\"ok\",\"detail\":\"" + escapeJson(detail) + "\"}");
+                        } else {
+                            writeProbeResult("{\"status\":\"fail\",\"detail\":\"" + escapeJson("expected 3 got " + detail) + "\"}");
+                        }
                     }
                 }
             );
         }
+    }
+
+    private String buildTestHtml(String probeMode) {
+        String addBody = "fault".equals(probeMode) ? "return a-b;" : "return a+b;";
+        return "<!doctype html><html><head><meta charset=\"utf-8\"></head><body><script>" +
+            "window.__test__={add:function(a,b){" + addBody + "}};" +
+            "</script></body></html>";
     }
 
     private void writeProbeResult(String json) {

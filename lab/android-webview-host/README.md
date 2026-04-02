@@ -36,3 +36,10 @@ This means the current lab already proves:
 - Android app host -> `WebView`
 - `WebView` -> inline JS
 - JS result -> host file output
+
+It also supports a simple fault-injection mode:
+
+- default launch:
+  - `{"status":"ok","detail":"3"}`
+- launch with `probe_mode=fault`:
+  - `{"status":"fail","detail":"expected 3 got -1"}`

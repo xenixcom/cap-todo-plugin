@@ -35,3 +35,10 @@ This means the current lab already proves:
 - iOS app host -> `WKWebView`
 - `WKWebView` -> inline JS
 - JS result -> host file output
+
+It also supports a simple fault-injection mode:
+
+- default launch:
+  - `{"status":"ok","detail":"3"}`
+- launch with `fault` argument:
+  - `{"status":"fail","detail":"expected 3 got -1"}`

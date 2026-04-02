@@ -13,7 +13,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         let window = UIWindow(frame: UIScreen.main.bounds)
-        let controller = ProbeViewController(resultWriter: resultWriter)
+        let arguments = ProcessInfo.processInfo.arguments
+        let probeMode = arguments.contains("fault")
+            ? "fault"
+            : (ProcessInfo.processInfo.environment["PROBE_MODE"] ?? "normal")
+        let controller = ProbeViewController(resultWriter: resultWriter, probeMode: probeMode)
 
         window.rootViewController = controller
         window.makeKeyAndVisible()
@@ -26,14 +30,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 @MainActor
 private final class ProbeViewController: UIViewController, WKNavigationDelegate {
     private let resultWriter: ProbeResultWriter
+    private let probeMode: String
     private lazy var webView: WKWebView = {
         let view = WKWebView(frame: .zero)
         view.navigationDelegate = self
         return view
     }()
 
-    init(resultWriter: ProbeResultWriter) {
+    init(resultWriter: ProbeResultWriter, probeMode: String) {
         self.resultWriter = resultWriter
+        self.probeMode = probeMode
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -48,7 +54,7 @@ private final class ProbeViewController: UIViewController, WKNavigationDelegate 
         webView.frame = view.bounds
         webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         view.addSubview(webView)
-        webView.loadHTMLString(Self.testHTML, baseURL: nil)
+        webView.loadHTMLString(Self.testHTML(probeMode: probeMode), baseURL: nil)
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -65,28 +71,35 @@ private final class ProbeViewController: UIViewController, WKNavigationDelegate 
                 renderedResult = String(describing: result)
             }
 
-            resultWriter.write(status: "ok", detail: renderedResult)
+            if renderedResult == "3" {
+                resultWriter.write(status: "ok", detail: renderedResult)
+            } else {
+                resultWriter.write(status: "fail", detail: "expected 3 got \(renderedResult)")
+            }
         }
     }
 
-    private static let testHTML = """
-    <!doctype html>
-    <html>
-      <head>
-        <meta charset="utf-8" />
-        <title>WKWebView Host Probe</title>
-      </head>
-      <body>
-        <script>
-          window.__test__ = {
-            add(a, b) {
-              return a + b;
-            }
-          };
-        </script>
-      </body>
-    </html>
-    """
+    private static func testHTML(probeMode: String) -> String {
+        let addBody = probeMode == "fault" ? "return a - b;" : "return a + b;"
+        return """
+        <!doctype html>
+        <html>
+          <head>
+            <meta charset="utf-8" />
+            <title>WKWebView Host Probe</title>
+          </head>
+          <body>
+            <script>
+              window.__test__ = {
+                add(a, b) {
+                  \(addBody)
+                }
+              };
+            </script>
+          </body>
+        </html>
+        """
+    }
 }
 
 private struct ProbeResultWriter {
