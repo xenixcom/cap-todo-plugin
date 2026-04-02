@@ -235,6 +235,18 @@ Explored WebSocket reconnect semantics:
   - the runner surfaced this as `socket not open (3)`
 - this pushes WebSocket coverage from simple request/response into connection lifecycle semantics
 
+### `lab24`
+
+Isolated the iOS `getUserMedia({ audio: true })` seam below the plugin layer:
+
+- the page loads
+- the JS probe starts
+- heartbeats tick briefly
+- the probe reaches `gum:start`
+- but no final JS result is pushed back to the native host
+- this means the remaining iOS permission/media problem is now narrowed below `plugin.js`
+- the current evidence points at a `WKWebView` media-permission runtime seam rather than a plugin-facing bridge seam
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -246,6 +258,7 @@ These are still not settled and should only be explored through new labs:
 - deeper WebSocket scenarios such as disconnect, idle timeout, protocol failure, and richer stream semantics
 - deeper storage-backed scenarios such as quota and sandbox edge cases
 - real permission-state transition testing beyond simple external `grant` / `revoke`
+- iOS `WKWebView` media-permission lifecycle behavior after `getUserMedia({ audio: true })`
 
 ## Suggested next order
 
