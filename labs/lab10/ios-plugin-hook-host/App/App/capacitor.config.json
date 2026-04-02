@@ -1,0 +1,8 @@
+{
+  "appId": "io.xenix.lab.wkwebviewhost",
+  "appName": "IOSWKWebViewHostLab",
+  "webDir": "public",
+  "server": {
+    "iosScheme": "capacitor"
+  }
+}

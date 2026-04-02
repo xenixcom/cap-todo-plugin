@@ -82,12 +82,20 @@ Proved storage-backed scenarios:
 - Android needs explicit DOM storage enablement in the adapter
 - iOS and Android both pass and both detect injected regressions
 
+### `lab10`
+
+Proved the first plugin-facing hook:
+
+- bundled web probes can load the repo's real built plugin JS API
+- the same generic runner can call `Todo` contract methods on both hosts
+- iOS and Android both pass and both detect injected regressions
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
 
-- plugin-facing hook shape
 - event and stream contracts beyond simple ordered messages
+- deeper plugin-facing bridge-backed hook behavior
 - deeper HTTP-backed scenarios such as timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
 - deeper WebSocket scenarios such as reconnect, disconnect, idle timeout, protocol failure, and stream semantics
 - deeper storage-backed scenarios such as persistence across relaunch, corrupt data, quota, and sandbox edge cases
