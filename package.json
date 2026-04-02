@@ -1,0 +1,86 @@
+{
+  "name": "@xenix/cap-todo-plugin",
+  "version": "0.0.1",
+  "description": "A Todo Plugin for Capacitor",
+  "main": "dist/plugin.cjs.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "unpkg": "dist/plugin.js",
+  "files": [
+    "android/src/main/",
+    "android/build.gradle",
+    "dist/",
+    "ios/Sources",
+    "ios/Tests",
+    "Package.swift",
+    "XenixCapTodoPlugin.podspec"
+  ],
+  "author": "JC",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xenixcom/cap-todo-plugin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/xenixcom/cap-todo-plugin/issues"
+  },
+  "keywords": [
+    "capacitor",
+    "plugin",
+    "native"
+  ],
+  "scripts": {
+    "verify": "npm run verify:ios && npm run verify:android && npm run verify:web",
+    "verify:ios": "xcodebuild -scheme XenixCapTodoPlugin -destination generic/platform=iOS",
+    "test:ios": "xcodebuild test -scheme XenixCapTodoPlugin -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.4' -only-testing:TodoPluginTests",
+    "test:ios:fast": "IOS_DERIVED_DATA=./ios/build ./tools/captool test ios --fast",
+    "verify:android": "cd android && ./gradlew clean build test && cd ..",
+    "verify:web": "npm run build",
+    "contract:test:web": "vitest run tests/contract/options.spec.ts tests/contract/lifecycle.spec.ts tests/contract/status.spec.ts tests/contract/error.spec.ts tests/contract/edge.spec.ts",
+    "test:tools": "vitest run tools/tests/captool.spec.ts",
+    "test": "npm run contract:test:web",
+    "lint": "npm run eslint && npm run prettier -- --check && npm run swiftlint -- lint",
+    "fmt": "npm run eslint -- --fix && npm run prettier -- --write && npm run swiftlint -- --fix --format",
+    "eslint": "eslint . --ext ts",
+    "prettier": "prettier \"**/*.{css,html,ts,js,java}\" --plugin=prettier-plugin-java",
+    "swiftlint": "node-swiftlint",
+    "docgen": "docgen --api TodoPlugin --output-readme README.md --output-json dist/docs.json",
+    "build": "npm run clean && npm run docgen && tsc && rollup -c rollup.config.mjs",
+    "clean": "rimraf ./dist",
+    "watch": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/docgen": "^0.3.1",
+    "@capacitor/ios": "^8.0.0",
+    "@ionic/eslint-config": "^0.4.0",
+    "@ionic/prettier-config": "^4.0.0",
+    "@ionic/swiftlint-config": "^2.0.0",
+    "eslint": "^8.57.1",
+    "prettier": "^3.6.2",
+    "prettier-plugin-java": "^2.7.7",
+    "rimraf": "^6.1.0",
+    "rollup": "^4.53.2",
+    "swiftlint": "^2.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.0"
+  },
+  "peerDependencies": {
+    "@capacitor/core": ">=8.0.0"
+  },
+  "prettier": "@ionic/prettier-config",
+  "swiftlint": "@ionic/swiftlint-config",
+  "eslintConfig": {
+    "extends": "@ionic/eslint-config/recommended"
+  },
+  "capacitor": {
+    "ios": {
+      "src": "ios"
+    },
+    "android": {
+      "src": "android"
+    }
+  }
+}
