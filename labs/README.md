@@ -306,6 +306,18 @@ Compared `localStorage` and `IndexedDB` across relaunch:
   - the remaining suspicion is now more specific to `localStorage`
   - not to WebView persistence as a whole
 
+### `lab27`
+
+Re-checked `localStorage` across pure relaunch without reinstall:
+
+- both hosts passed `seed`
+- both hosts also passed `verify`
+- this means the Android failure from `lab19` is not a pure relaunch problem
+- `localStorage` survives when the app is only force-stopped and relaunched
+- this pushes the earlier Android storage seam into a narrower place:
+  - the problematic shape is tied to the heavier reinstall/redeploy path
+  - not to relaunch alone
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -316,7 +328,7 @@ These are still not settled and should only be explored through new labs:
 - deeper HTTP-backed scenarios such as timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
 - deeper WebSocket scenarios such as disconnect, idle timeout, protocol failure, and richer stream semantics
 - deeper storage-backed scenarios such as quota and sandbox edge cases
-- why `localStorage` failed Android relaunch verification in `lab19` while the combined backend relaunch check in `lab26` passes
+- what exact reinstall/redeploy condition in `lab19` caused Android `localStorage` to appear missing even though pure relaunch now passes in `lab27`
 - real permission-state transition testing beyond simple external `grant` / `revoke`
 - why iOS `getUserMedia({ audio: true })` stays pending in this host-backed `WKWebView` probe shape even though normal JS timing continues
 
@@ -325,7 +337,7 @@ These are still not settled and should only be explored through new labs:
 If experiments continue one at a time, the current best order is:
 
 1. permission seam follow-up
-2. storage localStorage-specific seam follow-up
+2. storage reinstall/redeploy seam follow-up
 3. deeper HTTP edge cases
 4. deeper WebSocket edge cases
 5. deeper plugin-facing bridge behavior
