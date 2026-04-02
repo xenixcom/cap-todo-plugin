@@ -110,30 +110,52 @@ Current result:
 - `window.__test__.add(1, 2)` returned `3`
 - the result was persisted to the simulator app container
 
+## Current Android Probe Shape
+
+The Android host-backed probe lives in:
+
+- `lab/android-webview-host`
+
+It uses:
+
+- a minimal Android app host
+- `WebView`
+- inline HTML/JS
+- a file output probe
+
+Current result:
+
+- success
+- `window.__test__.add(1, 2)` returned `3`
+- the result was persisted to app-private storage in the emulator
+
 So the next engineering step is no longer:
 
 - prove basic host -> WebView -> JS on iOS
 
 It is:
 
-- decide whether to extend the iOS lab toward a richer local page
-- or build the Android lab counterpart
+- decide whether to extend either lab toward a richer local page
+- or move from `add()` toward a plugin-facing JS hook
 
 ## Android Follow-Up
 
-Now that the iOS host-backed path is proven, compare against:
+Both host-backed paths are now proven at the trivial `add()` level.
+
+The next comparison should focus on:
 
 - `WebView.evaluateJavascript(...)`
 - `addJavascriptInterface(...)`
 - `Espresso-Web`
 
-Android remains the second step, not the first.
+Android is no longer a follow-up hypothesis.
+It is now a validated second host path.
 
 ## Exit Criteria
 
 This spike only needs to answer one question:
 
-Can a native host-backed test reliably call JavaScript inside a WebView and get
+Can a native host-backed setup reliably call JavaScript inside a WebView and get
 the result back without falling into a second full testing standard?
 
 If yes:

@@ -88,3 +88,34 @@ Updated conclusion:
 - the host-backed iOS path is viable
 - the missing piece was the app-hosted runtime, not the JS call/return idea
 - future work should continue inside `lab/`, not the mainline test structure
+
+## Android Result
+
+Follow-up probe now also exists in:
+
+- `lab/android-webview-host`
+
+This Android app-hosted probe:
+
+- boots an Android app host
+- creates a `WebView`
+- loads inline HTML/JS
+- evaluates:
+  - `window.__test__.add(1, 2)`
+- writes the result to:
+  - `files/webview-host-probe.json`
+
+Observed result:
+
+- app build succeeded
+- app launched in a headless emulator
+- result file was written successfully
+- recorded payload:
+  - `{"status":"ok","detail":"3"}`
+
+Final current conclusion:
+
+- the host-backed WebView JS probe is viable on both iOS and Android
+- the app-facing host -> WebView -> JS -> result path is no longer hypothetical
+- the next decision is not feasibility, but how far to extend the probe toward
+  plugin-facing contract cases
