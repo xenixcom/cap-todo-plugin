@@ -6,12 +6,46 @@ The purpose of these labs is to answer open technical questions with small, isol
 
 ## Current conclusion
 
-`lab1` through `lab6` now support a stronger definition of the testing model:
+`lab1` through `lab20` now support a stronger definition of the testing model:
 
 - formal test units can aim to be written once
 - platform execution adapters belong to the toolchain, not to each plugin repo
 - private native tests are optional helper coverage, not the formal test mainline
 - host-backed WebView JS testing works on both iOS and Android without UI driving
+
+What is already strongly supported:
+
+- generic host-backed WebView execution works on both platforms
+- plugin-facing JS API calls can be exercised through the same route
+- listeners, sequences, and reconnect lifecycles can be validated without UI driving
+- a small semantic manifest shape is enough for mixed scenarios
+- a thin adapter protocol is enough for toolchain orchestration
+
+What is not settled yet:
+
+- permission state transitions still expose a real seam
+- storage persistence across relaunch is not yet symmetric
+- stripped-down seam diagnostics are not always symmetric with broader scenario labs
+- deeper network and storage edge cases still need more pressure
+
+## Current seam map
+
+The current labs do not suggest that the core direction is wrong.
+
+They do suggest that platform seams still matter and must keep being mapped explicitly:
+
+- `lab12`
+  - iOS local HTTP seam works in the stripped-down form
+  - Android seam-only variant does not mirror that result
+- `lab18`
+  - external OS permission toggles do not yet produce a trustworthy app-facing permission contract result
+- `lab19`
+  - relaunch persistence is currently asymmetric between iOS and Android
+
+So the current state is:
+
+- the core method is holding
+- but some host/environment seams are still not normalized
 
 ## Completed labs
 
@@ -206,12 +240,22 @@ Explored WebSocket reconnect semantics:
 These are still not settled and should only be explored through new labs:
 
 - deeper plugin-facing bridge-backed hook behavior
-- mock pressure inside the formal test language versus the harness layer
+- native/adapter seam complexity versus fake-boundary pressure
 - why the stripped-down Android `lab12` seam shape fails even though broader Android HTTP-backed labs pass
 - deeper HTTP-backed scenarios such as timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
 - deeper WebSocket scenarios such as disconnect, idle timeout, protocol failure, and richer stream semantics
 - deeper storage-backed scenarios such as quota and sandbox edge cases
 - real permission-state transition testing beyond simple external `grant` / `revoke`
+
+## Suggested next order
+
+If experiments continue one at a time, the current best order is:
+
+1. permission seam follow-up
+2. storage persistence/edge follow-up
+3. deeper HTTP edge cases
+4. deeper WebSocket edge cases
+5. deeper plugin-facing bridge behavior
 
 ## Cleanup rule
 
