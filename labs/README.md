@@ -90,12 +90,22 @@ Proved the first plugin-facing hook:
 - the same generic runner can call `Todo` contract methods on both hosts
 - iOS and Android both pass and both detect injected regressions
 
+### `lab11`
+
+Explored mock-pressure boundaries:
+
+- Android proved that richer fake HTTP behavior can stay in the harness/stub layer
+- the test unit itself stayed small: request path plus expected value/error
+- iOS exposed an unresolved host-side boundary for this class of local HTTP-backed fake
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
 
 - event and stream contracts beyond simple ordered messages
 - deeper plugin-facing bridge-backed hook behavior
+- mock pressure inside the formal test language versus the harness layer
+- iOS host constraints around local HTTP-backed fakes in WebView probes
 - deeper HTTP-backed scenarios such as timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
 - deeper WebSocket scenarios such as reconnect, disconnect, idle timeout, protocol failure, and stream semantics
 - deeper storage-backed scenarios such as persistence across relaunch, corrupt data, quota, and sandbox edge cases
