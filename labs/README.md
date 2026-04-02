@@ -58,15 +58,39 @@ Proved manifest-driven scenarios:
 - hosts no longer need to hard-code individual cases
 - this is the closest current lab to a future formal host-backed contract runner
 
+### `lab7`
+
+Proved HTTP-backed scenarios:
+
+- bundled web probes can validate app-facing HTTP contracts
+- deterministic local stub servers are enough for repeatable host-backed validation
+- iOS and Android both pass and both detect injected regressions
+
+### `lab8`
+
+Proved WebSocket-backed scenarios:
+
+- bundled web probes can validate persistent request/response communication
+- local WebSocket stubs are enough for repeatable host-backed validation
+- iOS and Android both pass and both detect injected regressions
+
+### `lab9`
+
+Proved storage-backed scenarios:
+
+- bundled web probes can validate local storage contracts
+- Android needs explicit DOM storage enablement in the adapter
+- iOS and Android both pass and both detect injected regressions
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
 
 - plugin-facing hook shape
 - event and stream contracts beyond simple ordered messages
-- HTTP-backed scenarios such as remote API success, timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
-- WebSocket and long-lived remote communication such as connect, reconnect, disconnect, message ordering, idle timeout, and protocol failure
-- filesystem and storage-backed scenarios such as local persistence, read/write/update/delete, missing or corrupt data, restart persistence, quota, and sandbox edge cases
+- deeper HTTP-backed scenarios such as timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
+- deeper WebSocket scenarios such as reconnect, disconnect, idle timeout, protocol failure, and stream semantics
+- deeper storage-backed scenarios such as persistence across relaunch, corrupt data, quota, and sandbox edge cases
 - permission, availability, and session archetype mapping
 - how a shared scenario manifest should be shaped for long-term formal use
 - how `captool` should expose and orchestrate platform adapters
