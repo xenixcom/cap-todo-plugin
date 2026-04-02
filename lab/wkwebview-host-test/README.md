@@ -1,0 +1,60 @@
+# WKWebView Host Test Spike
+
+This lab is a minimal feasibility probe.
+
+Goal:
+
+- verify that an iOS host test can create a `WKWebView`
+- load a tiny HTML/JS page
+- call JS directly from XCTest
+- read the JS result back without using UI automation
+
+This is not a plugin test yet.
+It is only the smallest probe for:
+
+- host -> WebView -> JS
+- JS result -> host
+
+The first case is intentionally trivial:
+
+- `window.__test__.add(1, 2) === 3`
+
+If this path fails, there is no point trying to lift formal contract tests into
+the WebView host layer.
+
+If this path works, the next spike can decide whether to:
+
+- load a richer local page
+- load the real app bundle
+- or try a plugin-facing contract call
+
+## First Result
+
+Attempted in:
+
+- `ios/Tests/TodoPluginTests`
+- package test target
+- `xcodebuild test`
+
+Probe used:
+
+- create `WKWebView` in XCTest
+- `loadHTMLString(...)`
+- wait for navigation finish
+- call `window.__test__.add(1, 2)` via `evaluateJavaScript`
+
+Observed result:
+
+- build passed
+- test target launched
+- page load never completed
+- XCTest logged:
+  - `This process does not have a UIApplication object and will not receive events!`
+
+Current conclusion:
+
+- `WKWebView + XCTest` is not enough inside the current pure package test target
+- the next probe likely needs a real iOS host app / application-backed test bundle
+- this still supports the broader direction:
+  - host-side JS testing remains plausible
+  - but not from the current no-`UIApplication` package-test shape
