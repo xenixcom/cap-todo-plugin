@@ -1,0 +1,6 @@
+**/.gradle/
+**/build/
+**/DerivedData/
+**/node_modules/
+**/*.xcresult
+**/xcuserdata/
