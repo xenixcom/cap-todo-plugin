@@ -119,6 +119,17 @@ Proved stream closure validation:
 - both hosts detected an illegal late event after `closed`
 - this pushes the method further toward real stream/lifecycle contract checking
 
+### `lab14`
+
+Proved deeper plugin-facing bridge-backed listener behavior:
+
+- both hosts validated real `Todo.addListener('statusChange', ...)`
+- both hosts passed:
+  - `reset()` emits `init -> idle`
+  - `setOptions()` stays silent
+  - `remove()` keeps a later `reset()` silent
+- both hosts also detected an injected listener regression in the fault variant
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
