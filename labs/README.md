@@ -109,11 +109,20 @@ Isolated the local HTTP seam:
   - `10.0.2.2`, `localhost`, and host LAN IP all failed with `Failed to fetch`
 - this seam diagnosis still helped rule out a false iOS boundary while also surfacing a platform-specific Android seam difference
 
+### `lab13`
+
+Proved stream closure validation:
+
+- both hosts validated a longer stream, not just a short fixed sequence
+- both hosts passed the normal stream:
+  - `boot -> open -> data:1 -> data:2 -> data:3 -> closed`
+- both hosts detected an illegal late event after `closed`
+- this pushes the method further toward real stream/lifecycle contract checking
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
 
-- event and stream contracts beyond simple ordered messages
 - deeper plugin-facing bridge-backed hook behavior
 - mock pressure inside the formal test language versus the harness layer
 - why the stripped-down Android `lab12` seam shape fails even though broader Android HTTP-backed labs pass
