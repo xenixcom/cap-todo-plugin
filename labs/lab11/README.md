@@ -22,12 +22,12 @@ The intended split is:
 
 ## Result
 
-Android mock-pressure probe works. iOS exposes a real host-side boundary that is not yet resolved.
+Android mock-pressure probe works. iOS now also works after fixing a wiring issue in the lab setup.
 
 Observed payloads:
 
 - iOS normal:
-  - `{"status":"fail","detail":"sum_basic: expected value 3 but received error Load failed; malformed_payload: expected error including malformed payload got Load failed; http_503: expected error including http 503 got Load failed; timeout_case: expected error including timeout got Load failed"}`
+  - `{"status":"ok","detail":"pass"}`
 - iOS fault:
   - `{"status":"fail","detail":"sum_basic: expected value 3 got 2; malformed_payload: expected error including malformed payload got expected value but received unexpected; http_503: expected error including http 503 got expected value but received unexpected; timeout_case: expected error including timeout got expected value but received unexpected-timeout"}`
 - Android normal:
@@ -40,5 +40,7 @@ Current conclusion:
 - test units still do not need to describe complex fake behavior directly
 - richer fake behavior can stay in the harness and stub layer
 - Android proves this direction concretely
-- iOS reveals an unresolved host-side constraint around local HTTP-backed fake handling from the WebView probe
+- iOS now proves the same direction after the lab wiring was corrected
+- the earlier iOS `Load failed` result was not a method boundary
+- it was a lab-specific wiring issue
 - this lab is still valuable because it exposed a real pressure point instead of silently growing the test-unit language

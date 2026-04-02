@@ -1,7 +1,7 @@
 window.__impl__ = {
   baseUrl() {
     const host = /Android/i.test(navigator.userAgent) ? "10.0.2.2" : "127.0.0.1";
-    return `http://${host}:41717`;
+    return `http://${host}:41731`;
   },
 
   async fetchValue(path) {

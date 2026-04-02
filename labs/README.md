@@ -96,7 +96,8 @@ Explored mock-pressure boundaries:
 
 - Android proved that richer fake HTTP behavior can stay in the harness/stub layer
 - the test unit itself stayed small: request path plus expected value/error
-- iOS exposed an unresolved host-side boundary for this class of local HTTP-backed fake
+- iOS now also passes after fixing the lab wiring
+- this means the mock-pressure question itself is not blocked by a WKWebView boundary
 
 ### `lab12`
 
@@ -104,7 +105,7 @@ Isolated the iOS local HTTP seam:
 
 - bundled file-loaded `WKWebView` successfully reached a local HTTP stub
 - `127.0.0.1`, `localhost`, and host LAN IP all worked
-- the unresolved `lab11` iOS issue is therefore narrower than simple local HTTP reachability
+- this seam diagnosis helped rule out a false boundary while debugging `lab11`
 
 ## Open questions
 
@@ -113,7 +114,6 @@ These are still not settled and should only be explored through new labs:
 - event and stream contracts beyond simple ordered messages
 - deeper plugin-facing bridge-backed hook behavior
 - mock pressure inside the formal test language versus the harness layer
-- the narrower cause of the `lab11` iOS mock/harness failure now that local HTTP reachability itself is proven
 - deeper HTTP-backed scenarios such as timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
 - deeper WebSocket scenarios such as reconnect, disconnect, idle timeout, protocol failure, and stream semantics
 - deeper storage-backed scenarios such as persistence across relaunch, corrupt data, quota, and sandbox edge cases

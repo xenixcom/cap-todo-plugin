@@ -58,6 +58,6 @@ const server = http.createServer((req, res) => {
   res.end(JSON.stringify({ result: a + b }));
 });
 
-server.listen(41717, "0.0.0.0", () => {
-  console.log("LAB11_HTTP_STUB_READY=41717");
+server.listen(41731, "0.0.0.0", () => {
+  console.log("LAB11_HTTP_STUB_READY=41731");
 });
