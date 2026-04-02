@@ -66,6 +66,7 @@ These are still not settled and should only be explored through new labs:
 - event and stream contracts beyond simple ordered messages
 - HTTP-backed scenarios such as remote API success, timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
 - WebSocket and long-lived remote communication such as connect, reconnect, disconnect, message ordering, idle timeout, and protocol failure
+- filesystem and storage-backed scenarios such as local persistence, read/write/update/delete, missing or corrupt data, restart persistence, quota, and sandbox edge cases
 - permission, availability, and session archetype mapping
 - how a shared scenario manifest should be shaped for long-term formal use
 - how `captool` should expose and orchestrate platform adapters
