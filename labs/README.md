@@ -130,6 +130,16 @@ Proved deeper plugin-facing bridge-backed listener behavior:
   - `remove()` keeps a later `reset()` silent
 - both hosts also detected an injected listener regression in the fault variant
 
+### `lab15`
+
+Measured plugin-facing archetype coverage through the real bridge:
+
+- both hosts confirmed that `checkPermissions()` is bridged and returns the expected permission shape
+- both hosts confirmed that `getAvailability()` is bridged and returns the expected availability shape
+- both hosts confirmed that `openSession()` is bridged, but currently fails on microphone permission
+- both hosts confirmed that `closeSession()` is bridged and surfaces invalid-token errors
+- this means permission, availability, and session archetypes are all present at the real plugin-facing bridge layer
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -140,7 +150,6 @@ These are still not settled and should only be explored through new labs:
 - deeper HTTP-backed scenarios such as timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
 - deeper WebSocket scenarios such as reconnect, disconnect, idle timeout, protocol failure, and stream semantics
 - deeper storage-backed scenarios such as persistence across relaunch, corrupt data, quota, and sandbox edge cases
-- permission, availability, and session archetype mapping
 - how a shared scenario manifest should be shaped for long-term formal use
 - how `captool` should expose and orchestrate platform adapters
 
