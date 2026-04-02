@@ -91,6 +91,48 @@ Current bias:
 - `docs/HANDOFF.md` should become more explicitly “current state / handoff”
 - `docs/PLUGIN_GUIDELINES.md` should remain the stable principles document
 
+## Current Decisions
+
+These decisions are now treated as active unless a later review overturns them:
+
+- `docs/README.md`
+  - keep
+  - role: short navigation only
+  - should not carry long project-state detail
+- `docs/HANDOFF.md`
+  - keep
+  - role: current-state operational handoff
+  - may be longer, but should avoid duplicating the roadmap and stable principles
+- `docs/PLUGIN_GUIDELINES.md`
+  - keep
+  - role: stable principles document
+  - should outlive a single branch or phase
+- `docs/PIPELINE_RETROSPECTIVE.md`
+  - keep
+  - role: historical note
+  - should not compete with primary navigation
+- `docs/PORTING_NOTES.md`
+  - keep
+  - role: practical rename/migration checklist
+
+## Immediate Convergence Targets
+
+The next cleanup pass should continue reducing:
+
+- repeated “single pipeline” manifesto text across multiple files
+- repeated current-state summaries already covered by `docs/HANDOFF.md`
+- repeated tool/config explanations already covered by:
+  - `tools/README.md`
+  - `docs/CAPTOOL_CONFIG.md`
+
+## Low-Risk Structural Cleanup
+
+Completed in this pass:
+
+- removed empty leftover directories from earlier `/tests` shaping:
+  - `tests/fixtures/`
+  - `tests/helpers/`
+
 ## Immediate Cleanup Already Needed
 
 Even without large restructuring, these rules should now be enforced:

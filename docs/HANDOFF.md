@@ -283,7 +283,7 @@ tests/
   - `start -> running`
   - `stop -> idle`
   - disabled-state `start` rejection
-- The script also self-heals a stale default simulator entry by recreating the configured `iPhone 17` simulator when the stored CoreSimulator record no longer exists on disk.
+- The tool also self-heals a stale default simulator entry by recreating the configured simulator when the stored CoreSimulator record no longer exists on disk.
 
 ### Cleanup Controls
 
