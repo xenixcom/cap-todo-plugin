@@ -178,6 +178,17 @@ Explored real permission-state transitions under external OS control:
 - this turns the permission question into a sharper seam problem:
   - external OS permission control is not yet enough by itself to produce trustworthy app-facing permission-state tests in this host-lab shape
 
+### `lab19`
+
+Explored deeper storage-backed behavior:
+
+- both hosts passed `seed`
+- both hosts passed `corrupt`
+- iOS also passed `verify`, which means persisted JSON survived relaunch in this lab shape
+- Android failed `verify` with `missing`
+- this surfaces a new platform seam:
+  - local storage persistence across relaunch is not currently symmetric between iOS and Android in the host-backed setup
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -187,7 +198,7 @@ These are still not settled and should only be explored through new labs:
 - why the stripped-down Android `lab12` seam shape fails even though broader Android HTTP-backed labs pass
 - deeper HTTP-backed scenarios such as timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
 - deeper WebSocket scenarios such as reconnect, disconnect, idle timeout, protocol failure, and stream semantics
-- deeper storage-backed scenarios such as persistence across relaunch, corrupt data, quota, and sandbox edge cases
+- deeper storage-backed scenarios such as quota and sandbox edge cases
 - real permission-state transition testing beyond simple external `grant` / `revoke`
 
 ## Cleanup rule
