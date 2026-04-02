@@ -318,6 +318,16 @@ Re-checked `localStorage` across pure relaunch without reinstall:
   - the problematic shape is tied to the heavier reinstall/redeploy path
   - not to relaunch alone
 
+### `lab28`
+
+Checked the heavier reinstall/redeploy shape directly:
+
+- Android reproduced the earlier `missing` result when `seed` and `verify` were separated by uninstall/reinstall
+- iOS did not mirror that result; its `verify` still passed after reinstall in this lab shape
+- this sharpens the remaining storage seam once more:
+  - the problematic condition is now specifically tied to Android under reinstall/redeploy
+  - it is no longer explained by relaunch alone or by a blanket persistence failure
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -328,7 +338,7 @@ These are still not settled and should only be explored through new labs:
 - deeper HTTP-backed scenarios such as timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
 - deeper WebSocket scenarios such as disconnect, idle timeout, protocol failure, and richer stream semantics
 - deeper storage-backed scenarios such as quota and sandbox edge cases
-- what exact reinstall/redeploy condition in `lab19` caused Android `localStorage` to appear missing even though pure relaunch now passes in `lab27`
+- what Android reinstall/redeploy detail causes `localStorage` to appear missing while iOS still passes in `lab28`
 - real permission-state transition testing beyond simple external `grant` / `revoke`
 - why iOS `getUserMedia({ audio: true })` stays pending in this host-backed `WKWebView` probe shape even though normal JS timing continues
 
@@ -337,7 +347,7 @@ These are still not settled and should only be explored through new labs:
 If experiments continue one at a time, the current best order is:
 
 1. permission seam follow-up
-2. storage reinstall/redeploy seam follow-up
+2. Android reinstall/redeploy storage seam follow-up
 3. deeper HTTP edge cases
 4. deeper WebSocket edge cases
 5. deeper plugin-facing bridge behavior
