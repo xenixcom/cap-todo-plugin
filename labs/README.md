@@ -294,6 +294,18 @@ Measured whether iOS JS progress freezes after `getUserMedia({ audio: true })` s
   - it is not a general `WKWebView` event-loop freeze
   - it is a pending `getUserMedia({ audio: true })` path inside this host-backed probe shape
 
+### `lab26`
+
+Compared `localStorage` and `IndexedDB` across relaunch:
+
+- both hosts passed `seed`
+- both hosts also passed the combined `verify`
+- this means the relaunch problem from `lab19` is not a blanket browser-persistence failure
+- both hosts preserved the `IndexedDB` path strongly enough for the combined backend verification to pass
+- this narrows the earlier Android storage seam:
+  - the remaining suspicion is now more specific to `localStorage`
+  - not to WebView persistence as a whole
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -304,6 +316,7 @@ These are still not settled and should only be explored through new labs:
 - deeper HTTP-backed scenarios such as timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
 - deeper WebSocket scenarios such as disconnect, idle timeout, protocol failure, and richer stream semantics
 - deeper storage-backed scenarios such as quota and sandbox edge cases
+- why `localStorage` failed Android relaunch verification in `lab19` while the combined backend relaunch check in `lab26` passes
 - real permission-state transition testing beyond simple external `grant` / `revoke`
 - why iOS `getUserMedia({ audio: true })` stays pending in this host-backed `WKWebView` probe shape even though normal JS timing continues
 
@@ -312,7 +325,7 @@ These are still not settled and should only be explored through new labs:
 If experiments continue one at a time, the current best order is:
 
 1. permission seam follow-up
-2. storage persistence/edge follow-up
+2. storage localStorage-specific seam follow-up
 3. deeper HTTP edge cases
 4. deeper WebSocket edge cases
 5. deeper plugin-facing bridge behavior
