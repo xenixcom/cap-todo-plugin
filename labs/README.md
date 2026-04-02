@@ -282,6 +282,18 @@ Isolated the iOS `getUserMedia({ audio: true })` seam below the plugin layer:
 - this means the remaining iOS permission/media problem is now narrowed below `plugin.js`
 - the current evidence points at a `WKWebView` media-permission runtime seam rather than a plugin-facing bridge seam
 
+### `lab25`
+
+Measured whether iOS JS progress freezes after `getUserMedia({ audio: true })` starts:
+
+- the page does not freeze after `gum:start`
+- JS heartbeats continue to advance
+- scheduled `setTimeout(...)` breadcrumbs at `500ms`, `1000ms`, `2000ms`, and `4000ms` all still fire
+- the route eventually reports `getUserMedia:timeout:4500`
+- this narrows the iOS seam again:
+  - it is not a general `WKWebView` event-loop freeze
+  - it is a pending `getUserMedia({ audio: true })` path inside this host-backed probe shape
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -293,7 +305,7 @@ These are still not settled and should only be explored through new labs:
 - deeper WebSocket scenarios such as disconnect, idle timeout, protocol failure, and richer stream semantics
 - deeper storage-backed scenarios such as quota and sandbox edge cases
 - real permission-state transition testing beyond simple external `grant` / `revoke`
-- iOS `WKWebView` media-permission lifecycle behavior after `getUserMedia({ audio: true })`
+- why iOS `getUserMedia({ audio: true })` stays pending in this host-backed `WKWebView` probe shape even though normal JS timing continues
 
 ## Suggested next order
 
