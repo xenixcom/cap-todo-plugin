@@ -165,6 +165,19 @@ Explored how a toolchain entrypoint could absorb platform adapters:
 - the caller only selected adapters, mode, and aggregated normalized JSON
 - this suggests `captool` can stay compact if platform execution details remain behind thin adapter boundaries
 
+### `lab18`
+
+Explored real permission-state transitions under external OS control:
+
+- both hosts were driven through external `grant` / `revoke`
+- neither host mapped those toggles cleanly into the plugin-facing permission contract
+- both hosts stayed at `prompt` in all four runs
+- both hosts also showed the same surprising split:
+  - after external `grant`, `openSession()` still failed on microphone permission
+  - after external `revoke`, `openSession()` unexpectedly succeeded
+- this turns the permission question into a sharper seam problem:
+  - external OS permission control is not yet enough by itself to produce trustworthy app-facing permission-state tests in this host-lab shape
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -175,6 +188,7 @@ These are still not settled and should only be explored through new labs:
 - deeper HTTP-backed scenarios such as timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
 - deeper WebSocket scenarios such as reconnect, disconnect, idle timeout, protocol failure, and stream semantics
 - deeper storage-backed scenarios such as persistence across relaunch, corrupt data, quota, and sandbox edge cases
+- real permission-state transition testing beyond simple external `grant` / `revoke`
 
 ## Cleanup rule
 
