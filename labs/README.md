@@ -140,6 +140,18 @@ Measured plugin-facing archetype coverage through the real bridge:
 - both hosts confirmed that `closeSession()` is bridged and surfaces invalid-token errors
 - this means permission, availability, and session archetypes are all present at the real plugin-facing bridge layer
 
+### `lab16`
+
+Explored the long-term manifest shape:
+
+- both hosts passed a mixed manifest that combined:
+  - value-return calls
+  - expected-error calls
+  - listener sequences
+- both hosts also detected injected regressions in the value and listener cases
+- this suggests the long-term manifest does not need to become a giant free-form DSL
+- a small family of semantic case kinds is currently enough to express mixed plugin-facing scenarios
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -150,7 +162,6 @@ These are still not settled and should only be explored through new labs:
 - deeper HTTP-backed scenarios such as timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
 - deeper WebSocket scenarios such as reconnect, disconnect, idle timeout, protocol failure, and stream semantics
 - deeper storage-backed scenarios such as persistence across relaunch, corrupt data, quota, and sandbox edge cases
-- how a shared scenario manifest should be shaped for long-term formal use
 - how `captool` should expose and orchestrate platform adapters
 
 ## Cleanup rule
