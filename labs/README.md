@@ -189,6 +189,18 @@ Explored deeper storage-backed behavior:
 - this surfaces a new platform seam:
   - local storage persistence across relaunch is not currently symmetric between iOS and Android in the host-backed setup
 
+### `lab20`
+
+Explored WebSocket reconnect semantics:
+
+- both hosts passed the normal reconnect flow
+- the server closed the first socket after a successful response
+- both hosts then reconnected and successfully completed the second request
+- both hosts also detected the fault variant:
+  - the client reused a closed socket instead of reconnecting
+  - the runner surfaced this as `socket not open (3)`
+- this pushes WebSocket coverage from simple request/response into connection lifecycle semantics
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -197,7 +209,7 @@ These are still not settled and should only be explored through new labs:
 - mock pressure inside the formal test language versus the harness layer
 - why the stripped-down Android `lab12` seam shape fails even though broader Android HTTP-backed labs pass
 - deeper HTTP-backed scenarios such as timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
-- deeper WebSocket scenarios such as reconnect, disconnect, idle timeout, protocol failure, and stream semantics
+- deeper WebSocket scenarios such as disconnect, idle timeout, protocol failure, and richer stream semantics
 - deeper storage-backed scenarios such as quota and sandbox edge cases
 - real permission-state transition testing beyond simple external `grant` / `revoke`
 
