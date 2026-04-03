@@ -6,7 +6,7 @@ The purpose of these labs is to answer open technical questions with small, isol
 
 ## Current conclusion
 
-`lab1` through `lab47` now support a stronger definition of the testing model:
+`lab1` through `lab48` now support a stronger definition of the testing model:
 
 - formal test units can aim to be written once
 - platform execution adapters belong to the toolchain, not to each plugin repo
@@ -91,6 +91,13 @@ They do suggest that platform seams still matter and must keep being mapped expl
     - `after=prompt`
     - `open=error:Microphone permission is required`
   - so iOS deny is `prompt + blocked`, not Android-style `denied`
+- `lab48`
+  - adding explicit timeout/abort to the stripped Android HTTP seam does not erase the split
+  - the multi-target stripped shape still fails on:
+    - `10.0.2.2`
+    - `localhost`
+    - host LAN IP
+  - so this seam is not just a runner hang story
 
 So the current state is:
 
@@ -677,11 +684,32 @@ Completed the missing iOS deny follow-up:
   - but its app-facing shape is not Android-style `denied`
   - it is better described as `prompt + blocked`
 
+### `lab48`
+
+Rechecked the stripped Android HTTP seam with explicit timeout/abort:
+
+- this lab reuses the `lab12` Android host and the same three targets:
+  - `10.0.2.2`
+  - `localhost`
+  - host LAN IP
+- the only added behavior is:
+  - short timeout
+  - explicit abort
+- observed result:
+  - `{"status":"fail","detail":"[{\"id\":\"emulator_host\",\"error\":\"Failed to fetch\"},{\"id\":\"localhost_name\",\"error\":\"Failed to fetch\"},{\"id\":\"host_lan_ip\",\"error\":\"timeout\"}]"}`
+- this matters because it narrows the old suspicion:
+  - the stripped-shape split is not just a missing-timeout artifact
+  - `lab35` still proves `10.0.2.2` is viable in the single-target stripped probe
+  - but the broader stripped multi-target shape remains a genuine Android seam
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
 
 - why the stripped-down Android `lab12` seam shape fails even though broader Android HTTP-backed labs pass
+- why the stripped multi-target Android HTTP seam diverges from both:
+  - the single-target stripped probe (`lab35`)
+  - and the broader HTTP-backed contract labs
 - why Android `requestPermissions({ permissions: ['microphone'] })` still stays at `prompt` and `openSession()` still fails even when:
   - host media permission callbacks are wired
   - and the host runtime permission is already externally granted
