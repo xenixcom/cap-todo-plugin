@@ -6,7 +6,7 @@ The purpose of these labs is to answer open technical questions with small, isol
 
 ## Current conclusion
 
-`lab1` through `lab31` now support a stronger definition of the testing model:
+`lab1` through `lab40` now support a stronger definition of the testing model:
 
 - formal test units can aim to be written once
 - platform execution adapters belong to the toolchain, not to each plugin repo
@@ -27,8 +27,7 @@ What is not settled yet:
 
 - permission state transitions still expose a real seam
 - stripped-down seam diagnostics are not always symmetric with broader scenario labs
-- deeper native/adapter seam complexity still needs more pressure
-- deeper plugin-facing bridge behavior still needs more pressure
+- some deeper host/runtime seams still need targeted pressure
 
 ## Current seam map
 
@@ -47,6 +46,9 @@ They do suggest that platform seams still matter and must keep being mapped expl
 - `lab37`
   - iOS audio `getUserMedia` pending was not a hard `WKWebView` limit
   - explicit `WKUIDelegate` media-capture permission handling flips the seam green
+- `lab40`
+  - once media-permission host wiring is present, iOS real `requestPermissions({ permissions: ['microphone'] })` also flips green
+  - Android still remains at `prompt` in the same lab shape
 
 So the current state is:
 
@@ -467,17 +469,34 @@ Explored native/adapter seam complexity versus fake-boundary pressure:
   - native fake state can stay in adapter/host setup
   - the formal test unit does not need to absorb that mock syntax
 
+### `lab40`
+
+Rechecked the real plugin-facing microphone permission path with host media-permission wiring enabled:
+
+- iOS host now combines:
+  - `NSMicrophoneUsageDescription`
+  - `WKUIDelegate`
+  - explicit media-capture permission grant callback
+- Android host now combines:
+  - `RECORD_AUDIO`
+  - `WebChromeClient.onPermissionRequest(...)`
+- iOS normal now produces a concrete app-facing result:
+  - `initial=prompt; request=granted; after=granted; open=ok`
+- Android normal still stays at:
+  - `initial=prompt; request=prompt; after=prompt; open=error:Microphone permission is required`
+- both fault variants still pass through the unsupported-permission branch
+- this sharpens the permission picture again:
+  - the earlier iOS black hole was a host media-permission wiring gap
+  - Android still has a separate permission-state transition seam even after host-side grant wiring is present
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
 
-- deeper plugin-facing bridge-backed hook behavior
-- native/adapter seam complexity versus fake-boundary pressure
 - why the stripped-down Android `lab12` seam shape fails even though broader Android HTTP-backed labs pass
-- deeper HTTP-backed scenarios such as timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
-- deeper WebSocket scenarios such as protocol failure and richer stream semantics
+- why Android `requestPermissions({ permissions: ['microphone'] })` still stays at `prompt` even when host media permission callbacks are wired
+- deeper permission-state transition testing beyond external `grant` / `revoke` and the current host-wired request path
 - deeper storage-backed scenarios such as quota and sandbox edge cases
-- real permission-state transition testing beyond simple external `grant` / `revoke`
 - deeper native/adapter seam complexity under heavier fake-boundary pressure
 
 ## Cleanup rule
