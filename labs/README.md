@@ -20,6 +20,12 @@ For a practical matrix of likely testing modes for hardware-adjacent capabilitie
 
 - [HARDWARE_TEST_MATRIX.md](/Users/james/dev2/cap-todo-plugin/labs/HARDWARE_TEST_MATRIX.md)
 
+For the current method definition and return-to-mainline planning, see:
+
+- [METHOD.md](/Users/james/dev2/cap-todo-plugin/labs/METHOD.md)
+- [TOOL_BOUNDARY.md](/Users/james/dev2/cap-todo-plugin/labs/TOOL_BOUNDARY.md)
+- [MAINLINE_RETURN_PLAN.md](/Users/james/dev2/cap-todo-plugin/labs/MAINLINE_RETURN_PLAN.md)
+
 ## Current conclusion
 
 `lab1` through `lab51` now support a stronger definition of the testing model:
