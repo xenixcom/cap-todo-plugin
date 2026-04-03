@@ -16,6 +16,10 @@ For accumulated reading takeaways so we do not keep rediscovering the same platf
 
 - [READING_NOTES.md](/Users/james/dev2/cap-todo-plugin/labs/READING_NOTES.md)
 
+For a practical matrix of likely testing modes for hardware-adjacent capabilities, see:
+
+- [HARDWARE_TEST_MATRIX.md](/Users/james/dev2/cap-todo-plugin/labs/HARDWARE_TEST_MATRIX.md)
+
 ## Current conclusion
 
 `lab1` through `lab51` now support a stronger definition of the testing model:
