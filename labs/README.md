@@ -391,6 +391,16 @@ Explored HTTP fallback-after-network-failure behavior:
   - Android surfaces `Failed to fetch`
 - this pushes HTTP coverage beyond retry and into origin fallback behavior
 
+### `lab34`
+
+Explored WebSocket protocol-failure behavior:
+
+- both hosts passed the normal flow
+- valid frames still succeeded
+- malformed frames were surfaced as a protocol parse error
+- both hosts also detected the fault variant where malformed frames were silently accepted
+- this pushes WebSocket coverage beyond reconnect and idle timeout into protocol-failure semantics
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
