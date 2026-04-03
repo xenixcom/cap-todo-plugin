@@ -21,6 +21,7 @@ What is already strongly supported:
 - a small semantic manifest shape is enough for mixed scenarios
 - one additional narrow flow case kind is enough for deeper multi-step plugin-facing state/error sequences
 - a thin adapter protocol is enough for toolchain orchestration
+- native fake-boundary pressure can also stay below the formal test unit when the host adapter injects fixture state
 
 What is not settled yet:
 
@@ -454,6 +455,18 @@ Explored deeper plugin-facing multi-step flow behavior:
 - the manifest still stayed compact:
   - one extra narrow `flowSequence` case kind was enough
 
+### `lab39`
+
+Explored native/adapter seam complexity versus fake-boundary pressure:
+
+- both hosts injected native fixture state from the adapter/host layer
+- the page validated the same tiny declarative cases on both platforms
+- both hosts passed the coherent normal fixture
+- both hosts also failed cleanly against the incoherent fault fixture
+- this supports a useful split:
+  - native fake state can stay in adapter/host setup
+  - the formal test unit does not need to absorb that mock syntax
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -465,7 +478,7 @@ These are still not settled and should only be explored through new labs:
 - deeper WebSocket scenarios such as protocol failure and richer stream semantics
 - deeper storage-backed scenarios such as quota and sandbox edge cases
 - real permission-state transition testing beyond simple external `grant` / `revoke`
- - deeper native/adapter seam complexity under heavier fake-boundary pressure
+- deeper native/adapter seam complexity under heavier fake-boundary pressure
 
 ## Cleanup rule
 
