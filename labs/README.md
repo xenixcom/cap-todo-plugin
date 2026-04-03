@@ -188,6 +188,15 @@ They do suggest that platform seams still matter and must keep being mapped expl
     - `localhost`
     still fails on both targets
   - so this split is not just a `file://` loading artifact
+- `lab62`
+  - upgrading the Android bridge from:
+    - `addJavascriptInterface`
+    - to `addWebMessageListener`
+    does **not** erase the same stripped seam
+  - the result still stays:
+    - `10.0.2.2`: `Failed to fetch`
+    - `localhost`: `Failed to fetch`
+  - so this split is also not just a legacy JS bridge artifact
 
 So the current state is:
 
