@@ -6,7 +6,7 @@ The purpose of these labs is to answer open technical questions with small, isol
 
 ## Current conclusion
 
-`lab1` through `lab46` now support a stronger definition of the testing model:
+`lab1` through `lab47` now support a stronger definition of the testing model:
 
 - formal test units can aim to be written once
 - platform execution adapters belong to the toolchain, not to each plugin repo
@@ -84,6 +84,13 @@ They do suggest that platform seams still matter and must keep being mapped expl
     - `pm revoke`
     - `pm set-permission-flags ... user-set user-fixed`
   - iOS does not mirror that with `simctl privacy revoke` alone when the host adapter is still granting media capture
+- `lab47`
+  - iOS deny becomes toolizable once the host media-capture callback also returns `.deny`
+  - but the observable shape is:
+    - `request=prompt`
+    - `after=prompt`
+    - `open=error:Microphone permission is required`
+  - so iOS deny is `prompt + blocked`, not Android-style `denied`
 
 So the current state is:
 
@@ -652,6 +659,24 @@ Compared repeatable deny shapes on Android and iOS:
   - iOS deny cannot rely on simulator privacy revocation alone when the host `WKUIDelegate` still grants media capture
   - in that host-backed shape, deny validation must also flip the host media-permission callback
 
+### `lab47`
+
+Completed the missing iOS deny follow-up:
+
+- this lab reuses the `lab40` host
+- the only host change is:
+  - `requestMediaCapturePermissionFor` returns `.deny` when `PROBE_MODE=deny`
+- run shape:
+  - install on simulator
+  - `simctl privacy revoke microphone io.xenix.demo`
+  - launch with `SIMCTL_CHILD_PROBE_MODE=deny`
+- observed result:
+  - `{"status":"fail","detail":"initial=prompt; request=prompt; after=prompt; open=error:Microphone permission is required"}`
+- this matters because it finishes the permission split:
+  - iOS deny can also be toolized
+  - but its app-facing shape is not Android-style `denied`
+  - it is better described as `prompt + blocked`
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -668,6 +693,7 @@ These are still not settled and should only be explored through new labs:
   - simulator privacy revoke only
   - host callback deny only
   - or both together
+- whether iOS `prompt + blocked` should be treated as the expected deny contract shape for media-backed permission flows
 - deeper permission-state transition testing beyond external `grant` / `revoke` and the current host-wired request path
 - deeper storage-backed scenarios such as quota and sandbox edge cases
 
