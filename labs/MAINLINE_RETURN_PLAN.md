@@ -19,6 +19,11 @@ Move back only the stabilized definitions:
 - formal-layer principles
 - adapter-layer principles
 
+Candidate sources:
+
+- `METHOD.md`
+- `TOOL_BOUNDARY.md`
+
 Goal:
 
 - align the repo on the new model before changing code
@@ -32,9 +37,21 @@ Candidate shape:
 - `run <strategy>`
 - normalized JSON result
 
+The first returned contract should be deliberately tiny.
+
+Do not start with:
+
+- multiple strategy families
+- shared parsing of raw host strings
+- deep platform-specific option matrices
+
 Goal:
 
 - prove that `captool` can call adapters without absorbing their internals
+
+Candidate source:
+
+- `lab56`
 
 ## Stage 3: Formal Test Unit Shape Return
 
@@ -45,12 +62,27 @@ Goal:
 - move the mainline away from framework-bound test syntax
 - toward a formal test-unit definition that can survive multiple hosts
 
+Candidate source:
+
+- current manifest/case-family conclusions
+- especially `callValue`, `callError`, `listenerSequence`, `flowSequence`
+
 ## Stage 4: First Real Mainline Slice
 
 Choose only one stable slice first, for example:
 
 - plugin-facing call/value cases
 - or permission-independent plugin contract cases
+
+Preferred first slice:
+
+- permission-independent plugin-facing call/value cases
+
+Reason:
+
+- low seam pressure
+- already strongly supported by labs
+- low risk of early platform-specific drift
 
 Goal:
 
@@ -72,6 +104,13 @@ These should remain in research/support space until needed.
 2. merge adapter contract definition
 3. merge one stable formal test-unit slice
 4. expand only after the first slice is proven stable
+
+Practical interpretation:
+
+1. docs first
+2. thin adapter contract second
+3. easiest real contract slice third
+4. permission/media and seam-heavy work later
 
 ## What Not To Do
 

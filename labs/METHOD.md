@@ -17,6 +17,12 @@ The method now points to this structure:
 - a thin orchestrator above adapters
 - private native tests as optional helpers, not the formal mainline
 
+In practical terms this means:
+
+- repo authors write semantic cases
+- adapters execute those cases on real hosts
+- the orchestrator coordinates adapters and reports normalized outcomes
+
 ## Formal Layer
 
 The formal layer should contain:
@@ -25,12 +31,25 @@ The formal layer should contain:
 - scenario/case definition
 - expected normalized outcomes
 
+The formal layer should be able to survive multiple execution hosts without changing its meaning.
+
 It should **not** contain:
 
 - platform-specific host logic
 - native fixture wiring
 - system-permission shell commands
 - bulky mock DSL
+
+When possible, the formal layer should describe:
+
+- what is invoked
+- what is observed
+- what normalized outcome is expected
+
+not:
+
+- how the host is wired
+- how the platform is manipulated
 
 ## Adapter Layer
 
@@ -77,6 +96,11 @@ Current evidence supports a compact family such as:
 
 The goal is disciplined semantic case kinds, not a general-purpose testing DSL.
 
+This implies:
+
+- test units should look more like semantic case data
+- and less like free-form framework-bound test code
+
 ## Permission Direction
 
 Permission contracts should be normalized semantically.
@@ -102,6 +126,13 @@ The toolchain should eventually provide:
 - thin orchestration
 - normalized reporting
 
+The toolchain should not require plugin repos to reinvent:
+
+- simulator/emulator control
+- native host bootstrapping
+- permission shell recipes
+- host result extraction
+
 ## Strategic Meaning
 
 This is not just a testing trick.
@@ -111,3 +142,11 @@ It is becoming:
 - a formal engineering method
 - a human/AI shared language
 - a way to move AI-assisted development away from vague output and toward verifiable delivery
+
+The important point is not just that AI can generate code.
+
+The important point is that humans and AI can work against:
+
+- the same contract language
+- the same execution model
+- the same verification path

@@ -20,6 +20,12 @@ Contains:
 - arrange/act/expect intent
 - normalized expectations
 
+Preferred shape:
+
+- semantic case data
+- small case-kind family
+- explicit expected normalized outcomes
+
 Does not contain:
 
 - `adb`
@@ -44,6 +50,14 @@ Contains:
 - platform shell commands
 - result extraction
 - semantic normalization
+
+Minimum practical adapter output should be:
+
+- one normalized JSON object per run
+- with:
+  - adapter/platform id
+  - semantic status
+  - detail
 
 Examples:
 
@@ -72,6 +86,14 @@ Contains only:
 - result aggregation
 - output/report formatting
 
+Preferred minimum invocation model:
+
+- `run <strategy>`
+
+Preferred minimum adapter return:
+
+- normalized JSON result
+
 ## 4. Normalization Rule
 
 Semantic normalization should happen in adapters, not in the top-level runner.
@@ -85,6 +107,14 @@ Reason:
 
 That would make the orchestrator too smart and too coupled.
 
+If semantic normalization leaks upward, the toolchain starts rebuilding:
+
+- adapter knowledge
+- platform grammar knowledge
+- strategy-specific interpretation tables
+
+That is exactly the coupling this boundary is meant to prevent.
+
 ## 5. Practical Consequence
 
 The formal model stays small only if:
@@ -92,3 +122,8 @@ The formal model stays small only if:
 - test units stay semantic
 - adapters absorb platform detail
 - the orchestrator stays thin
+
+This is the main guardrail against sliding back into:
+
+- three platform-specific test stacks
+- or one giant shared DSL that hides platform details badly
