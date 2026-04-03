@@ -1,0 +1,4 @@
+{
+  "android": "before=prompt; request=denied; after=denied; start=error:Microphone permission is required",
+  "ios": "initial=prompt; request=prompt; after=prompt; open=error:Microphone permission is required"
+}

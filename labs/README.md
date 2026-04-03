@@ -147,6 +147,15 @@ They do suggest that platform seams still matter and must keep being mapped expl
     - per-platform detail parsing rules
     - adapter-specific raw shapes
   - so orchestration can stay shared, but semantic normalization is cleaner inside adapters
+- `lab58`
+  - iOS/Android deny should be normalized as shared capability blocking
+  - not as raw permission-state equality
+- `lab59`
+  - the current manifest case-family still covers the deepest tested flows
+  - no extra case kind is currently forced by evidence
+- `lab60`
+  - the remaining known seams now classify as adapter/host concerns
+  - not as formalization blockers
 
 So the current state is:
 
@@ -892,21 +901,49 @@ Compared shared result normalization with adapter-local normalization:
     - adapters should return semantically normalized results
     - the top-level runner should aggregate them, not reinterpret them
 
+### `lab58`
+
+Formalized the permission-deny contract shape across iOS and Android:
+
+- this lab reuses the observed deny payloads from:
+  - Android toolized deny
+  - iOS toolized deny
+- observed normalizer output:
+  - `{"semantic":"blocked","platforms":[{"platform":"android","rawState":"denied","blocked":true},{"platform":"ios","rawState":"prompt","blocked":true}]}`
+- this matters because it resolves the contract question:
+  - the formal contract should not require raw permission-state equality
+  - the stable cross-platform contract is that the capability is blocked
+
+### `lab59`
+
+Audited current manifest case-family against the deepest tested flows:
+
+- allowed kinds:
+  - `callValue`
+  - `callError`
+  - `listenerSequence`
+  - `flowSequence`
+- observed audit output:
+  - `{"allowedKinds":["callValue","callError","listenerSequence","flowSequence"],"requiredKinds":["callValue","callError","listenerSequence","flowSequence"],"missingKinds":[],"status":"ok"}`
+- this matters because it lowers one more design risk:
+  - no extra manifest case kind is currently forced by tested evidence
+
+### `lab60`
+
+Classified the remaining known seams by ownership:
+
+- observed classifier output:
+  - `{"formalBlockers":[],"adapterOwned":["android_localhost_emulator_mapping","ios_media_deny_shape","ios_media_grant_host_wiring"],"status":"ok"}`
+- this matters because it closes the last risk framing question:
+  - the remaining seams are adapter/host issues
+  - not unresolved blockers in the formal model itself
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
 
-- why the stripped-down Android `lab12` seam shape fails even though broader Android HTTP-backed labs pass
-- why the stripped multi-target Android HTTP seam diverges from both:
-  - the single-target stripped probe (`lab35`)
-  - and the broader HTTP-backed contract labs
-- why `localhost` specifically interferes with the otherwise-good `10.0.2.2` emulator-host mapping in the stripped Android seam
-- what the normalized iOS deny strategy should be:
-  - simulator privacy revoke only
-  - host callback deny only
-  - or both together
-- whether iOS `prompt + blocked` should be treated as the expected deny contract shape for media-backed permission flows
-- deeper permission-state transition testing beyond external `grant` / `revoke` and the current host-wired request path
+- whether to keep exploring the Android `localhost` / `10.0.2.2` seam root cause beyond the current adapter-level classification
+- whether future, still-untested plugin-facing flows will eventually force a new manifest case kind
 - deeper storage-backed scenarios such as quota and sandbox edge cases
 
 ## Cleanup rule

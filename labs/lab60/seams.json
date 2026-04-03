@@ -1,0 +1,14 @@
+[
+  {
+    "id": "android_localhost_emulator_mapping",
+    "owner": "adapter"
+  },
+  {
+    "id": "ios_media_deny_shape",
+    "owner": "adapter"
+  },
+  {
+    "id": "ios_media_grant_host_wiring",
+    "owner": "adapter"
+  }
+]

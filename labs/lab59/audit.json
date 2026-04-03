@@ -1,0 +1,10 @@
+{
+  "allowedKinds": ["callValue", "callError", "listenerSequence", "flowSequence"],
+  "scenarios": [
+    { "id": "echo_roundtrip", "kind": "callValue" },
+    { "id": "permission_denied_blocks_action", "kind": "callError" },
+    { "id": "reset_emits_init_idle", "kind": "listenerSequence" },
+    { "id": "failed_start_then_reset_restores_idle_defaults", "kind": "flowSequence" },
+    { "id": "native_sequence_permission_availability_session", "kind": "flowSequence" }
+  ]
+}
