@@ -363,6 +363,21 @@ Explored WebSocket idle-timeout reconnect behavior:
   - the runner surfaced this as `socket not open (3)`
 - this pushes WebSocket coverage beyond reconnect-after-response-close into reconnect-after-idle-expiry
 
+### `lab32`
+
+Separated update-install from true reinstall for storage persistence:
+
+- both hosts passed `seed`
+- both hosts also passed `verify` after update install
+- both hosts failed `verify` after a true uninstall/reinstall
+- this resolves the ambiguity left by `lab28`:
+  - the important seam is deployment shape
+  - not an iOS-versus-Android persistence difference by itself
+- the storage picture is now cleaner:
+  - relaunch is fine
+  - update redeploy is fine
+  - true reinstall wipes app-local storage on both hosts
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -373,7 +388,6 @@ These are still not settled and should only be explored through new labs:
 - deeper HTTP-backed scenarios such as timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
 - deeper WebSocket scenarios such as protocol failure and richer stream semantics
 - deeper storage-backed scenarios such as quota and sandbox edge cases
-- what Android reinstall/redeploy detail causes `localStorage` to appear missing while iOS still passes in `lab28`
 - real permission-state transition testing beyond simple external `grant` / `revoke`
 - why iOS `getUserMedia({ audio: true })` stays pending in this host-backed `WKWebView` probe shape even though normal JS timing continues
 
@@ -382,10 +396,9 @@ These are still not settled and should only be explored through new labs:
 If experiments continue one at a time, the current best order is:
 
 1. permission seam follow-up
-2. Android reinstall/redeploy storage seam follow-up
-3. deeper HTTP edge cases
-4. deeper WebSocket edge cases
-5. deeper plugin-facing bridge behavior
+2. deeper HTTP edge cases
+3. deeper WebSocket edge cases
+4. deeper plugin-facing bridge behavior
 
 ## Cleanup rule
 
