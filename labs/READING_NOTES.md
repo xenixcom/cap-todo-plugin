@@ -1,0 +1,238 @@
+# Reading Notes
+
+This file records the most useful findings from reading official platform documentation after `lab1` through `lab60`.
+
+Its purpose is simple:
+
+- do not rediscover the same native/platform facts over and over
+- keep a clear boundary between:
+  - what the platform already provides
+  - what our labs proved
+  - what still needs new investigation
+
+This is a companion to:
+
+- [README.md](/Users/james/dev2/cap-todo-plugin/labs/README.md)
+- [INVENTORY.md](/Users/james/dev2/cap-todo-plugin/labs/INVENTORY.md)
+- [NATIVE_CAPABILITY_MAP.md](/Users/james/dev2/cap-todo-plugin/labs/NATIVE_CAPABILITY_MAP.md)
+
+## Reading Summary
+
+The main pattern is now clear:
+
+- many low-level capabilities were already present in native/platform APIs
+- what was missing was not raw capability
+- what was missing was:
+  - integration
+  - formal layering
+  - adapter discipline
+  - a non-UI-driven testing route organized around app-facing behavior
+
+## 1. WebView Does Have Native Self-Test Entrypoints
+
+The early intuition was correct:
+
+- systems as large as `WebView` / `WKWebView` cannot realistically depend only on hand-testing or UI automation
+- the platform already exposes many non-UI primitives for host/runtime interaction
+
+Concrete examples:
+
+- iOS:
+  - `WKWebView.evaluateJavaScript(...)`
+  - `WKScriptMessageHandler`
+- Android:
+  - `WebView.evaluateJavascript(...)`
+  - `addJavascriptInterface(...)`
+  - newer WebKit AndroidX message APIs
+
+What the labs added:
+
+- proof that these primitives can be composed into a coherent cross-platform testing route
+
+## 2. Android Has More "Official" Modern WebView Paths Than We First Used
+
+Important finding:
+
+- `addJavascriptInterface(...)` is not the best long-term Android bridge story
+
+Android official guidance now prefers:
+
+- `WebViewCompat.addWebMessageListener(...)`
+- `WebViewCompat.postWebMessage(...)`
+- `JavaScriptReplyProxy`
+
+Why this matters:
+
+- it gives origin-aware messaging
+- it is better aligned with a formal adapter design
+- it suggests our labs validated the route, but the eventual Android adapter should likely upgrade to the newer messaging path
+
+Practical note:
+
+- our current labs using `addJavascriptInterface` were still useful
+- they validated method viability
+- but they do not necessarily define the final Android adapter implementation
+
+## 3. Android Official Docs Also Point Toward Better Local Content Loading
+
+Another important finding:
+
+- Android docs strongly push local content toward:
+  - `WebViewAssetLoader`
+  - `https://appassets.androidplatform.net/...`
+
+Why this matters:
+
+- many stripped seam labs were built on `file://` / asset-loaded shapes
+- official guidance suggests a more formal Android adapter should prefer HTTP-like app asset loading instead of long-term reliance on raw file origins
+
+This may reduce or simplify seams around:
+
+- `localhost`
+- `10.0.2.2`
+- origin behavior
+- messaging access control
+
+Important implication:
+
+- some of our stripped Android seam labs may be diagnosing a temporary probe shape rather than the best final adapter shape
+
+## 4. Android Permission Testing Already Has Strong Tooling Hooks
+
+Key findings:
+
+- `adb install -g`
+- `pm grant`
+- `pm revoke`
+- permission flags
+
+These mean:
+
+- Android permission-sensitive testing does not necessarily require manual UI tapping
+- the platform already gives repeatable permission-state control primitives
+
+The labs then clarified:
+
+- `pm grant` is a better normalized adapter strategy than always using blanket `install -g`
+
+So the reading takeaway is:
+
+- permission automation is not a hack here
+- it is compatible with platform-native tooling
+
+## 5. Android Permission/Media Paths Depend On More Than Just "Did We Write A Callback"
+
+Important doc detail:
+
+- `WebChromeClient.onPermissionRequest(...)` has secure-origin implications
+
+Why this matters:
+
+- media/permission behavior is not only about callback wiring
+- origin/load shape can matter too
+
+This aligns with what the labs showed:
+
+- some permission/media seams were not random
+- they were tied to host/runtime shape
+
+## 6. iOS Media Permission Was Not A Hard `WKWebView` Wall
+
+Docs plus labs now line up clearly:
+
+- the iOS media permission path was not fundamentally blocked by `WKWebView`
+- the real missing piece was host-side media-capture permission handling
+
+Practical lesson:
+
+- when something looks like a deep WebView limit, first check host delegate/configuration responsibilities
+- do not jump too quickly to "the platform cannot do this"
+
+## 7. iOS Has Underused Formalization Candidates
+
+Two important iOS APIs now stand out for future work:
+
+- `WKURLSchemeHandler`
+- `WKContentWorld`
+
+Why `WKURLSchemeHandler` matters:
+
+- custom resource serving
+- possible alternative to some local HTTP stub shapes
+- more formal, native-controlled fixture/resource injection
+
+Why `WKContentWorld` matters:
+
+- cleaner isolation between:
+  - app JS
+  - injected harness JS
+  - host helper JS
+
+This suggests the eventual iOS adapter may be able to become cleaner than the current experimental shape.
+
+## 8. There Is A Difference Between "Primitive Exists" And "Method Exists"
+
+This is the most important conceptual reading takeaway.
+
+It would be wrong to say:
+
+- "the platform already had everything, so the work was obvious"
+
+It would also be wrong to say:
+
+- "we invented new low-level WebView capability"
+
+The more accurate view is:
+
+- the platforms already had many primitives
+- but a coherent method did not come pre-packaged
+- the labs were necessary to prove:
+  - which primitives mattered
+  - which assumptions were false
+  - which seams stayed above or below the formal layer
+
+## 9. What Reading Already Helped Correct
+
+Reading already corrected several earlier misconceptions or fuzzy fears:
+
+- permission testing is not necessarily UI-bound
+- host-backed WebView interaction is not necessarily forced through UI automation
+- media permission failures can come from host configuration, not platform impossibility
+- Android has more modern messaging APIs than the first working lab route
+- local content loading should probably be revisited with more official shapes
+
+## 10. What To Avoid Re-Digging Without New Reason
+
+These should now be treated as known baseline facts unless a new contradiction appears:
+
+- host-backed non-UI WebView testing is possible
+- Android permission grant/deny can be toolized
+- iOS deny needs host callback participation when media capture is involved
+- Android `addJavascriptInterface` is viable for experiments but not necessarily ideal for final design
+- `localhost` is the special stripped Android seam target, not host LAN IP
+
+## 11. Most Promising "Read More" Directions
+
+If more reading is useful later, these are the most promising next directions:
+
+- Android:
+  - `WebViewAssetLoader`
+  - `addWebMessageListener`
+  - `addDocumentStartJavaScript`
+- iOS:
+  - `WKURLSchemeHandler`
+  - `WKContentWorld`
+  - related WebKit host configuration around permissions and navigation restrictions
+
+These are the places most likely to improve the eventual formal adapter design.
+
+## Short Conclusion
+
+The experiments gave us roots.
+
+The reading gave us a map.
+
+Together they now support a more mature conclusion:
+
+- the platforms already provide many of the building blocks
+- our real contribution is the organization of those blocks into a formal, host-backed, non-UI-driven testing route for hybrid/plugin work

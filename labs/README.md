@@ -12,6 +12,10 @@ For a map of native/platform primitives versus what the labs actually proved on 
 
 - [NATIVE_CAPABILITY_MAP.md](/Users/james/dev2/cap-todo-plugin/labs/NATIVE_CAPABILITY_MAP.md)
 
+For accumulated reading takeaways so we do not keep rediscovering the same platform facts, see:
+
+- [READING_NOTES.md](/Users/james/dev2/cap-todo-plugin/labs/READING_NOTES.md)
+
 ## Current conclusion
 
 `lab1` through `lab51` now support a stronger definition of the testing model:
