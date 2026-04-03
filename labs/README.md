@@ -28,7 +28,7 @@ For the current method definition and return-to-mainline planning, see:
 
 ## Current conclusion
 
-`lab1` through `lab51` now support a stronger definition of the testing model:
+`lab1` through `lab61` now support a stronger definition of the testing model:
 
 - formal test units can aim to be written once
 - platform execution adapters belong to the toolchain, not to each plugin repo
@@ -178,6 +178,16 @@ They do suggest that platform seams still matter and must keep being mapped expl
 - `lab60`
   - the remaining known seams now classify as adapter/host concerns
   - not as formalization blockers
+- `lab61`
+  - replacing `file:///android_asset/...` with:
+    - `WebViewAssetLoader`
+    - `https://appassets.androidplatform.net/assets/...`
+    does **not** erase the stripped Android `localhost` poisoning seam
+  - the same two-target shape:
+    - `10.0.2.2`
+    - `localhost`
+    still fails on both targets
+  - so this split is not just a `file://` loading artifact
 
 So the current state is:
 
