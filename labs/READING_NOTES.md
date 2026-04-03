@@ -119,6 +119,20 @@ So the refined takeaway is:
 - `WebViewAssetLoader` still looks like the more official Android local-content route
 - but not every seam was just a `file://` artifact
 
+There is also an important official nuance from Android's local-server documentation:
+
+- `10.0.2.2` is **not recommended** for WebView debugging
+- the reason given is that WebView does not treat that IP as a secure context
+- Android explicitly recommends:
+  - `adb reverse`
+  - then pointing the WebView to `http://localhost:<port>`
+
+Why this matters for our labs:
+
+- it does not fully explain the earlier stripped seam by itself
+- but it does explain why `10.0.2.2` should not be treated as the "best" formal adapter shape
+- it also means some of our earlier seam diagnostics were probing a route that Android itself does not consider ideal
+
 ## 4. Android Permission Testing Already Has Strong Tooling Hooks
 
 Key findings:
@@ -245,6 +259,25 @@ So the refined takeaway is:
 
 - `WKURLSchemeHandler` is promising
 - but it is not a drop-in replacement for every existing file-loaded iOS probe shape
+
+One important gap in the official Apple docs is that they explain:
+
+- how to register a custom scheme handler
+- how resources are served
+
+but they do **not** clearly promise that a custom-scheme-loaded page will preserve all the same origin/network semantics as:
+
+- `loadFileURL`
+- or normal `http(s)` content
+
+So the practical reading takeaway becomes:
+
+- `WKURLSchemeHandler` should be treated as a resource-loading primitive
+- not automatically as a network/origin-equivalent replacement
+- and any switch to it should expect follow-up validation around:
+  - fetch
+  - CORS/origin behavior
+  - local HTTP interaction
 
 Why `WKContentWorld` matters:
 
