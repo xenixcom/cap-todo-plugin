@@ -6,7 +6,7 @@ The purpose of these labs is to answer open technical questions with small, isol
 
 ## Current conclusion
 
-`lab1` through `lab43` now support a stronger definition of the testing model:
+`lab1` through `lab44` now support a stronger definition of the testing model:
 
 - formal test units can aim to be written once
 - platform execution adapters belong to the toolchain, not to each plugin repo
@@ -67,6 +67,10 @@ They do suggest that platform seams still matter and must keep being mapped expl
     - `after=prompt`
     - `open=error:Microphone permission is required`
   - this means the remaining Android permission seam is not just "host permission wasn't granted"
+- `lab44`
+  - even inside a true native Capacitor bridge host, Android still stays at `prompt`
+  - log output now adds a sharper clue:
+    - `Unable to find a Capacitor plugin to handle permission requestCode`
 
 So the current state is:
 
@@ -579,6 +583,28 @@ Pushed native/adapter fake-boundary pressure one step further:
   - even richer native timing/event complexity can stay below the formal test unit
   - the manifest still does not need to absorb mock DSL
 
+### `lab44`
+
+Rechecked the Android permission seam inside a true native Capacitor bridge host:
+
+- this lab reuses the `lab41` bridge-host shape instead of the earlier plugin-JS-fallback route
+- the page now runs:
+  - `checkPermissions()`
+  - `requestPermissions({ permissions: ['microphone'] })`
+  - `checkPermissions()`
+  - `start()`
+- the observed normal result is still:
+  - `{"status":"error","detail":"no probe result"}`
+- but Android log output shows the critical clue:
+  - `Unable to find a Capacitor plugin to handle permission requestCode`
+- the same run also shows:
+  - `checkPermissions()` returning `{"microphone":"prompt"}`
+  - `requestPermissions(...)` crossing the native bridge
+  - a follow-up `start()` still failing with `PERMISSION_DENIED`
+- this means the Android seam survives the stronger host shape:
+  - it is not just a plugin-JS fallback artifact
+  - it is now much more specifically narrowed to the Android permission callback / requestCode handling path inside the bridge route
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -587,6 +613,7 @@ These are still not settled and should only be explored through new labs:
 - why Android `requestPermissions({ permissions: ['microphone'] })` still stays at `prompt` and `openSession()` still fails even when:
   - host media permission callbacks are wired
   - and the host runtime permission is already externally granted
+- why Android permission callback routing still loses the plugin requestCode in the true native bridge host path
 - deeper permission-state transition testing beyond external `grant` / `revoke` and the current host-wired request path
 - deeper storage-backed scenarios such as quota and sandbox edge cases
 
