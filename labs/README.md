@@ -378,6 +378,19 @@ Separated update-install from true reinstall for storage persistence:
   - update redeploy is fine
   - true reinstall wipes app-local storage on both hosts
 
+### `lab33`
+
+Explored HTTP fallback-after-network-failure behavior:
+
+- both hosts passed the normal fallback flow
+- the client first tried an unreachable primary origin
+- both hosts then switched to the reachable fallback origin and completed the request
+- both hosts also detected the fault variant where no fallback was attempted
+- the failure wording is not identical:
+  - iOS surfaces `Load failed`
+  - Android surfaces `Failed to fetch`
+- this pushes HTTP coverage beyond retry and into origin fallback behavior
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
