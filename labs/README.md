@@ -341,6 +341,16 @@ Explored HTTP retry semantics:
   - retry-after-response and retry-after-timeout are not interchangeable
   - timeout retry behavior can still diverge by platform and execution shape
 
+### `lab30`
+
+Retested timeout retry with explicit abort:
+
+- both hosts passed the normal retry suite
+- both hosts still failed the non-aborting fault variant
+- this sharply narrowed the `lab29` seam:
+  - Android retry-after-timeout is viable when the timed-out request is explicitly aborted
+  - the earlier Android failure was caused by the non-aborting timeout shape, not by retry itself
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -349,7 +359,6 @@ These are still not settled and should only be explored through new labs:
 - native/adapter seam complexity versus fake-boundary pressure
 - why the stripped-down Android `lab12` seam shape fails even though broader Android HTTP-backed labs pass
 - deeper HTTP-backed scenarios such as timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
-- why Android still times out on retry-after-timeout in `lab29` while iOS passes the same lab shape
 - deeper WebSocket scenarios such as disconnect, idle timeout, protocol failure, and richer stream semantics
 - deeper storage-backed scenarios such as quota and sandbox edge cases
 - what Android reinstall/redeploy detail causes `localStorage` to appear missing while iOS still passes in `lab28`
