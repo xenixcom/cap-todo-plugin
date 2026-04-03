@@ -24,9 +24,9 @@ What is already strongly supported:
 What is not settled yet:
 
 - permission state transitions still expose a real seam
-- storage persistence across relaunch is not yet symmetric
 - stripped-down seam diagnostics are not always symmetric with broader scenario labs
-- deeper network and storage edge cases still need more pressure
+- deeper native/adapter seam complexity still needs more pressure
+- deeper plugin-facing bridge behavior still needs more pressure
 
 ## Current seam map
 
@@ -39,8 +39,12 @@ They do suggest that platform seams still matter and must keep being mapped expl
   - Android seam-only variant does not mirror that result
 - `lab18`
   - external OS permission toggles do not yet produce a trustworthy app-facing permission contract result
-- `lab19`
-  - relaunch persistence is currently asymmetric between iOS and Android
+- `lab35`
+  - Android stripped HTTP seam is narrower than first suspected:
+  - `10.0.2.2` works, while `localhost` / host LAN IP remain the seam targets
+- `lab37`
+  - iOS audio `getUserMedia` pending was not a hard `WKWebView` limit
+  - explicit `WKUIDelegate` media-capture permission handling flips the seam green
 
 So the current state is:
 
@@ -424,6 +428,17 @@ Compared the direct Android WebView media seam with the earlier iOS result:
   - the pending path is specific to the iOS `WKWebView` route we have been probing
   - Android's direct WebView media path remains observable and fails fast
 
+### `lab37`
+
+Rechecked the iOS audio seam with explicit `WKUIDelegate` media permission handling:
+
+- the host now sets `uiDelegate`
+- the host explicitly implements the media-capture permission callback and grants the request
+- `getUserMedia({ audio: true })` no longer stays pending
+- it resolves, returns a track, and stops cleanly
+- this means the old iOS pending seam was not a hard `WKWebView` blocker
+- it was a host-configuration gap in the earlier probes
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -435,7 +450,6 @@ These are still not settled and should only be explored through new labs:
 - deeper WebSocket scenarios such as protocol failure and richer stream semantics
 - deeper storage-backed scenarios such as quota and sandbox edge cases
 - real permission-state transition testing beyond simple external `grant` / `revoke`
-- why iOS `getUserMedia({ audio: true })` stays pending in this host-backed `WKWebView` probe shape even though normal JS timing continues
 
 ## Suggested next order
 
