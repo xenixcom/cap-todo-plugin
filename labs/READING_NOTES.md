@@ -277,6 +277,93 @@ If more reading is useful later, these are the most promising next directions:
 
 These are the places most likely to improve the eventual formal adapter design.
 
+## 12. Hardware Reading Direction Is Different From WebView Reading
+
+Another important shift became clear while reading:
+
+- hardware-adjacent testing should not be treated as one single problem
+
+Instead, each capability needs its own classification:
+
+- toolized live
+- adapter fake
+- device-required
+
+This is why hardware should be read first, not rushed into labs.
+
+### Location / GPS
+
+Reading indicates:
+
+- Android Emulator already has strong location simulation support
+- iOS Simulator also exposes strong location simulation control
+- `simctl location` is richer than a simple static coordinate:
+  - `set`
+  - `clear`
+  - `run`
+  - waypoint interpolation
+
+So location is one of the best candidates for future formal adapter support.
+
+### Camera
+
+Reading indicates:
+
+- Android Emulator has documented camera emulation paths
+- Apple Simulator guidance still implies camera realism is weaker than on device
+
+So camera likely splits into:
+
+- toolizable contract-level behavior
+- device-required media realism
+
+### Sensors
+
+Reading indicates:
+
+- Android Emulator has especially rich extended controls for sensor-like inputs
+- this makes Android a strong candidate for toolized live sensor testing
+
+So sensor-heavy futures should likely start from Android reading first.
+
+### Bluetooth / BLE
+
+Reading indicates:
+
+- Bluetooth is not "untestable"
+- but it is also not as cleanly toolized as permissions or location
+- Apple provides Bluetooth-related tooling and adjacent simulators, but not a simple universal simulator story
+
+So BLE likely remains a mixed category:
+
+- some adapter fake
+- some tooling
+- some device truth
+
+## 13. Important Retrospective Lesson
+
+The more we read after the labs, the clearer one pattern becomes:
+
+- when a seam feels impossible, it is often worth asking:
+  - "is this truly unsupported?"
+  - or
+  - "has the platform already documented a safer or more official route?"
+
+This is exactly what happened with:
+
+- permission control
+- host media wiring
+- Android messaging paths
+- local content loading
+
+So future work should keep the same discipline:
+
+- read first
+- then design
+- then experiment
+
+not the other way around by default
+
 ## Short Conclusion
 
 The experiments gave us roots.

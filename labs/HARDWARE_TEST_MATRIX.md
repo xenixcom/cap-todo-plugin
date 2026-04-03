@@ -52,6 +52,15 @@ What still may need care:
 - permission shape
 - route timing realism
 
+Reading notes:
+
+- Android Emulator extended controls and command surfaces already expose location simulation
+- `simctl location` is richer than a simple static coordinate:
+  - `set`
+  - `clear`
+  - `run <scenario>`
+  - waypoint `start`
+
 ## 2. Camera
 
 Likely category:
@@ -64,6 +73,17 @@ Why:
 
 - Android emulator can simulate camera sources to some degree
 - iOS often still pushes real camera work toward device testing
+
+Reading notes:
+
+- Android Emulator camera support is officially documented and includes:
+  - basic camera functionality
+  - virtual scene camera
+  - imported images for camera-based apps
+- older Apple Simulator guidance explicitly warns that Camera app behavior is not fully replicated in Simulator
+- this strongly suggests:
+  - contract-level camera flows may be toolizable
+  - full camera pipeline truth still leans device-required
 
 What this probably means for adapters:
 
@@ -89,6 +109,12 @@ Why:
 - our labs already showed permission/media seams are toolizable
 - but audio capture realism is not identical to permission-path realism
 
+Reading notes:
+
+- on iOS, microphone permission and media-capture host wiring are controllable
+- that does **not** automatically imply realistic audio-input testing
+- audio pipeline truth should still be treated more cautiously than permission-path truth
+
 What this probably means for adapters:
 
 - permission and capability-blocking behavior:
@@ -110,6 +136,16 @@ Why:
   - pairing state
   - protocol interaction
 - tooling exists, but not always in a clean cross-platform simulator story
+
+Reading notes:
+
+- Apple still exposes Bluetooth development resources and tools such as:
+  - Core Bluetooth docs
+  - PacketLogger
+  - accessory simulators in adjacent domains
+- old Apple simulator BLE guidance existed, but was limited and is now retired
+- this suggests Bluetooth is not "untestable"
+- but it is also not as cleanly toolized as location or permissions
 
 What this probably means for adapters:
 
@@ -134,6 +170,18 @@ Why:
 
 - Android emulator often has stronger direct controls for sensors
 - iOS may support some simulation, but not every sensor path equally
+
+Reading notes:
+
+- Android Emulator extended controls explicitly support:
+  - device pose
+  - accelerometer-like movement
+  - magnetic field
+  - proximity
+  - light
+  - pressure
+  - relative humidity
+- that makes Android especially promising for sensor-oriented adapter strategies
 
 What this probably means for adapters:
 
@@ -269,3 +317,19 @@ The key is to classify each capability correctly:
 - what can be controlled by simulator/emulator/tooling
 - what should be faked in the adapter
 - what still needs device truth
+
+## Reading-Based Follow-up Direction
+
+The most promising next reading directions are:
+
+- Android:
+  - emulator extended controls
+  - camera emulation
+  - sensor control
+  - Bluetooth testing surface
+- Apple:
+  - simulator location and route tooling
+  - current limitations of camera/audio realism in Simulator
+  - Core Bluetooth tooling and accessory simulators
+
+These should be read more deeply before turning hardware topics into new labs.
