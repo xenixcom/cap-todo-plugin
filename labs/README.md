@@ -123,6 +123,13 @@ They do suggest that platform seams still matter and must keep being mapped expl
     - `pm grant io.xenix.demo android.permission.RECORD_AUDIO`
   - so `adb install -g` is not the only viable grant shape
   - the normalized Android adapter strategy can be narrower than blanket install-time grant
+- `lab55`
+  - `localhost + host LAN IP` does **not** reproduce the earlier poisoning shape
+  - the split is:
+    - `localhost`: `Failed to fetch`
+    - host LAN IP: timeout/abort
+  - so `localhost` is not poisoning the whole stripped shape
+  - it is specifically interfering with `10.0.2.2`
 
 So the current state is:
 
@@ -806,6 +813,22 @@ Compared Android blanket install grant with a narrower permission-specific grant
   - a narrower permission-specific `pm grant` is already enough to drive the app-facing bridge flow green
   - this is a better default strategy for formalized adapter behavior than blanket install-time granting
 
+### `lab55`
+
+Compared `localhost` against host LAN IP in the stripped Android HTTP seam:
+
+- this lab reuses the stripped Android host and timeout/abort fetch shape
+- the case list is:
+  - `localhost`
+  - host LAN IP
+- observed result:
+  - `{"status":"fail","detail":"[{\"id\":\"localhost_name\",\"error\":\"Failed to fetch\"},{\"id\":\"host_lan_ip\",\"error\":\"signal is aborted without reason\"}]"}`
+- this matters because it narrows the poisoning story again:
+  - `localhost` does not poison every other target in the stripped shape
+  - host LAN IP remains its own timeout/abort seam
+  - the special interaction is now much more specifically:
+    - `localhost` interferes with the otherwise-good `10.0.2.2` emulator-host mapping
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -814,7 +837,7 @@ These are still not settled and should only be explored through new labs:
 - why the stripped multi-target Android HTTP seam diverges from both:
   - the single-target stripped probe (`lab35`)
   - and the broader HTTP-backed contract labs
-- why adding `localhost` to the stripped Android target list is enough to break the otherwise-good `10.0.2.2` case
+- why `localhost` specifically interferes with the otherwise-good `10.0.2.2` emulator-host mapping in the stripped Android seam
 - which Android permission grant shape should become the normalized adapter strategy:
   - permission-specific `pm grant`
   - or keep `adb install -g` as the default convenience path
