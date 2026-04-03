@@ -412,6 +412,18 @@ Rechecked the stripped-down Android HTTP seam with only `10.0.2.2`:
   - `localhost` and host LAN IP remain bad seam targets in this stripped-down emulator shape
   - `10.0.2.2` itself is viable
 
+### `lab36`
+
+Compared the direct Android WebView media seam with the earlier iOS result:
+
+- Android exposes `navigator.mediaDevices` and `getUserMedia`
+- the direct audio request does not stay pending
+- instead it fails quickly with `Could not start audio source`
+- this means the stubborn pending behavior from `lab25` is not a general hybrid/WebView property
+- the remaining hard seam is now much narrower:
+  - the pending path is specific to the iOS `WKWebView` route we have been probing
+  - Android's direct WebView media path remains observable and fails fast
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
