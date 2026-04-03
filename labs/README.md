@@ -28,7 +28,7 @@ For the current method definition and return-to-mainline planning, see:
 
 ## Current conclusion
 
-`lab1` through `lab63` now support a stronger definition of the testing model:
+`lab1` through `lab64` now support a stronger definition of the testing model:
 
 - formal test units can aim to be written once
 - platform execution adapters belong to the toolchain, not to each plugin repo
@@ -204,6 +204,11 @@ They do suggest that platform seams still matter and must keep being mapped expl
     does load the page and JS harness successfully
   - but the earlier `lab12` local HTTP seam no longer completes
   - so `WKURLSchemeHandler` is promising for formal adapter design, but it is not a drop-in replacement for the earlier file-loaded seam shape
+- `lab64`
+  - `WKContentWorld` is a real isolation primitive, not just a documentation curiosity
+  - the page world can stay clean while host helper code runs in a named world
+  - deliberately moving the helper back into `.page` makes the pollution immediately visible
+  - so future iOS adapters can use `WKContentWorld` to keep harness/helper code out of app page globals
 
 So the current state is:
 
