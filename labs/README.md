@@ -6,7 +6,7 @@ The purpose of these labs is to answer open technical questions with small, isol
 
 ## Current conclusion
 
-`lab1` through `lab41` now support a stronger definition of the testing model:
+`lab1` through `lab43` now support a stronger definition of the testing model:
 
 - formal test units can aim to be written once
 - platform execution adapters belong to the toolchain, not to each plugin repo
@@ -23,6 +23,7 @@ What is already strongly supported:
 - one additional narrow flow case kind is enough for deeper multi-step plugin-facing state/error sequences
 - a thin adapter protocol is enough for toolchain orchestration
 - native fake-boundary pressure can also stay below the formal test unit when the host adapter injects fixture state
+- even heavier native progression and event sequencing can still stay inside adapter/host setup
 
 What is not settled yet:
 
@@ -58,6 +59,14 @@ They do suggest that platform seams still matter and must keep being mapped expl
     - `header=true`
     - bridged `checkPermissions()`
     - bridged `echo()`
+- `lab42`
+  - Android host runtime permission can be externally granted
+  - but the plugin-facing layer still reports:
+    - `initial=prompt`
+    - `request=prompt`
+    - `after=prompt`
+    - `open=error:Microphone permission is required`
+  - this means the remaining Android permission seam is not just "host permission wasn't granted"
 
 So the current state is:
 
@@ -518,15 +527,68 @@ Rechecked the plugin-facing route inside a true native Capacitor bridge host:
   - it is not limited to plugin-facing JS fallback shapes
   - it also holds inside a true Capacitor native bridge host
 
+### `lab42`
+
+Rechecked the remaining Android permission transition seam with explicit host runtime grant:
+
+- the host now also reports its own runtime permission state through the adapter bridge
+- two Android runs were compared:
+  - denied
+  - externally granted through `pm grant`
+- the denied run reports:
+  - `host-before=denied`
+  - `initial=prompt`
+  - `request=prompt`
+  - `after=prompt`
+  - `host-after=denied`
+  - `open=error:Microphone permission is required`
+- the externally granted run reports:
+  - `host-before=granted`
+  - `initial=prompt`
+  - `request=prompt`
+  - `after=prompt`
+  - `host-after=granted`
+  - `open=error:Microphone permission is required`
+- this sharply narrows the remaining Android permission seam:
+  - it is not only a missing host runtime permission
+  - the plugin-facing permission/session layer is still not mirroring that granted host state
+
+### `lab43`
+
+Pushed native/adapter fake-boundary pressure one step further:
+
+- the hosts no longer inject a single static fixture
+- instead they own a richer native progression:
+  - initial denied/unavailable state
+  - timed permission update
+  - timed availability update
+  - timed session update
+  - native event log
+- the formal test unit still stays small and declarative:
+  - final path assertions
+  - one sequence assertion
+- Android normal:
+  - `{"status":"ok","detail":"pass"}`
+- Android fault:
+  - `{"status":"fail","detail":"session_token: expected session-1 got session-bad; native_sequence: expected permission:granted|availability:enabled|session:opened got permission:granted|availability:enabled|session:stale"}`
+- iOS normal:
+  - `{"status":"ok","detail":"pass"}`
+- iOS fault:
+  - `{"status":"fail","detail":"session_token: expected session-1 got session-bad; native_sequence: expected permission:granted|availability:enabled|session:opened got permission:granted|availability:enabled|session:stale"}`
+- this strengthens the adapter split again:
+  - even richer native timing/event complexity can stay below the formal test unit
+  - the manifest still does not need to absorb mock DSL
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
 
 - why the stripped-down Android `lab12` seam shape fails even though broader Android HTTP-backed labs pass
-- why Android `requestPermissions({ permissions: ['microphone'] })` still stays at `prompt` even when host media permission callbacks are wired
+- why Android `requestPermissions({ permissions: ['microphone'] })` still stays at `prompt` and `openSession()` still fails even when:
+  - host media permission callbacks are wired
+  - and the host runtime permission is already externally granted
 - deeper permission-state transition testing beyond external `grant` / `revoke` and the current host-wired request path
 - deeper storage-backed scenarios such as quota and sandbox edge cases
-- deeper native/adapter seam complexity under heavier fake-boundary pressure
 
 ## Cleanup rule
 
