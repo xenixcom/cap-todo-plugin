@@ -118,6 +118,11 @@ They do suggest that platform seams still matter and must keep being mapped expl
     - `10.0.2.2`: `200`
     - host LAN IP: timeout/abort
   - so `localhost` is the special poisoning target in the stripped Android seam
+- `lab54`
+  - Android true-bridge permission flow also goes green with:
+    - `pm grant io.xenix.demo android.permission.RECORD_AUDIO`
+  - so `adb install -g` is not the only viable grant shape
+  - the normalized Android adapter strategy can be narrower than blanket install-time grant
 
 So the current state is:
 
@@ -781,6 +786,26 @@ Compared `10.0.2.2` against host LAN IP in the stripped Android HTTP seam:
   - but it does **not** poison the otherwise-good `10.0.2.2` case
   - the special poisoning target is now much more specifically narrowed to `localhost`
 
+### `lab54`
+
+Compared Android blanket install grant with a narrower permission-specific grant:
+
+- this lab reuses the `lab44` true native Capacitor bridge host unchanged
+- the page still runs:
+  - `checkPermissions()`
+  - `requestPermissions({ permissions: ['microphone'] })`
+  - `checkPermissions()`
+  - `start()`
+- the only change is the grant shape:
+  - install normally
+  - `adb shell pm grant io.xenix.demo android.permission.RECORD_AUDIO`
+- observed result:
+  - `{"status":"ok","detail":"native=true; header=true; before=granted; request=granted; after=granted; start=ok"}`
+- this matters because it sharpens the Android adapter strategy:
+  - `adb install -g` is not required
+  - a narrower permission-specific `pm grant` is already enough to drive the app-facing bridge flow green
+  - this is a better default strategy for formalized adapter behavior than blanket install-time granting
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -790,13 +815,9 @@ These are still not settled and should only be explored through new labs:
   - the single-target stripped probe (`lab35`)
   - and the broader HTTP-backed contract labs
 - why adding `localhost` to the stripped Android target list is enough to break the otherwise-good `10.0.2.2` case
-- why Android `requestPermissions({ permissions: ['microphone'] })` still stays at `prompt` and `openSession()` still fails even when:
-  - host media permission callbacks are wired
-  - and the host runtime permission is already externally granted
 - which Android permission grant shape should become the normalized adapter strategy:
-  - pre-granted install
-  - explicit UI completion
-  - or some narrower permission-specific mix
+  - permission-specific `pm grant`
+  - or keep `adb install -g` as the default convenience path
 - what the normalized iOS deny strategy should be:
   - simulator privacy revoke only
   - host callback deny only
