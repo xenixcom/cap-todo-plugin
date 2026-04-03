@@ -28,7 +28,7 @@ For the current method definition and return-to-mainline planning, see:
 
 ## Current conclusion
 
-`lab1` through `lab61` now support a stronger definition of the testing model:
+`lab1` through `lab63` now support a stronger definition of the testing model:
 
 - formal test units can aim to be written once
 - platform execution adapters belong to the toolchain, not to each plugin repo
@@ -197,6 +197,13 @@ They do suggest that platform seams still matter and must keep being mapped expl
     - `10.0.2.2`: `Failed to fetch`
     - `localhost`: `Failed to fetch`
   - so this split is also not just a legacy JS bridge artifact
+- `lab63`
+  - switching the iOS host from:
+    - `loadFileURL`
+    - to `WKURLSchemeHandler`
+    does load the page and JS harness successfully
+  - but the earlier `lab12` local HTTP seam no longer completes
+  - so `WKURLSchemeHandler` is promising for formal adapter design, but it is not a drop-in replacement for the earlier file-loaded seam shape
 
 So the current state is:
 
