@@ -6,7 +6,7 @@ The purpose of these labs is to answer open technical questions with small, isol
 
 ## Current conclusion
 
-`lab1` through `lab50` now support a stronger definition of the testing model:
+`lab1` through `lab51` now support a stronger definition of the testing model:
 
 - formal test units can aim to be written once
 - platform execution adapters belong to the toolchain, not to each plugin repo
@@ -106,6 +106,12 @@ They do suggest that platform seams still matter and must keep being mapped expl
     - `10.0.2.2`
     - `localhost`
   - introducing `localhost` is enough to flip the otherwise-good `10.0.2.2` case to `Failed to fetch`
+- `lab51`
+  - reversing the order does not help
+  - `localhost -> 10.0.2.2` still produces:
+    - `localhost`: `Failed to fetch`
+    - `10.0.2.2`: `Failed to fetch`
+  - so the poisoning is not order-sensitive
 
 So the current state is:
 
@@ -737,6 +743,20 @@ Reduced the stripped Android HTTP seam to a two-target shape:
   - the problem does not require three targets
   - introducing `localhost` is already enough to poison the otherwise-good `10.0.2.2` case
 
+### `lab51`
+
+Reversed the two-target stripped Android HTTP seam:
+
+- this lab reuses the same stripped host again
+- but swaps the order:
+  - `localhost`
+  - `10.0.2.2`
+- observed result:
+  - `{"status":"fail","detail":"[{\"id\":\"localhost_name\",\"error\":\"Failed to fetch\"},{\"id\":\"emulator_host\",\"error\":\"Failed to fetch\"}]"}`
+- this matters because it removes another false lead:
+  - the poisoning is not caused by `10.0.2.2` running first
+  - simply having `localhost` in the stripped target list is enough to break the otherwise-good `10.0.2.2` case
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -746,6 +766,7 @@ These are still not settled and should only be explored through new labs:
   - the single-target stripped probe (`lab35`)
   - and the broader HTTP-backed contract labs
 - why adding `localhost` to the stripped Android target list is enough to break the otherwise-good `10.0.2.2` case
+- whether host LAN IP produces the same poisoning effect as `localhost` in a two-target stripped shape
 - why Android `requestPermissions({ permissions: ['microphone'] })` still stays at `prompt` and `openSession()` still fails even when:
   - host media permission callbacks are wired
   - and the host runtime permission is already externally granted
