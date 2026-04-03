@@ -401,6 +401,17 @@ Explored WebSocket protocol-failure behavior:
 - both hosts also detected the fault variant where malformed frames were silently accepted
 - this pushes WebSocket coverage beyond reconnect and idle timeout into protocol-failure semantics
 
+### `lab35`
+
+Rechecked the stripped-down Android HTTP seam with only `10.0.2.2`:
+
+- the Android seam-only host successfully reached the local HTTP stub through `10.0.2.2`
+- the returned payload showed `ok: true`, `status: 200`
+- this means the earlier `lab12` divergence was not "Android cannot use `10.0.2.2` from a file-loaded WebView"
+- the narrower seam is now:
+  - `localhost` and host LAN IP remain bad seam targets in this stripped-down emulator shape
+  - `10.0.2.2` itself is viable
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
