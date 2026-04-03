@@ -6,7 +6,7 @@ The purpose of these labs is to answer open technical questions with small, isol
 
 ## Current conclusion
 
-`lab1` through `lab45` now support a stronger definition of the testing model:
+`lab1` through `lab46` now support a stronger definition of the testing model:
 
 - formal test units can aim to be written once
 - platform execution adapters belong to the toolchain, not to each plugin repo
@@ -79,6 +79,11 @@ They do suggest that platform seams still matter and must keep being mapped expl
   - the same true native bridge host also goes green after a repeatable pre-granted install shape:
     - `adb install -g`
   - this means Android permission-sensitive labs do not always need manual UI tapping
+- `lab46`
+  - Android deny can also be driven repeatably without UI using:
+    - `pm revoke`
+    - `pm set-permission-flags ... user-set user-fixed`
+  - iOS does not mirror that with `simctl privacy revoke` alone when the host adapter is still granting media capture
 
 So the current state is:
 
@@ -624,6 +629,29 @@ Rechecked Android permission transition using a repeatable pre-granted install s
   - Android permission-sensitive labs do not necessarily need manual UI tapping
   - a repeatable adapter-level grant shape can already drive the app-facing permission flow green
 
+### `lab46`
+
+Compared repeatable deny shapes on Android and iOS:
+
+- Android reused the true native bridge host from `lab44`
+- iOS reused the host-wired permission path from `lab40`
+- Android deny shape:
+  - normal install
+  - `pm revoke`
+  - `pm set-permission-flags ... user-set user-fixed`
+- iOS deny shape:
+  - simulator install
+  - `simctl privacy revoke microphone`
+- observed result split:
+  - Android:
+    - `before=prompt; request=denied; after=denied; start=error:Microphone permission is required`
+  - iOS:
+    - `initial=prompt; request=granted; after=granted; open=ok`
+- this matters because it sharpens the adapter story:
+  - Android deny can already be normalized as a pure system-permission step
+  - iOS deny cannot rely on simulator privacy revocation alone when the host `WKUIDelegate` still grants media capture
+  - in that host-backed shape, deny validation must also flip the host media-permission callback
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -636,6 +664,10 @@ These are still not settled and should only be explored through new labs:
   - pre-granted install
   - explicit UI completion
   - or some narrower permission-specific mix
+- what the normalized iOS deny strategy should be:
+  - simulator privacy revoke only
+  - host callback deny only
+  - or both together
 - deeper permission-state transition testing beyond external `grant` / `revoke` and the current host-wired request path
 - deeper storage-backed scenarios such as quota and sandbox edge cases
 
