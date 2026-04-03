@@ -6,7 +6,7 @@ The purpose of these labs is to answer open technical questions with small, isol
 
 ## Current conclusion
 
-`lab1` through `lab44` now support a stronger definition of the testing model:
+`lab1` through `lab45` now support a stronger definition of the testing model:
 
 - formal test units can aim to be written once
 - platform execution adapters belong to the toolchain, not to each plugin repo
@@ -75,6 +75,10 @@ They do suggest that platform seams still matter and must keep being mapped expl
     - `start=ok`
   - the caveat is that host-backed validation must explicitly complete the Android system permission dialog
   - otherwise the run can stall and look like a bridge callback failure
+- `lab45`
+  - the same true native bridge host also goes green after a repeatable pre-granted install shape:
+    - `adb install -g`
+  - this means Android permission-sensitive labs do not always need manual UI tapping
 
 So the current state is:
 
@@ -605,6 +609,21 @@ Rechecked the Android permission seam inside a true native Capacitor bridge host
   - the true native bridge path itself is viable
   - the remaining issue is that host-backed Android permission-transition testing must explicitly drive or complete the system permission UI
 
+### `lab45`
+
+Rechecked Android permission transition using a repeatable pre-granted install shape:
+
+- this lab reuses the same true native Capacitor bridge host from `lab44`
+- the only change is the grant shape:
+  - uninstall
+  - reinstall with `adb install -g`
+  - launch normally
+- observed result:
+  - `{"status":"ok","detail":"native=true; header=true; before=granted; request=granted; after=granted; start=ok"}`
+- this matters because it removes a large practical fear:
+  - Android permission-sensitive labs do not necessarily need manual UI tapping
+  - a repeatable adapter-level grant shape can already drive the app-facing permission flow green
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -613,7 +632,10 @@ These are still not settled and should only be explored through new labs:
 - why Android `requestPermissions({ permissions: ['microphone'] })` still stays at `prompt` and `openSession()` still fails even when:
   - host media permission callbacks are wired
   - and the host runtime permission is already externally granted
-- how Android permission-transition labs should complete the system permission UI in a repeatable way
+- which Android permission grant shape should become the normalized adapter strategy:
+  - pre-granted install
+  - explicit UI completion
+  - or some narrower permission-specific mix
 - deeper permission-state transition testing beyond external `grant` / `revoke` and the current host-wired request path
 - deeper storage-backed scenarios such as quota and sandbox edge cases
 
