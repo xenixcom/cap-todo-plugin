@@ -6,7 +6,7 @@ The purpose of these labs is to answer open technical questions with small, isol
 
 ## Current conclusion
 
-`lab1` through `lab48` now support a stronger definition of the testing model:
+`lab1` through `lab49` now support a stronger definition of the testing model:
 
 - formal test units can aim to be written once
 - platform execution adapters belong to the toolchain, not to each plugin repo
@@ -98,6 +98,9 @@ They do suggest that platform seams still matter and must keep being mapped expl
     - `localhost`
     - host LAN IP
   - so this seam is not just a runner hang story
+- `lab49`
+  - single-target `10.0.2.2` still succeeds even with timeout/abort
+  - so the stripped Android HTTP split is not caused by `AbortController`
 
 So the current state is:
 
@@ -701,6 +704,19 @@ Rechecked the stripped Android HTTP seam with explicit timeout/abort:
   - the stripped-shape split is not just a missing-timeout artifact
   - `lab35` still proves `10.0.2.2` is viable in the single-target stripped probe
   - but the broader stripped multi-target shape remains a genuine Android seam
+
+### `lab49`
+
+Isolated `AbortController` in the stripped Android single-target seam:
+
+- this lab reuses the `lab35` single-target shape:
+  - only `10.0.2.2`
+- but adds the same timeout/abort behavior introduced in `lab48`
+- observed result:
+  - `{"status":"fail","detail":"[{\"id\":\"emulator_host\",\"ok\":true,\"status\":200,\"payload\":{\"ok\":true,\"from\":\"lab12\"}}]"}`
+- this matters because it removes another false lead:
+  - `AbortController` is not what breaks the seam
+  - the unresolved split is genuinely about the stripped multi-target shape, not timeout support itself
 
 ## Open questions
 
