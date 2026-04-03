@@ -8,6 +8,10 @@ For a grouped inventory that separates primary themes from clarification/support
 
 - [INVENTORY.md](/Users/james/dev2/cap-todo-plugin/labs/INVENTORY.md)
 
+For a map of native/platform primitives versus what the labs actually proved on top of them, see:
+
+- [NATIVE_CAPABILITY_MAP.md](/Users/james/dev2/cap-todo-plugin/labs/NATIVE_CAPABILITY_MAP.md)
+
 ## Current conclusion
 
 `lab1` through `lab51` now support a stronger definition of the testing model:
