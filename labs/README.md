@@ -19,6 +19,7 @@ What is already strongly supported:
 - plugin-facing JS API calls can be exercised through the same route
 - listeners, sequences, and reconnect lifecycles can be validated without UI driving
 - a small semantic manifest shape is enough for mixed scenarios
+- one additional narrow flow case kind is enough for deeper multi-step plugin-facing state/error sequences
 - a thin adapter protocol is enough for toolchain orchestration
 
 What is not settled yet:
@@ -439,6 +440,20 @@ Rechecked the iOS audio seam with explicit `WKUIDelegate` media permission handl
 - this means the old iOS pending seam was not a hard `WKWebView` blocker
 - it was a host-configuration gap in the earlier probes
 
+### `lab38`
+
+Explored deeper plugin-facing multi-step flow behavior:
+
+- both hosts passed a narrow multi-step flow where:
+  - options were changed
+  - `start()` intentionally failed
+  - later state and options still had to remain coherent
+  - `reset()` had to restore defaults
+- both hosts also detected the fault variant in the same places
+- this pushes plugin-facing coverage beyond single calls and listener sequences into interleaved state/error flows
+- the manifest still stayed compact:
+  - one extra narrow `flowSequence` case kind was enough
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -450,15 +465,7 @@ These are still not settled and should only be explored through new labs:
 - deeper WebSocket scenarios such as protocol failure and richer stream semantics
 - deeper storage-backed scenarios such as quota and sandbox edge cases
 - real permission-state transition testing beyond simple external `grant` / `revoke`
-
-## Suggested next order
-
-If experiments continue one at a time, the current best order is:
-
-1. permission seam follow-up
-2. deeper HTTP edge cases
-3. deeper WebSocket edge cases
-4. deeper plugin-facing bridge behavior
+ - deeper native/adapter seam complexity under heavier fake-boundary pressure
 
 ## Cleanup rule
 
