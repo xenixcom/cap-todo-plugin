@@ -6,7 +6,7 @@ The purpose of these labs is to answer open technical questions with small, isol
 
 ## Current conclusion
 
-`lab1` through `lab40` now support a stronger definition of the testing model:
+`lab1` through `lab41` now support a stronger definition of the testing model:
 
 - formal test units can aim to be written once
 - platform execution adapters belong to the toolchain, not to each plugin repo
@@ -17,6 +17,7 @@ What is already strongly supported:
 
 - generic host-backed WebView execution works on both platforms
 - plugin-facing JS API calls can be exercised through the same route
+- the same route also holds inside a true native Capacitor bridge host
 - listeners, sequences, and reconnect lifecycles can be validated without UI driving
 - a small semantic manifest shape is enough for mixed scenarios
 - one additional narrow flow case kind is enough for deeper multi-step plugin-facing state/error sequences
@@ -49,6 +50,14 @@ They do suggest that platform seams still matter and must keep being mapped expl
 - `lab40`
   - once media-permission host wiring is present, iOS real `requestPermissions({ permissions: ['microphone'] })` also flips green
   - Android still remains at `prompt` in the same lab shape
+- `lab41`
+  - earlier plugin-facing labs proved the contract layer strongly, but could still ride the plugin JS `web` registration path
+  - this lab re-checks the same layer inside a true Capacitor native bridge host
+  - Android and iOS both now report:
+    - `native=true`
+    - `header=true`
+    - bridged `checkPermissions()`
+    - bridged `echo()`
 
 So the current state is:
 
@@ -488,6 +497,26 @@ Rechecked the real plugin-facing microphone permission path with host media-perm
 - this sharpens the permission picture again:
   - the earlier iOS black hole was a host media-permission wiring gap
   - Android still has a separate permission-state transition seam even after host-side grant wiring is present
+
+### `lab41`
+
+Rechecked the plugin-facing route inside a true native Capacitor bridge host:
+
+- earlier plugin-facing labs already showed that the formal app-facing layer could be exercised through host-backed WebView routes
+- this lab moved that same check into copied Capacitor demo hosts:
+  - Android `BridgeActivity`
+  - iOS `CAPBridgeViewController`
+- the probe page does not import the repo's `dist/plugin.js`
+- instead it loads `capacitor.js`, calls `registerPlugin('Todo')`, and depends on native plugin headers
+- both hosts now produce the same concrete result:
+  - `native=true`
+  - `header=true`
+  - bridged `checkPermissions()`
+  - bridged `echo({ value: 'bridge-echo' })`
+- this removes the biggest remaining doubt around the route:
+  - it is not limited to generic WebView probes
+  - it is not limited to plugin-facing JS fallback shapes
+  - it also holds inside a true Capacitor native bridge host
 
 ## Open questions
 
