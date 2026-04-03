@@ -130,6 +130,16 @@ They do suggest that platform seams still matter and must keep being mapped expl
     - host LAN IP: timeout/abort
   - so `localhost` is not poisoning the whole stripped shape
   - it is specifically interfering with `10.0.2.2`
+- `lab56`
+  - one generic runner can drive real Android and iOS adapters through the same tiny contract:
+    - `run <strategy>`
+  - the caller does not need to know:
+    - `adb`
+    - `simctl`
+    - `xcodebuild`
+    - result-file lookup details
+  - so `captool` can stay a thin orchestrator
+  - the remaining question is semantic normalization of adapter results, not host orchestration itself
 
 So the current state is:
 
@@ -829,6 +839,30 @@ Compared `localhost` against host LAN IP in the stripped Android HTTP seam:
   - the special interaction is now much more specifically:
     - `localhost` interferes with the otherwise-good `10.0.2.2` emulator-host mapping
 
+### `lab56`
+
+Formalized the `captool` / adapter boundary as a tiny runnable contract:
+
+- one generic runner read an adapter list and invoked:
+  - `run grant-microphone`
+- Android adapter internals handled:
+  - build/install
+  - `pm grant`
+  - launch
+  - result-file lookup
+- iOS adapter internals handled:
+  - dependency restore when needed
+  - build/reuse of the host app
+  - `simctl privacy grant`
+  - launch
+  - result-file lookup
+- observed runner output:
+  - `{"strategy":"grant-microphone","results":[{"platform":"android","status":"ok","detail":"native=true; header=true; before=granted; request=granted; after=granted; start=ok"},{"platform":"ios","status":"fail","detail":"initial=prompt; request=granted; after=granted; open=ok"}]}`
+- this matters because it closes the orchestration question:
+  - the caller does not need platform-specific host knowledge
+  - a thin adapter contract is enough for real host-backed execution
+  - the remaining design work is result normalization, not orchestration
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -838,9 +872,9 @@ These are still not settled and should only be explored through new labs:
   - the single-target stripped probe (`lab35`)
   - and the broader HTTP-backed contract labs
 - why `localhost` specifically interferes with the otherwise-good `10.0.2.2` emulator-host mapping in the stripped Android seam
-- which Android permission grant shape should become the normalized adapter strategy:
-  - permission-specific `pm grant`
-  - or keep `adb install -g` as the default convenience path
+- whether adapter results should be normalized:
+  - inside each adapter
+  - or in one shared result-normalization layer above adapters
 - what the normalized iOS deny strategy should be:
   - simulator privacy revoke only
   - host callback deny only

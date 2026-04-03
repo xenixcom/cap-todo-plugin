@@ -1,0 +1,10 @@
+[
+  {
+    "platform": "android",
+    "command": "./android-grant-adapter.sh"
+  },
+  {
+    "platform": "ios",
+    "command": "./ios-grant-adapter.sh"
+  }
+]
