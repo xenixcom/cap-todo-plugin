@@ -140,6 +140,13 @@ They do suggest that platform seams still matter and must keep being mapped expl
     - result-file lookup details
   - so `captool` can stay a thin orchestrator
   - the remaining question is semantic normalization of adapter results, not host orchestration itself
+- `lab57`
+  - a shared normalization layer can reinterpret raw adapter outputs
+  - but only by learning:
+    - strategy-specific semantics
+    - per-platform detail parsing rules
+    - adapter-specific raw shapes
+  - so orchestration can stay shared, but semantic normalization is cleaner inside adapters
 
 So the current state is:
 
@@ -863,6 +870,28 @@ Formalized the `captool` / adapter boundary as a tiny runnable contract:
   - a thin adapter contract is enough for real host-backed execution
   - the remaining design work is result normalization, not orchestration
 
+### `lab57`
+
+Compared shared result normalization with adapter-local normalization:
+
+- this lab does not build or launch hosts again
+- it reuses the observed raw outputs from `lab56`
+- then applies one shared strategy-aware normalizer for:
+  - `grant-microphone`
+- observed effect:
+  - Android raw `ok` stays semantically `ok`
+  - iOS raw `fail` is reinterpreted to semantic `ok`
+- this matters because it shows the tradeoff clearly:
+  - shared normalization is possible
+  - but only by moving adapter/platform detail parsing into the shared layer
+  - that makes the shared layer absorb:
+    - strategy-specific semantics
+    - per-platform raw detail grammar
+    - adapter knowledge
+  - so the cleaner split is:
+    - adapters should return semantically normalized results
+    - the top-level runner should aggregate them, not reinterpret them
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -872,9 +901,6 @@ These are still not settled and should only be explored through new labs:
   - the single-target stripped probe (`lab35`)
   - and the broader HTTP-backed contract labs
 - why `localhost` specifically interferes with the otherwise-good `10.0.2.2` emulator-host mapping in the stripped Android seam
-- whether adapter results should be normalized:
-  - inside each adapter
-  - or in one shared result-normalization layer above adapters
 - what the normalized iOS deny strategy should be:
   - simulator privacy revoke only
   - host callback deny only

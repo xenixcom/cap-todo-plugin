@@ -1,0 +1,15 @@
+{
+  "strategy": "grant-microphone",
+  "results": [
+    {
+      "platform": "android",
+      "status": "ok",
+      "detail": "native=true; header=true; before=granted; request=granted; after=granted; start=ok"
+    },
+    {
+      "platform": "ios",
+      "status": "fail",
+      "detail": "initial=prompt; request=granted; after=granted; open=ok"
+    }
+  ]
+}
