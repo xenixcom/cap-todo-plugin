@@ -112,6 +112,12 @@ They do suggest that platform seams still matter and must keep being mapped expl
     - `localhost`: `Failed to fetch`
     - `10.0.2.2`: `Failed to fetch`
   - so the poisoning is not order-sensitive
+- `lab53`
+  - replacing `localhost` with host LAN IP does **not** poison `10.0.2.2`
+  - the split becomes:
+    - `10.0.2.2`: `200`
+    - host LAN IP: timeout/abort
+  - so `localhost` is the special poisoning target in the stripped Android seam
 
 So the current state is:
 
@@ -757,6 +763,24 @@ Reversed the two-target stripped Android HTTP seam:
   - the poisoning is not caused by `10.0.2.2` running first
   - simply having `localhost` in the stripped target list is enough to break the otherwise-good `10.0.2.2` case
 
+### `lab53`
+
+Compared `10.0.2.2` against host LAN IP in the stripped Android HTTP seam:
+
+- this lab reuses the stripped Android host again
+- the case list is:
+  - `10.0.2.2`
+  - host LAN IP
+- each request gets:
+  - short timeout
+  - explicit abort
+- observed result:
+  - `{"status":"fail","detail":"[{\"id\":\"emulator_host\",\"ok\":true,\"status\":200,\"payload\":{\"ok\":true,\"from\":\"lab12\"}},{\"id\":\"host_lan_ip\",\"error\":\"signal is aborted without reason\"}]"}`
+- this matters because it removes another false lead:
+  - host LAN IP is bad in the stripped shape
+  - but it does **not** poison the otherwise-good `10.0.2.2` case
+  - the special poisoning target is now much more specifically narrowed to `localhost`
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -766,7 +790,6 @@ These are still not settled and should only be explored through new labs:
   - the single-target stripped probe (`lab35`)
   - and the broader HTTP-backed contract labs
 - why adding `localhost` to the stripped Android target list is enough to break the otherwise-good `10.0.2.2` case
-- whether host LAN IP produces the same poisoning effect as `localhost` in a two-target stripped shape
 - why Android `requestPermissions({ permissions: ['microphone'] })` still stays at `prompt` and `openSession()` still fails even when:
   - host media permission callbacks are wired
   - and the host runtime permission is already externally granted
