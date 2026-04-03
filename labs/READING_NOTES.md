@@ -120,6 +120,57 @@ So the reading takeaway is:
 - permission automation is not a hack here
 - it is compatible with platform-native tooling
 
+More concretely, the following `adb shell pm` capabilities already map well to adapter responsibilities:
+
+- `install -g`
+  - coarse-grained blanket runtime permission grant
+- `grant <package> <permission>`
+  - narrower permission-specific grant
+- `revoke <package> <permission>`
+  - explicit deny
+- permission flags such as `user-set` / `user-fixed`
+  - closer simulation of user denial state
+- `uninstall`
+  - useful for reinstall/redeploy seam testing
+
+So for Android, `adb` is not just a convenience tool.
+It is effectively part of the adapter control surface.
+
+## 4.1 iOS Simulator Already Has Matching Host-Control Primitives
+
+Key findings from `simctl`:
+
+- `install`
+- `uninstall`
+- `launch`
+- `terminate`
+- `get_app_container`
+- `privacy grant / revoke / reset`
+- `spawn`
+- `diagnose`
+
+Why this matters:
+
+- these are exactly the kinds of operations our host-backed labs repeatedly needed
+- that means iOS simulator-side control is also already exposed as CLI primitives
+
+Most relevant examples:
+
+- `simctl privacy booted grant microphone <bundle-id>`
+- `simctl privacy booted revoke microphone <bundle-id>`
+- `simctl privacy booted reset microphone <bundle-id>`
+- `simctl get_app_container booted <bundle-id> data`
+
+Important caution:
+
+- the `simctl privacy` help explicitly warns that forcing permissions can mask bugs if the app is not also correctly configured
+- so these commands are strong adapter tools, but they do not replace proper host/runtime validation
+
+The reading takeaway is:
+
+- for iOS simulator, `simctl` is not just a convenience wrapper
+- it is also part of the practical adapter control surface
+
 ## 5. Android Permission/Media Paths Depend On More Than Just "Did We Write A Callback"
 
 Important doc detail:
