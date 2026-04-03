@@ -6,7 +6,7 @@ The purpose of these labs is to answer open technical questions with small, isol
 
 ## Current conclusion
 
-`lab1` through `lab49` now support a stronger definition of the testing model:
+`lab1` through `lab50` now support a stronger definition of the testing model:
 
 - formal test units can aim to be written once
 - platform execution adapters belong to the toolchain, not to each plugin repo
@@ -101,6 +101,11 @@ They do suggest that platform seams still matter and must keep being mapped expl
 - `lab49`
   - single-target `10.0.2.2` still succeeds even with timeout/abort
   - so the stripped Android HTTP split is not caused by `AbortController`
+- `lab50`
+  - the stripped Android HTTP seam already appears with just two targets:
+    - `10.0.2.2`
+    - `localhost`
+  - introducing `localhost` is enough to flip the otherwise-good `10.0.2.2` case to `Failed to fetch`
 
 So the current state is:
 
@@ -718,6 +723,20 @@ Isolated `AbortController` in the stripped Android single-target seam:
   - `AbortController` is not what breaks the seam
   - the unresolved split is genuinely about the stripped multi-target shape, not timeout support itself
 
+### `lab50`
+
+Reduced the stripped Android HTTP seam to a two-target shape:
+
+- this lab reuses the `lab35` stripped host
+- the only change is the case list:
+  - `10.0.2.2`
+  - `localhost`
+- observed result:
+  - `{"status":"fail","detail":"[{\"id\":\"emulator_host\",\"error\":\"Failed to fetch\"},{\"id\":\"localhost_name\",\"error\":\"Failed to fetch\"}]"}`
+- this matters because it narrows the seam yet again:
+  - the problem does not require three targets
+  - introducing `localhost` is already enough to poison the otherwise-good `10.0.2.2` case
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -726,6 +745,7 @@ These are still not settled and should only be explored through new labs:
 - why the stripped multi-target Android HTTP seam diverges from both:
   - the single-target stripped probe (`lab35`)
   - and the broader HTTP-backed contract labs
+- why adding `localhost` to the stripped Android target list is enough to break the otherwise-good `10.0.2.2` case
 - why Android `requestPermissions({ permissions: ['microphone'] })` still stays at `prompt` and `openSession()` still fails even when:
   - host media permission callbacks are wired
   - and the host runtime permission is already externally granted
