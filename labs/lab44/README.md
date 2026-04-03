@@ -33,22 +33,42 @@ The page then runs:
 
 ## Result
 
-Observed result file:
+The first unattended run produced:
 
 - `{"status":"error","detail":"no probe result"}`
 
-The important signal came from Android log output during the same run:
+That looked like a native bridge seam at first, because log output during that run showed:
 
 - `checkPermissions()` returned `{"microphone":"prompt"}`
 - `requestPermissions(...)` crossed the native bridge
-- then Android logged:
+- Android logged:
   - `Unable to find a Capacitor plugin to handle permission requestCode`
-- a later `start()` still failed with:
-  - `PERMISSION_DENIED`
+
+But a second run explicitly completed the Android system permission dialog.
+
+Observed result file after tapping `Allow while using the app`:
+
+- `{"status":"ok","detail":"native=true; header=true; before=granted; request=granted; after=granted; start=ok"}`
 
 ## Conclusion
 
-This means the Android permission seam survives the stronger host shape:
+This lab still proves that the question survives the stronger host shape:
 
 - it is not just a plugin-JS fallback artifact
-- it is now much more specifically narrowed to the Android permission callback / requestCode handling path inside the native bridge route
+- the same transition question appears inside a true native Capacitor bridge host
+
+But the final conclusion is stronger and more positive:
+
+- the true native bridge host path itself can go green
+- once the Android system permission dialog is actually completed, the app-facing flow becomes:
+  - `before=granted`
+  - `request=granted`
+  - `after=granted`
+  - `start=ok`
+
+So the remaining seam is no longer best described as a permanently broken bridge callback path.
+
+It is better described as:
+
+- host-backed Android permission-transition validation must explicitly complete the system permission UI
+- otherwise the probe can stall and look like a bridge failure

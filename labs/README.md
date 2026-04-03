@@ -68,9 +68,13 @@ They do suggest that platform seams still matter and must keep being mapped expl
     - `open=error:Microphone permission is required`
   - this means the remaining Android permission seam is not just "host permission wasn't granted"
 - `lab44`
-  - even inside a true native Capacitor bridge host, Android still stays at `prompt`
-  - log output now adds a sharper clue:
-    - `Unable to find a Capacitor plugin to handle permission requestCode`
+  - inside a true native Capacitor bridge host, Android can flip fully green:
+    - `before=granted`
+    - `request=granted`
+    - `after=granted`
+    - `start=ok`
+  - the caveat is that host-backed validation must explicitly complete the Android system permission dialog
+  - otherwise the run can stall and look like a bridge callback failure
 
 So the current state is:
 
@@ -593,17 +597,13 @@ Rechecked the Android permission seam inside a true native Capacitor bridge host
   - `requestPermissions({ permissions: ['microphone'] })`
   - `checkPermissions()`
   - `start()`
-- the observed normal result is still:
+- an unattended run first produced:
   - `{"status":"error","detail":"no probe result"}`
-- but Android log output shows the critical clue:
-  - `Unable to find a Capacitor plugin to handle permission requestCode`
-- the same run also shows:
-  - `checkPermissions()` returning `{"microphone":"prompt"}`
-  - `requestPermissions(...)` crossing the native bridge
-  - a follow-up `start()` still failing with `PERMISSION_DENIED`
-- this means the Android seam survives the stronger host shape:
-  - it is not just a plugin-JS fallback artifact
-  - it is now much more specifically narrowed to the Android permission callback / requestCode handling path inside the bridge route
+- but after explicitly completing the Android system permission dialog, the observed result became:
+  - `{"status":"ok","detail":"native=true; header=true; before=granted; request=granted; after=granted; start=ok"}`
+- this matters because it changes the interpretation:
+  - the true native bridge path itself is viable
+  - the remaining issue is that host-backed Android permission-transition testing must explicitly drive or complete the system permission UI
 
 ## Open questions
 
@@ -613,7 +613,7 @@ These are still not settled and should only be explored through new labs:
 - why Android `requestPermissions({ permissions: ['microphone'] })` still stays at `prompt` and `openSession()` still fails even when:
   - host media permission callbacks are wired
   - and the host runtime permission is already externally granted
-- why Android permission callback routing still loses the plugin requestCode in the true native bridge host path
+- how Android permission-transition labs should complete the system permission UI in a repeatable way
 - deeper permission-state transition testing beyond external `grant` / `revoke` and the current host-wired request path
 - deeper storage-backed scenarios such as quota and sandbox edge cases
 
