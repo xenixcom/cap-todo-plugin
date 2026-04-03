@@ -4,6 +4,10 @@ This directory records experimental work that is intentionally kept outside the 
 
 The purpose of these labs is to answer open technical questions with small, isolated probes before any strategy is pulled back into `captool`, `tests/contract`, or repo-wide documentation.
 
+For a grouped inventory that separates primary themes from clarification/support labs, see:
+
+- [INVENTORY.md](/Users/james/dev2/cap-todo-plugin/labs/INVENTORY.md)
+
 ## Current conclusion
 
 `lab1` through `lab51` now support a stronger definition of the testing model:
