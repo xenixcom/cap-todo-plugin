@@ -6,7 +6,7 @@ The purpose of these labs is to answer open technical questions with small, isol
 
 ## Current conclusion
 
-`lab1` through `lab20` now support a stronger definition of the testing model:
+`lab1` through `lab31` now support a stronger definition of the testing model:
 
 - formal test units can aim to be written once
 - platform execution adapters belong to the toolchain, not to each plugin repo
@@ -351,6 +351,18 @@ Retested timeout retry with explicit abort:
   - Android retry-after-timeout is viable when the timed-out request is explicitly aborted
   - the earlier Android failure was caused by the non-aborting timeout shape, not by retry itself
 
+### `lab31`
+
+Explored WebSocket idle-timeout reconnect behavior:
+
+- both hosts passed the normal idle-timeout reconnect flow
+- the server left the socket open after the first response, then later closed it because of idleness
+- both hosts reconnected and successfully completed the second request after idle expiry
+- both hosts also detected the fault variant:
+  - the client tried to reuse a stale socket after idle timeout
+  - the runner surfaced this as `socket not open (3)`
+- this pushes WebSocket coverage beyond reconnect-after-response-close into reconnect-after-idle-expiry
+
 ## Open questions
 
 These are still not settled and should only be explored through new labs:
@@ -359,7 +371,7 @@ These are still not settled and should only be explored through new labs:
 - native/adapter seam complexity versus fake-boundary pressure
 - why the stripped-down Android `lab12` seam shape fails even though broader Android HTTP-backed labs pass
 - deeper HTTP-backed scenarios such as timeout, malformed payloads, non-200 responses, retry, fallback, and offline handling
-- deeper WebSocket scenarios such as disconnect, idle timeout, protocol failure, and richer stream semantics
+- deeper WebSocket scenarios such as protocol failure and richer stream semantics
 - deeper storage-backed scenarios such as quota and sandbox edge cases
 - what Android reinstall/redeploy detail causes `localStorage` to appear missing while iOS still passes in `lab28`
 - real permission-state transition testing beyond simple external `grant` / `revoke`
