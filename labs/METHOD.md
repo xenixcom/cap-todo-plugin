@@ -1,6 +1,6 @@
 # Method
 
-This file captures the current best definition of the method after `lab1` through `lab60`.
+This file captures the current best definition of the method after `lab1` through `lab64`.
 
 It is intentionally short and normative.
 
@@ -65,6 +65,20 @@ It may own:
 - result extraction
 - semantic normalization
 
+It may also choose cleaner native primitives when they improve adapter hygiene, for example:
+
+- Android:
+  - `WebViewAssetLoader`
+  - `addWebMessageListener`
+- iOS:
+  - `WKURLSchemeHandler`
+  - `WKContentWorld`
+
+But recent labs add an important constraint:
+
+- these are upgrade candidates, not assumed drop-in replacements
+- each must still be validated against the execution shape it changes
+
 ## Orchestrator Layer
 
 The orchestrator should remain thin.
@@ -125,6 +139,11 @@ The toolchain should eventually provide:
 - per-platform execution adapters
 - thin orchestration
 - normalized reporting
+
+Current evidence suggests:
+
+- `WKContentWorld` is an especially strong iOS upgrade candidate because it gives real harness isolation without changing formal case semantics
+- the other official primitives remain promising, but should be adopted carefully rather than assumed to erase existing seams
 
 The toolchain should not require plugin repos to reinvent:
 

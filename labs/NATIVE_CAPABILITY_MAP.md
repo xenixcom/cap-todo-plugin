@@ -13,7 +13,7 @@ It is a companion to:
 
 ## Why This File Exists
 
-After `lab1` through `lab60`, one important retrospective question is:
+After `lab1` through `lab64`, one important retrospective question is:
 
 - which parts were already supported by native primitives
 - which parts were genuinely new engineering work
@@ -63,6 +63,7 @@ Native/platform primitives:
   - `WKScriptMessageHandler`
 - Android:
   - `addJavascriptInterface(...)`
+  - `WebViewCompat.addWebMessageListener(...)`
 
 What our labs proved:
 
@@ -77,12 +78,14 @@ Relevant labs:
 - `lab2`
 - `lab5`
 - `lab13`
+- `lab62`
 
 What is not "already solved" by the primitive itself:
 
 - formal result protocol
 - cross-platform sequence assertions
 - shared manifest runner behavior
+- unrelated origin/network seams
 
 ## 3. Web Assets As Formal Test Carriers
 
@@ -92,6 +95,8 @@ Native/platform primitives:
   - bundled app resources loaded into `WKWebView`
 - Android:
   - `file:///android_asset/...`
+  - `WebViewAssetLoader`
+  - `https://appassets.androidplatform.net/...`
 
 What our labs proved:
 
@@ -107,12 +112,15 @@ Relevant labs:
 - `lab4`
 - `lab6`
 - `lab16`
+- `lab61`
+- `lab63`
 
 What is not "already solved" by the primitive itself:
 
 - disciplined manifest design
 - bounded case-kind growth
 - keeping test units readable
+- preserving every old seam behavior when the loading primitive changes
 
 ## 4. HTTP / WebSocket / Storage Runtime
 
@@ -253,6 +261,28 @@ What is genuinely ours here:
   - thin orchestrator
 - the decision to demote private native tests to optional helpers
 - the decision to keep mock/fake complexity below the formal unit
+
+## 7.1 iOS Harness Isolation
+
+Native/platform primitives:
+
+- `WKContentWorld`
+- `WKUserScript(..., in: WKContentWorld)`
+
+What our labs proved:
+
+- this is a real and useful isolation boundary
+- page globals can remain clean while host helper code runs in a named world
+- helper pollution becomes observable when the helper is intentionally moved back into `.page`
+
+Relevant labs:
+
+- `lab64`
+
+What is not "already solved" by the primitive itself:
+
+- full runner architecture
+- naming/ownership conventions for helper worlds
 
 ## 8. Stripped Seam Diagnostics
 

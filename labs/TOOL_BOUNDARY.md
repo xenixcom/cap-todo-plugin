@@ -50,6 +50,7 @@ Contains:
 - platform shell commands
 - result extraction
 - semantic normalization
+- native primitive selection when multiple host/runtime routes exist
 
 Minimum practical adapter output should be:
 
@@ -65,12 +66,15 @@ Examples:
   - `pm grant`
   - `pm revoke`
   - emulator host setup
-  - WebView messaging primitives
+  - `WebViewAssetLoader`
+  - `addWebMessageListener`
 - iOS adapter may use:
   - `simctl privacy`
   - simulator install/launch
   - `WKUIDelegate`
   - `WKScriptMessageHandler`
+  - `WKURLSchemeHandler`
+  - `WKContentWorld`
 
 ## 3. Orchestrator
 
@@ -106,6 +110,20 @@ Reason:
   - adapter-specific quirks
 
 That would make the orchestrator too smart and too coupled.
+
+The same applies to primitive selection:
+
+- the top-level runner should not need to know whether an adapter used:
+  - `file://`
+  - `WebViewAssetLoader`
+  - `addJavascriptInterface`
+  - `addWebMessageListener`
+  - `loadFileURL`
+  - `WKURLSchemeHandler`
+  - page world
+  - named content worlds
+
+As long as the adapter returns the same normalized semantic result shape, those choices remain adapter concerns.
 
 If semantic normalization leaks upward, the toolchain starts rebuilding:
 

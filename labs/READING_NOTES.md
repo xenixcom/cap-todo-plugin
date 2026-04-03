@@ -1,6 +1,6 @@
 # Reading Notes
 
-This file records the most useful findings from reading official platform documentation after `lab1` through `lab60`.
+This file records the most useful findings from reading official platform documentation after `lab1` through `lab64`.
 
 Its purpose is simple:
 
@@ -73,6 +73,17 @@ Practical note:
 - they validated method viability
 - but they do not necessarily define the final Android adapter implementation
 
+What `lab62` added:
+
+- `addWebMessageListener` is a practical host-backed primitive, not just a documentation hint
+- it successfully carries results back to native in the upgraded Android host shape
+- but it does **not** automatically erase the earlier stripped HTTP seam
+
+So the refined takeaway is:
+
+- it remains a strong formal Android adapter candidate
+- but bridge modernization should not be confused with seam removal
+
 ## 3. Android Official Docs Also Point Toward Better Local Content Loading
 
 Another important finding:
@@ -96,6 +107,17 @@ This may reduce or simplify seams around:
 Important implication:
 
 - some of our stripped Android seam labs may be diagnosing a temporary probe shape rather than the best final adapter shape
+
+What `lab61` added:
+
+- `WebViewAssetLoader` is also not a magic seam eraser
+- the stripped `10.0.2.2 + localhost` failure still survives under:
+  - `https://appassets.androidplatform.net/...`
+
+So the refined takeaway is:
+
+- `WebViewAssetLoader` still looks like the more official Android local-content route
+- but not every seam was just a `file://` artifact
 
 ## 4. Android Permission Testing Already Has Strong Tooling Hooks
 
@@ -212,6 +234,18 @@ Why `WKURLSchemeHandler` matters:
 - possible alternative to some local HTTP stub shapes
 - more formal, native-controlled fixture/resource injection
 
+What `lab63` added:
+
+- `WKURLSchemeHandler` does successfully serve:
+  - page HTML
+  - bundled JS harness assets
+- but the earlier green local HTTP seam from `loadFileURL` does **not** carry over unchanged
+
+So the refined takeaway is:
+
+- `WKURLSchemeHandler` is promising
+- but it is not a drop-in replacement for every existing file-loaded iOS probe shape
+
 Why `WKContentWorld` matters:
 
 - cleaner isolation between:
@@ -220,6 +254,16 @@ Why `WKContentWorld` matters:
   - host helper JS
 
 This suggests the eventual iOS adapter may be able to become cleaner than the current experimental shape.
+
+What `lab64` added:
+
+- this is a real practical isolation primitive
+- the page world can stay clean while host helper code runs in a named world
+- intentionally moving the helper back into `.page` makes the contamination immediately visible
+
+So the refined takeaway is:
+
+- `WKContentWorld` is one of the strongest formal-adapter upgrade candidates we have found
 
 ## 8. There Is A Difference Between "Primitive Exists" And "Method Exists"
 
@@ -251,6 +295,7 @@ Reading already corrected several earlier misconceptions or fuzzy fears:
 - media permission failures can come from host configuration, not platform impossibility
 - Android has more modern messaging APIs than the first working lab route
 - local content loading should probably be revisited with more official shapes
+- some official-shape upgrades improve adapter cleanliness without automatically erasing every seam
 
 ## 10. What To Avoid Re-Digging Without New Reason
 
@@ -261,6 +306,7 @@ These should now be treated as known baseline facts unless a new contradiction a
 - iOS deny needs host callback participation when media capture is involved
 - Android `addJavascriptInterface` is viable for experiments but not necessarily ideal for final design
 - `localhost` is the special stripped Android seam target, not host LAN IP
+- `WKContentWorld` is already backed by a successful isolation probe, not just by docs
 
 ## 11. Most Promising "Read More" Directions
 
@@ -276,6 +322,15 @@ If more reading is useful later, these are the most promising next directions:
   - related WebKit host configuration around permissions and navigation restrictions
 
 These are the places most likely to improve the eventual formal adapter design.
+
+Current evidence after `lab61` through `lab64` sharpens that list:
+
+- strongest positive upgrade candidate:
+  - `WKContentWorld`
+- strong but not drop-in candidates:
+  - `WebViewAssetLoader`
+  - `addWebMessageListener`
+  - `WKURLSchemeHandler`
 
 ## 12. Hardware Reading Direction Is Different From WebView Reading
 
